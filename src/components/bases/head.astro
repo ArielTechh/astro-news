@@ -7,12 +7,15 @@ import "@fontsource-variable/source-serif-4";
 import { ClientRouter } from "astro:transitions";
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
+import StructuredData from "@/components/seo/StructuredData.astro";
 
 type Props = {
   meta: Meta | ArticleMeta;
+  article?: any; // Données complètes de l'article pour le schema
+  readingTime?: number;
 };
 
-const { meta } = Astro.props;
+const { meta, article, readingTime } = Astro.props;
 
 // Type guard to check if props is ArticleMeta
 const isArticleMeta = (props: Props["meta"]): props is ArticleMeta =>
@@ -92,6 +95,11 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
           </>
         ))}
       </>
+    ) : null
+  }
+  {
+    isArticleMeta(meta) && article ? (
+      <StructuredData article={article} readingTime={readingTime} />
     ) : null
   }
 

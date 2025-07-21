@@ -1,10 +1,10 @@
 import type { Link } from "../types";
 
 export const SITE = {
-  title: "TechHorizon",
+  title: "TechHorizons", // Corrigé le nom aussi
   description: "A news website built with Astro",
-  author: "TechHorizon",
-  url: "https://astro-news-six.vercel.app",
+  author: "TechHorizons",
+  url: "https://techhorizons.co.il", // ← CORRIGÉ ICI
   locale: "he-IL",
   dir: "RTL",
   charset: "UTF-8",
@@ -16,31 +16,19 @@ export const SITE = {
 export const OTHER_LINKS: Link[] = [
   {
     href: "/about",
-    text: "About us",
+    text: "אודות",
   },
   {
     href: "/contact",
-    text: "Contact",
+    text: "צור קשר",
   },
   {
-    href: "/privacy",
-    text: "Privacy",
-  },
-  {
-    href: "/terms",
-    text: "Terms",
+    href: "/Accessibility_Statement",
+    text: "הצרת נגישות",
   },
   {
     href: "/cookie-policy",
     text: "Cookie Policy",
-  },
-  {
-    href: "https://astro-news-six.vercel.app/rss.xml",
-    text: "RSS",
-  },
-  {
-    href: "https://astro-news-six.vercel.app/sitemap-index.xml",
-    text: "Sitemap",
   },
 ];
 

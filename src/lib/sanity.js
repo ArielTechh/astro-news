@@ -95,6 +95,7 @@ export async function getArticleBySlug(slug) {
       isSubHeadline,
       content,
       categories[]-> {
+        _id,
         title,
         slug,
         parent-> {
@@ -103,9 +104,11 @@ export async function getArticleBySlug(slug) {
         }
       },
       authors[]-> {
+        _id,
         name,
         slug,
-        bio
+        bio,
+        avatar
       }
     }
   `, { slug })
@@ -303,4 +306,32 @@ export async function getNavigation() {
     console.error('Erreur navigation:', error);
     return { title: 'Navigation', items: [] };
   }
+}
+
+
+// === PAGES STATIQUES ===
+
+// Récupérer toutes les pages
+export async function getAllPages() {
+  return await sanityClient.fetch(`
+    *[_type == "page" && isPublished == true && defined(slug.current)] {
+      _id,
+      title,
+      slug,
+      description
+    }
+  `)
+}
+
+// Récupérer une page par slug
+export async function getPageBySlug(slug) {
+  return await sanityClient.fetch(`
+    *[_type == "page" && slug.current == $slug && isPublished == true][0] {
+      _id,
+      title,
+      slug,
+      description,
+      content
+    }
+  `, { slug })
 }

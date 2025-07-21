@@ -1,0 +1,63 @@
+---
+// src/pages/accessibility-statement.astro - Version Sanity
+import BaseLayout from "@/layouts/base.astro";
+import ContentLayout from "@/layouts/content.astro";
+import { getPageBySlug } from "@/lib/sanity.js";
+
+// Récupérer la page spécifique
+const page = await getPageBySlug("accessibility-statement");
+
+if (!page) {
+  return Astro.redirect("/404");
+}
+
+// Mock meta pour BaseLayout si nécessaire
+const mockMeta = {
+  title: page.title,
+  description: page.description || "הצהרת נגישות Tech Horizons",
+  type: "page",
+};
+---
+
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{page.title} - Tech Horizons</title>
+    <meta name="description" content={page.description} />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="min-h-screen bg-gray-50">
+    <div class="container mx-auto px-6 py-8 max-w-4xl">
+      <div class="bg-white rounded-lg shadow-lg p-8" dir="rtl">
+        <h1 class="text-4xl font-bold mb-6">{page.title}</h1>
+
+        <!-- Rendu du contenu Sanity -->
+        {
+          page.content &&
+            page.content.map((block: any) => {
+              if (block._type === "block") {
+                const text =
+                  block.children?.map((child: any) => child.text).join("") ||
+                  "";
+
+                if (block.style === "h1") {
+                  return <h1 class="text-4xl font-bold mt-8 mb-4">{text}</h1>;
+                } else if (block.style === "h2") {
+                  return (
+                    <h2 class="text-3xl font-semibold mt-6 mb-3">{text}</h2>
+                  );
+                } else if (block.style === "h3") {
+                  return <h3 class="text-2xl font-medium mt-4 mb-2">{text}</h3>;
+                } else {
+                  return <p class="mb-4 leading-relaxed text-right">{text}</p>;
+                }
+              }
+              return null;
+            })
+        }
+      </div>
+    </div>
+  </body>
+</html>

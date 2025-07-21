@@ -1,0 +1,55 @@
+# ai.txt - Configuration pour les IA et LLMs
+# Site: TechHorizons - News Tech Israël
+
+# AUTORISATIONS GÉNÉRALES
+User-agent: *
+Allow: /articles/
+Allow: /categories/
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_astro/
+
+# INFORMATIONS SUR LE SITE
+Site-Name: TechHorizons
+Site-Description: Site de news technologique en hébreu pour le public israélien
+Site-URL: https://techhorizons.co.il
+Content-Language: he-IL
+Content-Type: technology news, reviews, guides
+
+# AUTORISATIONS SPÉCIFIQUES PAR IA
+User-agent: GPTBot
+Allow: /articles/
+Allow: /categories/
+Use-case: training, inference
+Attribution: required
+
+User-agent: Claude-Web  
+Allow: /articles/
+Allow: /categories/
+Use-case: training, inference
+Attribution: preferred
+
+User-agent: Google-Extended
+Allow: /articles/
+Allow: /categories/
+Use-case: training, inference
+
+User-agent: CCBot
+Allow: /articles/
+Allow: /categories/
+Use-case: training
+Crawl-delay: 5
+
+# RÈGLES D'ATTRIBUTION
+Attribution-Text: Source: TechHorizons (https://techhorizons.co.il)
+Attribution-URL: https://techhorizons.co.il
+Contact: info@techhorizons.co.il
+
+# CONTENU AUTORISÉ POUR ENTRAÎNEMENT
+Training: allowed
+Inference: allowed
+Commercial-use: allowed-with-attribution
+
+# MISE À JOUR
+Last-modified: 2025-07-21
+Version: 1.0

@@ -8,16 +8,18 @@ import { getMeta } from "@/lib/utils/getMetaSanity";
 
 type Props = {
   entry: Entry;
+  article?: any; // Pour passer les données complètes de l'article
+  readingTime?: number;
 };
 
-const { entry } = Astro.props;
+const { entry, article, readingTime } = Astro.props;
 
 const meta = await getMeta(entry);
 ---
 
 <!doctype html>
 <html lang="he" dir="rtl">
-  <Head meta={meta} />
+  <Head meta={meta} article={article} readingTime={readingTime} />
   <body class="flex flex-col">
     <Header />
     <main class="flex-1">

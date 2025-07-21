@@ -1,0 +1,149 @@
+---
+// src/components/seo/StructuredData.astro
+import { urlFor } from "@/lib/sanity";
+
+type Props = {
+  article: {
+    _id: string;
+    title: string;
+    description: string;
+    slug: { current: string };
+    cover?: any;
+    publishedTime: string;
+    categories?: Array<{
+      title: string;
+      slug: { current: string };
+      parent?: {
+        title: string;
+        slug: { current: string };
+      };
+    }>;
+    authors?: Array<{
+      name: string;
+      slug: { current: string };
+      bio?: string;
+      avatar?: any;
+    }>;
+  };
+  readingTime?: number;
+  articleType?: "NewsArticle" | "Article" | "TechArticle" | "HowTo";
+};
+
+const { article, readingTime, articleType } = Astro.props;
+
+// Logique de détection automatique du type d'article
+const detectArticleType = () => {
+  if (articleType) return articleType; // Si explicitement défini
+
+  // Vérifier si l'article appartient à la catégorie spéciale (guides/tutoriels)
+  const hasSpecialCategory = article.categories?.some(
+    (category) => category._id === "c4bbd56e-97cb-46d6-8192-9884289e8872",
+  );
+
+  if (hasSpecialCategory) {
+    // Détecter si c'est un tutoriel (HowTo) par des mots-clés dans le titre
+    const howToKeywords = ["איך", "כיצד", "מדריך", "שלבים", "הסבר", "לעשות"];
+    const isHowTo = howToKeywords.some((keyword) =>
+      article.title.toLowerCase().includes(keyword),
+    );
+
+    return isHowTo ? "HowTo" : "TechArticle";
+  }
+
+  return "NewsArticle"; // Par défaut
+};
+
+const detectedType = detectArticleType();
+
+const siteUrl = "https://techhorizons.co.il";
+const currentUrl = `${siteUrl}/articles/${article.slug.current}`;
+
+// Image de couverture
+const coverImageUrl = article.cover
+  ? urlFor(article.cover).width(1200).height(630).url()
+  : `${siteUrl}/techh_logo.webp`;
+
+// Auteurs
+const authors = article.authors || [];
+const authorsSchema = authors.map((author) => ({
+  "@type": "Person",
+  name: author.name,
+  url: `${siteUrl}/authors/${author.slug.current}`,
+  ...(author.avatar && {
+    image: urlFor(author.avatar).width(400).height(400).url(),
+  }),
+}));
+
+// Catégorie principale
+const mainCategory = article.categories?.[0];
+
+// Organisation
+const organization = {
+  "@type": "Organization",
+  name: "TechHorizons",
+  url: siteUrl,
+  logo: {
+    "@type": "ImageObject",
+    url: `${siteUrl}/techh_logo.webp`,
+    width: 300,
+    height: 300,
+  },
+};
+
+// Schema de base
+const baseSchema = {
+  "@context": "https://schema.org",
+  "@type": detectedType,
+  headline: article.title,
+  description: article.description || article.title,
+  url: currentUrl,
+  datePublished: article.publishedTime,
+  dateModified: article.publishedTime,
+  author: authorsSchema.length > 0 ? authorsSchema : organization,
+  publisher: organization,
+  image: {
+    "@type": "ImageObject",
+    url: coverImageUrl,
+    width: 1200,
+    height: 630,
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": currentUrl,
+  },
+};
+
+// Ajouts spécifiques selon le type d'article
+let schema = { ...baseSchema };
+
+if (detectedType === "NewsArticle") {
+  schema = {
+    ...schema,
+    articleSection: mainCategory?.title || "Technology",
+    inLanguage: "he-IL",
+    ...(readingTime && {
+      timeRequired: `PT${readingTime}M`,
+    }),
+  };
+}
+
+if (detectedType === "HowTo") {
+  schema["@type"] = "HowTo";
+  schema.name = article.title;
+  delete schema.headline;
+}
+
+if (detectedType === "TechArticle") {
+  schema = {
+    ...schema,
+    genre: "Technology",
+    keywords: mainCategory?.title || "Technology",
+    inLanguage: "he-IL",
+    ...(readingTime && {
+      timeRequired: `PT${readingTime}M`,
+    }),
+  };
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

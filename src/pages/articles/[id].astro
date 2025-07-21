@@ -4,6 +4,7 @@ import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "./_components/article-header.astro";
 import { getAllArticles, getArticleBySlug, urlFor } from "@/lib/sanity";
+import StructuredData from "@/components/seo/StructuredData.astro";
 
 export const getStaticPaths = async () => {
   const articles = await getAllArticles();
@@ -45,7 +46,7 @@ const readingTime = calculateReadingTime(fullArticle.content);
 // La nouvelle version de getMeta saura le gérer
 ---
 
-<BaseLayout entry={fullArticle}>
+<BaseLayout entry={fullArticle} article={fullArticle} readingTime={readingTime}>
   <ArticleHeader article={fullArticle} readingTime={readingTime} />
   <ContentLayout>
     <!-- Rendu du contenu Sanity avec Markdown parsing -->
