@@ -9,10 +9,21 @@ import keystatic from "@keystatic/astro";
 import react from "@astrojs/react";
 import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
+import sanity from '@sanity/astro';
+
 
 const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
-const integrations = [mdx(), sitemap(), pagefind()];
+const integrations = [
+  mdx(),
+  sitemap(),
+  pagefind(),
+  sanity({
+    projectId: "0lbfqiht",
+    dataset: "production",
+    useCdn: false,
+  }),
+];
 
 if (RUN_KEYSTATIC === "true") {
   integrations.push(react());
@@ -27,7 +38,7 @@ export default defineConfig({
     remarkPlugins: [readingTime, modifiedTime],
   },
   experimental: {
-    responsiveImages: true,
+    // responsiveImages: true,
   },
   image: {},
   integrations,
