@@ -10,20 +10,20 @@ type Props = {
     _id: string;
     title: string;
     description: string;
-    slug: { current: string };
+    slug?: { current?: string }; // RENDU OPTIONNEL
     cover?: any;
-    publishedTime: string;
+    publishedTime?: string; // RENDU OPTIONNEL
     categories?: Array<{
       title: string;
-      slug: { current: string };
+      slug?: { current?: string }; // RENDU OPTIONNEL
       parent?: {
         title: string;
-        slug: { current: string };
+        slug?: { current?: string }; // RENDU OPTIONNEL
       };
     }>;
     authors?: Array<{
       name: string;
-      slug: { current: string };
+      slug?: { current?: string }; // RENDU OPTIONNEL
     }>;
   };
   isLast: boolean;
@@ -31,12 +31,26 @@ type Props = {
 
 const { article, isLast } = Astro.props;
 
+// VÉRIFICATIONS SÉCURISÉES
+const articleSlug = article.slug?.current;
+const articleUrl = articleSlug ? `/articles/${articleSlug}` : "#";
+const hasValidSlug = Boolean(articleSlug);
+
 // URL de l'image
 const coverImageUrl = article.cover
   ? urlFor(article.cover).width(400).height(400).url()
   : null;
+
 const category = article.categories?.[0];
+const categorySlug = category?.slug?.current;
+const categoryUrl = categorySlug ? `/categories/${categorySlug}/1` : null;
+
 const author = article.authors?.[0];
+
+// Date sécurisée
+const publishedDate = article.publishedTime
+  ? getDateDistance(normalizeDate(article.publishedTime))
+  : "Date non disponible";
 ---
 
 <li
@@ -46,7 +60,7 @@ const author = article.authors?.[0];
   <div
     class="flex-shrink-0 aspect-square w-32 text-sm text-base-content/60 text-pretty capitalize hidden lg:flex pt-1"
   >
-    {getDateDistance(normalizeDate(article.publishedTime))}
+    {publishedDate}
   </div>
 
   <div class="flex flex-1 flex-col lg:flex-row gap-4 items-start">
@@ -76,10 +90,16 @@ const author = article.authors?.[0];
         <h3
           class="text-xl font-semibold lg:group-hover:underline underline-offset-2 leading-tight"
         >
-          <a href={`/articles/${article.slug.current}`}>
-            <span class="absolute inset-0 z-10 pointer-events-none"></span>
-            {article.title}
-          </a>
+          {
+            hasValidSlug ? (
+              <a href={articleUrl}>
+                <span class="absolute inset-0 z-10 pointer-events-none" />
+                {article.title}
+              </a>
+            ) : (
+              <span>{article.title}</span>
+            )
+          }
         </h3>
         <p class="text-base-content/80 line-clamp-2 text-pretty">
           {article.description}
@@ -89,14 +109,20 @@ const author = article.authors?.[0];
       <!-- Meta info -->
       <div class="flex items-center gap-2 text-xs text-base-content/70 mt-auto">
         {
-          category && (
+          category && categoryUrl && (
             <>
-              <a
-                href={`/categories/${category.slug.current}/1`}
-                class="text-primary hover:underline"
-              >
+              <a href={categoryUrl} class="text-primary hover:underline">
                 {category.title}
               </a>
+              <Divider />
+            </>
+          )
+        }
+
+        {
+          category && !categoryUrl && (
+            <>
+              <span class="text-primary">{category.title}</span>
               <Divider />
             </>
           )
@@ -113,7 +139,7 @@ const author = article.authors?.[0];
 
         <!-- Date for mobile -->
         <span class="lg:hidden">
-          {getDateDistance(normalizeDate(article.publishedTime))}
+          {publishedDate}
         </span>
       </div>
     </div>
