@@ -5,11 +5,10 @@ import { SITE } from "@/lib/config";
 import Pagination from "@/components/shared/pagination.astro";
 import { getEntry } from "astro:content";
 import WideCard from "@/components/cards/wideCard.astro";
-
-import { articlesHandler } from "@/lib/handlers/articles";
+import { getAllArticles } from "@/lib/sanity"; // ← CHANGEMENT ICI
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const articles = articlesHandler.allArticles();
+  const articles = await getAllArticles(); // ← CHANGEMENT ICI
   return paginate(articles, { pageSize: SITE.postsPerPage });
 }) satisfies GetStaticPaths;
 
