@@ -1,10 +1,16 @@
 ---
+// src/pages/_home/headlines.astro
 import MainHeadline from "@/components/cards/mainHeadline.astro";
 import SubHeadlineCard from "@/components/cards/subHeadlineCard.astro";
-import { articlesHandler } from "@/lib/handlers/articles";
+import { getMainHeadlines, getSubHeadlines } from "@/lib/sanity";
 
-const mainHeadlineArticle = articlesHandler.mainHeadline();
-const subHeadlinesArticles = articlesHandler.subHeadlines();
+// Récupérer les headlines depuis Sanity
+const mainHeadlines = await getMainHeadlines();
+const subHeadlines = await getSubHeadlines();
+
+// Prendre le premier main headline comme article principal
+const mainHeadlineArticle = mainHeadlines[0];
+const subHeadlinesArticles = subHeadlines;
 ---
 
 <section
@@ -12,7 +18,7 @@ const subHeadlinesArticles = articlesHandler.subHeadlines();
   data-pagefind-ignore="all"
 >
   <div class="col-span-1 md:col-span-6">
-    <MainHeadline article={mainHeadlineArticle} />
+    {mainHeadlineArticle && <MainHeadline article={mainHeadlineArticle} />}
   </div>
   <div class="col-span-1 md:col-span-4">
     {

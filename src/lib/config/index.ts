@@ -1,44 +1,17 @@
 import type { Link } from "../types";
 
 export const SITE = {
-  title: "Astro News",
+  title: "TechHorizon",
   description: "A news website built with Astro",
-  author: "Mohammad Rahmani",
+  author: "TechHorizon",
   url: "https://astro-news-six.vercel.app",
-  github: "https://github.com/Mrahmani71/astro-news",
-  locale: "en-US",
-  dir: "ltr",
+  locale: "he-IL",
+  dir: "RTL",
   charset: "UTF-8",
   basePath: "/",
-  postsPerPage: 4,
+  postsPerPage: 8,
 };
 
-export const NAVIGATION_LINKS: Link[] = [
-  {
-    href: "/categories/technology",
-    text: "Technology",
-  },
-  {
-    href: "/categories/programming",
-    text: "Programming",
-  },
-  {
-    href: "/categories/lifestyle",
-    text: "Lifestyle",
-  },
-  {
-    href: "/categories/productivity",
-    text: "Productivity",
-  },
-  {
-    href: "/categories/health",
-    text: "Health",
-  },
-  {
-    href: "/categories/finance",
-    text: "Finance",
-  },
-];
 
 export const OTHER_LINKS: Link[] = [
   {
@@ -75,25 +48,4 @@ export const OTHER_LINKS: Link[] = [
   },
 ];
 
-export const SOCIAL_LINKS: Link[] = [
-  {
-    href: "https://github.com",
-    text: "GitHub",
-    icon: "github",
-  },
-  {
-    href: "httpe://www.t.me",
-    text: "Telegram",
-    icon: "telegram",
-  },
-  {
-    href: "https://twitter.com",
-    text: "Twitter",
-    icon: "newTwitter",
-  },
-  {
-    href: "https://www.facebook.com",
-    text: "Facebook",
-    icon: "facebook",
-  },
-];
+

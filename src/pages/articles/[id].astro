@@ -1,30 +1,192 @@
 ---
-import { render } from "astro:content";
+// src/pages/articles/[id].astro
 import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "./_components/article-header.astro";
-
-import { articlesHandler } from "@/lib/handlers/articles";
+import { getAllArticles, getArticleBySlug, urlFor } from "@/lib/sanity";
 
 export const getStaticPaths = async () => {
-  const articles = articlesHandler.allArticles();
+  const articles = await getAllArticles();
 
   return articles.map((article) => ({
-    params: { id: article.id },
+    params: { id: article.slug.current },
     props: { article },
   }));
 };
+
 const { article } = Astro.props;
 
-const { Content, remarkPluginFrontmatter } = await render(article);
+// Récupérer l'article complet avec le contenu
+const fullArticle = await getArticleBySlug(article.slug.current);
+
+// Calcul approximatif du temps de lecture
+const calculateReadingTime = (content) => {
+  if (!content) return 1;
+
+  // Compter les mots dans le contenu
+  let wordCount = 0;
+  content.forEach((block) => {
+    if (block._type === "block" && block.children) {
+      block.children.forEach((child) => {
+        if (child.text) {
+          wordCount += child.text.split(" ").length;
+        }
+      });
+    }
+  });
+
+  const wordsPerMinute = 200;
+  return Math.ceil(wordCount / wordsPerMinute) || 1;
+};
+
+const readingTime = calculateReadingTime(fullArticle.content);
+
+// Passer directement l'article Sanity à BaseLayout
+// La nouvelle version de getMeta saura le gérer
 ---
 
-<BaseLayout entry={article}>
-  <ArticleHeader
-    article={article}
-    readingTime={remarkPluginFrontmatter.minutesRead}
-  />
+<BaseLayout entry={fullArticle}>
+  <ArticleHeader article={fullArticle} readingTime={readingTime} />
   <ContentLayout>
-    <Content />
+    <!-- Rendu du contenu Sanity avec Markdown parsing -->
+    <div class="prose prose-lg max-w-none">
+      {
+        fullArticle.content &&
+          fullArticle.content.map((block, index) => {
+            if (block._type === "block") {
+              const text =
+                block.children?.map((child) => child.text).join("") || "";
+
+              // Fonction pour parser le Markdown manuellement
+              const renderMarkdownText = (text) => {
+                const parts = [];
+                let remaining = text;
+                let key = 0;
+
+                while (remaining.length > 0) {
+                  // Chercher le gras **texte**
+                  const boldMatch = remaining.match(/\*\*(.*?)\*\*/);
+                  if (boldMatch) {
+                    const beforeBold = remaining.substring(0, boldMatch.index);
+                    if (beforeBold) {
+                      parts.push(<span key={key++}>{beforeBold}</span>);
+                    }
+                    parts.push(<strong key={key++}>{boldMatch[1]}</strong>);
+                    remaining = remaining.substring(
+                      boldMatch.index + boldMatch[0].length,
+                    );
+                    continue;
+                  }
+
+                  // Chercher les liens [texte](url)
+                  const linkMatch = remaining.match(/\[([^\]]+)\]\(([^)]+)\)/);
+                  if (linkMatch) {
+                    const beforeLink = remaining.substring(0, linkMatch.index);
+                    if (beforeLink) {
+                      parts.push(<span key={key++}>{beforeLink}</span>);
+                    }
+                    parts.push(
+                      <a
+                        key={key++}
+                        href={linkMatch[2]}
+                        target="_blank"
+                        rel="noopener"
+                        class="text-blue-600 hover:underline"
+                      >
+                        {linkMatch[1]}
+                      </a>,
+                    );
+                    remaining = remaining.substring(
+                      linkMatch.index + linkMatch[0].length,
+                    );
+                    continue;
+                  }
+
+                  // Aucun match trouvé, ajouter le reste
+                  parts.push(<span key={key++}>{remaining}</span>);
+                  break;
+                }
+
+                return parts;
+              };
+
+              // Séparer le texte en lignes
+              const lines = text
+                .split("\n")
+                .filter((line) => line.trim().length > 0);
+
+              return (
+                <div key={index}>
+                  {lines.map((line, lineIndex) => {
+                    const trimmedLine = line.trim();
+
+                    // Détecter les titres
+                    if (trimmedLine.startsWith("### ")) {
+                      const titleText = trimmedLine.replace(/^### /, "");
+                      return (
+                        <h3
+                          key={lineIndex}
+                          class="text-xl font-medium mt-6 mb-3"
+                        >
+                          {renderMarkdownText(titleText)}
+                        </h3>
+                      );
+                    }
+
+                    if (trimmedLine.startsWith("## ")) {
+                      const titleText = trimmedLine.replace(/^## /, "");
+                      return (
+                        <h2
+                          key={lineIndex}
+                          class="text-2xl font-semibold mt-8 mb-4"
+                        >
+                          {renderMarkdownText(titleText)}
+                        </h2>
+                      );
+                    }
+
+                    if (trimmedLine.startsWith("# ")) {
+                      const titleText = trimmedLine.replace(/^# /, "");
+                      return (
+                        <h1
+                          key={lineIndex}
+                          class="text-3xl font-bold mt-10 mb-5"
+                        >
+                          {renderMarkdownText(titleText)}
+                        </h1>
+                      );
+                    }
+
+                    // Ligne normale avec Markdown
+                    if (trimmedLine.length > 0) {
+                      return (
+                        <p key={lineIndex} class="mb-4 leading-relaxed">
+                          {renderMarkdownText(trimmedLine)}
+                        </p>
+                      );
+                    }
+
+                    return null;
+                  })}
+                </div>
+              );
+            }
+
+            if (block._type === "image") {
+              return (
+                <div key={index} class="my-8">
+                  <img
+                    src={urlFor(block).width(800).url()}
+                    alt="Image de l'article"
+                    class="w-full rounded-lg shadow-md"
+                  />
+                </div>
+              );
+            }
+
+            return null;
+          })
+      }
+    </div>
   </ContentLayout>
 </BaseLayout>

@@ -1,6 +1,9 @@
 ---
 import Menu from "@/assets/svgs/menu.astro";
-import { NAVIGATION_LINKS, OTHER_LINKS } from "@/lib/config";
+import { getNavigation } from "@/lib/sanity.js";
+
+const navigation = await getNavigation();
+const navItems = navigation.items;
 ---
 
 <div class="dropdown">
@@ -17,41 +20,45 @@ import { NAVIGATION_LINKS, OTHER_LINKS } from "@/lib/config";
     tabindex="0"
     class="menu dropdown-content z-50 bg-base-100 rounded-box w-56 shadow"
   >
+    <!-- Seulement Home + ton menu Sanity -->
     <li><a href="/" aria-label="Homepage">Home</a></li>
-    <li><a href="/articles" aria-label="Articles Page">Articles</a></li>
 
-    <li>
-      <details>
-        <summary>Categories</summary>
-        <ul>
-          {
-            NAVIGATION_LINKS.map(({ href, text, target }) => (
-              <li>
-                <a href={href} target={target ?? "_self"} aria-label={text}>
-                  {text}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </details>
-    </li>
-
-    <li>
-      <details>
-        <summary>Other Pages</summary>
-        <ul>
-          {
-            OTHER_LINKS.map(({ href, text, target }) => (
-              <li>
-                <a href={href} target={target ?? "_self"} aria-label={text}>
-                  {text}
-                </a>
-              </li>
-            ))
-          }
-        </ul>
-      </details>
-    </li>
+    {
+      navItems.map((item) =>
+        item.subItems ? (
+          <li>
+            <details>
+              <summary class={item.highlighted ? "font-bold" : ""}>
+                {item.text}
+              </summary>
+              <ul>
+                {item.subItems.map((subItem) => (
+                  <li>
+                    <a
+                      href={subItem.href}
+                      target={subItem.target}
+                      aria-label={subItem.text}
+                    >
+                      {subItem.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </li>
+        ) : (
+          <li>
+            <a
+              href={item.href}
+              target={item.target}
+              aria-label={item.text}
+              class={item.highlighted ? "font-bold" : ""}
+            >
+              {item.text}
+            </a>
+          </li>
+        ),
+      )
+    }
   </ul>
 </div>

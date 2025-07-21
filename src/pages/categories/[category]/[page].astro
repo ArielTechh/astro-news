@@ -1,32 +1,43 @@
 ---
+// src/pages/categories/[category]/[page].astro
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
-import { articlesHandler } from "@/lib/handlers/articles";
-import { categoriesHandler } from "@/lib/handlers/categories";
+import { getAllCategories, getArticlesByCategory } from "@/lib/sanity";
 import ListLayout from "@/layouts/list.astro";
-
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
 import { getEntry } from "astro:content";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  const allCategories = categoriesHandler.allCategories();
-  const allArticles = articlesHandler.allArticles();
+  // Récupérer toutes les catégories depuis Sanity
+  const allCategories = await getAllCategories();
 
-  return allCategories.flatMap((category) => {
-    const filteredArticles = allArticles.filter(
-      (article) => article.data.category.id === category.id
-    );
-    return paginate(filteredArticles, {
-      params: { category: category.id },
-      props: { postsLength: filteredArticles.length },
-      pageSize: SITE.postsPerPage,
-    });
-  });
+  const allPaths = [];
+
+  for (const category of allCategories) {
+    // Récupérer les articles de cette catégorie
+    const categoryArticles = await getArticlesByCategory(category.slug.current);
+
+    if (categoryArticles.length > 0) {
+      // Créer les pages paginées pour cette catégorie
+      const paginatedPaths = paginate(categoryArticles, {
+        params: { category: category.slug.current },
+        props: {
+          postsLength: categoryArticles.length,
+          categoryInfo: category,
+        },
+        pageSize: SITE.postsPerPage,
+      });
+
+      allPaths.push(...paginatedPaths);
+    }
+  }
+
+  return allPaths;
 }) satisfies GetStaticPaths;
 
 const { page } = Astro.props;
-const { postsLength } = Astro.props;
+const { postsLength, categoryInfo } = Astro.props;
 const params = Astro.params;
 const articles = page.data;
 const pathname = new URL(Astro.request.url).pathname.split("/");
@@ -37,30 +48,62 @@ const entry = await getEntry("views", "categories");
 if (!entry) {
   return Astro.redirect("/404");
 }
+
+// Titre de la catégorie en hébreu ou utiliser le titre Sanity
+const categoryTitle = categoryInfo?.title || params.category;
 ---
 
-<ListLayout header={params.category} entry={entry}>
-  <ul class="flex flex-col gap-2 flex-1">
+<ListLayout header={categoryTitle} entry={entry}>
+  <div dir="rtl">
+    <!-- Breadcrumb pour catégories hiérarchiques -->
     {
-      articles.map((article) => (
-        <WideCard
-          article={article}
-          isLast={articles.lastIndexOf(article) === articles.length - 1}
-        />
-      ))
+      categoryInfo?.parent && (
+        <nav class="mb-6 text-sm" dir="rtl">
+          <a href="/categories" class="text-blue-600 hover:underline">
+            כל הקטגוריות
+          </a>
+          <span class="mx-2">←</span>
+          <a
+            href={`/categories/${categoryInfo.parent.slug.current}/1`}
+            class="text-blue-600 hover:underline"
+          >
+            {categoryInfo.parent.title}
+          </a>
+          <span class="mx-2">←</span>
+          <span class="text-gray-600">{categoryInfo.title}</span>
+        </nav>
+      )
     }
-  </ul>
-  {
-    postsLength > SITE.postsPerPage ? (
-      <Pagination
-        length={page.lastPage}
-        currentUrl={page.url.current}
-        currentPage={page.currentPage}
-        baseUrl={`/${basePath}`}
-        prevUrl={page.url.prev}
-        nextUrl={page.url.next}
-        lastUrl={`/${basePath}/${page.lastPage}`}
-      />
-    ) : null
-  }
+
+    <!-- Compteur d'articles -->
+    <div class="mb-6 text-sm text-gray-600" dir="rtl">
+      <span>{postsLength} מאמרים בקטגוריה זו</span>
+    </div>
+
+    <!-- Liste des articles -->
+    <ul class="flex flex-col gap-2 flex-1">
+      {
+        articles.map((article, index) => (
+          <WideCard article={article} isLast={index === articles.length - 1} />
+        ))
+      }
+    </ul>
+
+    <!-- Pagination -->
+    {
+      postsLength > SITE.postsPerPage && (
+        <div dir="ltr" class="mt-8">
+          <Pagination
+            length={page.lastPage}
+            currentUrl={page.url.current}
+            currentPage={page.currentPage}
+            baseUrl={`/${basePath}`}
+            prevUrl={page.url.prev}
+            nextUrl={page.url.next}
+            lastUrl={`/${basePath}/${page.lastPage}`}
+          />
+        </div>
+      )
+    }
+  </div>
 </ListLayout>

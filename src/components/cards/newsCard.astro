@@ -1,55 +1,82 @@
 ---
+// src/components/cards/newsCard.astro
 import { Image } from "astro:assets";
 import Divider from "../bases/divider.astro";
-import type { CollectionEntry } from "astro:content";
-import { render } from "astro:content";
-import { categoriesHandler } from "@/lib/handlers/categories";
+import { urlFor } from "@/lib/sanity";
 
 type Props = {
-  article: CollectionEntry<"articles">;
+  article: {
+    _id: string;
+    title: string;
+    description: string;
+    slug: { current: string };
+    cover?: any;
+    publishedTime: string;
+    categories?: Array<{
+      title: string;
+      slug: { current: string };
+    }>;
+  };
   index: number;
 };
 
 const { article, index } = Astro.props;
 
-const { remarkPluginFrontmatter } = await render(article);
-const category = categoriesHandler.oneCategory(article.data.category.id);
+// Récupérer l'URL de l'image avec Sanity
+const coverImageUrl = article.cover
+  ? urlFor(article.cover).width(600).height(400).url()
+  : null;
+const category = article.categories?.[0];
+
+// Calcul simple du temps de lecture (approximatif)
+const wordsPerMinute = 200;
+const wordCount = article.description
+  ? article.description.split(" ").length
+  : 0;
+const minutesRead = Math.ceil(wordCount / wordsPerMinute) || 1;
 ---
 
 <article
   class="col-span-1 group max-w-sm mx-auto flex flex-col gap-2 h-full relative isolate"
 >
   <div class="aspect-video overflow-hidden rounded-md">
-    <Image
-      src={article.data.cover}
-      alt={article.data.covert_alt
-        ? article.data.covert_alt
-        : article.data.title}
-      loading={index < 3 ? "eager" : "lazy"}
-      layout="responsive"
-      class="w-full h-full object-cover"
-    />
+    {
+      coverImageUrl && (
+        <img
+          src={coverImageUrl}
+          alt={article.title}
+          loading={index < 3 ? "eager" : "lazy"}
+          class="w-full h-full object-cover"
+        />
+      )
+    }
   </div>
   <div class="flex flex-col flex-1">
     <h3
       class="text-xl font-serif font-semibold lg:group-hover:underline line-clamp-2"
     >
-      <a href={`/articles/${article.id}`}>
+      <a href={`/articles/${article.slug.current}`}>
         <span class="absolute inset-0 z-10 pointer-events-none"></span>
-        {article.data.title}
+        {article.title}
       </a>
     </h3>
     <p class="text-sm text-base-content/80 line-clamp-3 text-pretty lg:mb-auto">
-      {article.data.description}
+      {article.description}
     </p>
     <div class="flex items-center text-xs text-base-content/80 mt-2">
-      <span class="text-xs text-primary dark:text-secondary"
-        >{category.data.title}</span
-      >
-      <Divider />
-      <span class="text-xs text-base-content/80"
-        >{remarkPluginFrontmatter.minutesRead}</span
-      >
+      {
+        category && (
+          <>
+            <span class="text-xs text-primary dark:text-secondary">
+              {category.title}
+            </span>
+            <Divider />
+          </>
+        )
+      }
+      <span class="text-xs text-base-content/80">
+        {minutesRead} min read
+      </span>
     </div>
   </div>
 </article>

@@ -1,24 +1,49 @@
 ---
+// src/pages/articles/_components/article-header.astro
 import { Image, Picture } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
 import { formatDate, normalizeDate } from "@/lib/utils/date";
 import ResourcesAdd from "@/assets/svgs/resources-add.astro";
 import Time04 from "@/assets/svgs/time-04.astro";
 import Calendar04 from "@/assets/svgs/calendar-04.astro";
 import Divider from "@/components/bases/divider.astro";
-import { categoriesHandler } from "@/lib/handlers/categories";
-import { authorsHandler } from "@/lib/handlers/authors";
 import Share from "@/components/elements/share.astro";
+import { urlFor } from "@/lib/sanity";
 
 type Props = {
-  article: CollectionEntry<"articles">;
-  readingTime: string;
+  article: {
+    _id: string;
+    title: string;
+    description: string;
+    slug: { current: string };
+    cover?: any;
+    publishedTime: string;
+    categories?: Array<{
+      title: string;
+      slug: { current: string };
+      parent?: {
+        title: string;
+        slug: { current: string };
+      };
+    }>;
+    authors?: Array<{
+      name: string;
+      slug: { current: string };
+      bio?: string;
+      avatar?: any;
+    }>;
+  };
+  readingTime: number;
 };
 
 const { article, readingTime } = Astro.props;
 
-const category = categoriesHandler.oneCategory(article.data.category.id);
-const authors = authorsHandler.getAuthors(article.data.authors);
+const category = article.categories?.[0];
+const authors = article.authors || [];
+
+// URL de l'image de couverture
+const coverImageUrl = article.cover
+  ? urlFor(article.cover).width(1200).height(600).url()
+  : null;
 ---
 
 <section
@@ -27,87 +52,113 @@ const authors = authorsHandler.getAuthors(article.data.authors);
   <div
     class="container px-0 max-w-5xl lg:mt-4 overflow-hidden aspect-[20/9] rounded-md"
   >
-    <Picture
-      src={article.data.cover}
-      alt="article"
-      layout="full-width"
-      loading={"eager"}
-      formats={["avif", "webp"]}
-      class="w-full h-full object-center"
-    />
+    {
+      coverImageUrl && (
+        <img
+          src={coverImageUrl}
+          alt={article.title}
+          loading="eager"
+          class="w-full h-full object-cover object-center"
+        />
+      )
+    }
   </div>
-  <div class="container my-4 max-w-5xl lg:hidden flex items-center gap-2">
-    <ResourcesAdd size="16" />
-    <a href={`/categories/${category.data.path}`} class="a-01 font-semibold"
-      >{category.data.title}</a
-    >
-  </div>
+
+  {
+    category && (
+      <div class="container my-4 max-w-5xl lg:hidden flex items-center gap-2">
+        <ResourcesAdd size="16" />
+        <a
+          href={`/categories/${category.slug.current}`}
+          class="a-01 font-semibold"
+        >
+          {category.title}
+        </a>
+      </div>
+    )
+  }
+
   <div class="container max-w-5xl">
-    <h1 class="text-3xl lg:text-4xl font-bold text-left text-pretty">
-      {article.data.title}
+    <h1 class="text-3xl lg:text-4xl font-bold text-right text-pretty">
+      {article.title}
     </h1>
     <div class="flex flex-col gap-4 items-start mt-2 lg:mt-6 text-sm">
       <div class="text-base-content/70 flex items-center gap-2">
-        <span class="hidden lg:flex items-center gap-1">
-          <ResourcesAdd size="15" />
-          <a href={`/categories/${category.id}`} class="a-01 font-semibold"
-            >{category.data.title}</a
-          >
-        </span>
-        <Divider responsive />
+        {
+          category && (
+            <>
+              <span class="hidden lg:flex items-center gap-1">
+                <ResourcesAdd size="15" />
+                <a
+                  href={`/categories/${category.slug.current}`}
+                  class="a-01 font-semibold"
+                >
+                  {category.title}
+                </a>
+              </span>
+              <Divider responsive />
+            </>
+          )
+        }
+
         <span class="flex items-center gap-1">
           <Calendar04 size="15" />
           <time
             class="hidden lg:block"
-            datetime={normalizeDate(article.data.publishedTime)}
-            >{
-              formatDate(normalizeDate(article.data.publishedTime), "long")
-            }</time
+            datetime={normalizeDate(article.publishedTime)}
           >
+            {formatDate(normalizeDate(article.publishedTime), "long")}
+          </time>
           <time
             class="block lg:hidden"
-            datetime={normalizeDate(article.data.publishedTime)}
-            >{
-              formatDate(normalizeDate(article.data.publishedTime), "short")
-            }</time
+            datetime={normalizeDate(article.publishedTime)}
           >
+            {formatDate(normalizeDate(article.publishedTime), "short")}
+          </time>
         </span>
         <Divider />
         <span class="flex items-center gap-1">
           <Time04 size="15" />
-          <span>{readingTime}</span>
+          <span>{readingTime} min read</span>
         </span>
       </div>
-      <!-- TODO: fix name, href, avatar of author -->
+
       <div class="w-full flex flex-wrap gap-2 items-center justify-between">
         <div class="flex flex-wrap gap-4">
           {
             authors.map((author) => (
               <div class="flex items-center gap-2">
                 <a
-                  href={`/authors/${author.id}`}
+                  href={`/authors/${author.slug.current}`}
                   class="flex items-center gap-2"
                 >
                   <div class="avatar">
                     <div class="w-8 rounded-full">
-                      <Image
-                        src={author.data.avatar}
-                        alt="author"
-                        width={48}
-                        height={48}
-                        loading={"eager"}
-                        format="webp"
-                        quality={80}
-                      />
+                      {author.avatar ? (
+                        <img
+                          src={urlFor(author.avatar).width(48).height(48).url()}
+                          alt={author.name}
+                          width="48"
+                          height="48"
+                          loading="eager"
+                          class="rounded-full"
+                        />
+                      ) : (
+                        <div class="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                          <span class="text-xs font-bold">
+                            {author.name.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <span class="font-bold capitalize">{author.data.name}</span>
+                  <span class="font-bold capitalize">{author.name}</span>
                 </a>
               </div>
             ))
           }
         </div>
-        <Share text={article.data.title} />
+        <Share text={article.title} />
       </div>
     </div>
   </div>

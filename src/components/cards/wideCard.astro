@@ -1,68 +1,124 @@
 ---
+// src/components/cards/wideCard.astro
 import { Image } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
 import { getDateDistance, normalizeDate } from "@/lib/utils/date";
 import Divider from "../bases/divider.astro";
+import { urlFor } from "@/lib/sanity";
 
 type Props = {
-  article: CollectionEntry<"articles">;
+  article: {
+    _id: string;
+    title: string;
+    description: string;
+    slug: { current: string };
+    cover?: any;
+    publishedTime: string;
+    categories?: Array<{
+      title: string;
+      slug: { current: string };
+      parent?: {
+        title: string;
+        slug: { current: string };
+      };
+    }>;
+    authors?: Array<{
+      name: string;
+      slug: { current: string };
+    }>;
+  };
   isLast: boolean;
 };
 
 const { article, isLast } = Astro.props;
+
+// URL de l'image
+const coverImageUrl = article.cover
+  ? urlFor(article.cover).width(400).height(400).url()
+  : null;
+const category = article.categories?.[0];
+const author = article.authors?.[0];
 ---
 
 <li
   class="group w-full max-w-md mx-auto lg:max-w-full relative isolate flex flex-col lg:flex-row gap-4"
+  dir="rtl"
 >
   <div
     class="flex-shrink-0 aspect-square w-32 text-sm text-base-content/60 text-pretty capitalize hidden lg:flex pt-1"
   >
-    {getDateDistance(normalizeDate(article.data.publishedTime))}
+    {getDateDistance(normalizeDate(article.publishedTime))}
   </div>
-  <div
-    class:list={[
-      "flex-1 flex flex-col gap-4 lg:flex-row-reverse pb-2 lg:pb-4",
-      isLast ? "border-b-0" : "border-b border-base-300",
-    ]}
-  >
-    <div class="w-full lg:w-60 aspect-video">
-      <Image
-        src={article.data.cover}
-        alt={article.data.covert_alt
-          ? article.data.covert_alt
-          : article.data.title}
-        layout="responsive"
-        loading={"eager"}
-        class="aspect-video rounded w-full h-full"
-      />
+
+  <div class="flex flex-1 flex-col lg:flex-row gap-4 items-start">
+    <!-- Image -->
+    <div
+      class="aspect-square overflow-hidden rounded-md w-full lg:w-32 flex-shrink-0"
+    >
+      {
+        coverImageUrl ? (
+          <img
+            src={coverImageUrl}
+            alt={article.title}
+            loading="lazy"
+            class="w-full h-full object-cover"
+          />
+        ) : (
+          <div class="w-full h-full bg-gray-200 flex items-center justify-center">
+            <span class="text-gray-400">אין תמונה</span>
+          </div>
+        )
+      }
     </div>
-    <div class="flex-1 space-y-2">
-      <h3 class="text-xl font-semibold lg:group-hover:underline">
-        <a href={`/articles/${article.id}`}>
-          <span class="absolute inset-0 z-10"></span>
-          {article.data.title}
-        </a>
-      </h3>
-      <p class="text-base-content/80 max-w-xl text-pretty">
-        {article.data.description}
-      </p>
-    </div>
-    <div class="text-sm lg:hidden flex item-center text-base-content/70 pt-2">
-      <time
-        class="flex items-center gap-1"
-        datetime={normalizeDate(article.data.publishedTime)}
-      >
-        <span>
-          {getDateDistance(normalizeDate(article.data.publishedTime))}
+
+    <!-- Content -->
+    <div class="flex flex-col flex-1 gap-2">
+      <div class="flex flex-col gap-1">
+        <h3
+          class="text-xl font-semibold lg:group-hover:underline underline-offset-2 leading-tight"
+        >
+          <a href={`/articles/${article.slug.current}`}>
+            <span class="absolute inset-0 z-10 pointer-events-none"></span>
+            {article.title}
+          </a>
+        </h3>
+        <p class="text-base-content/80 line-clamp-2 text-pretty">
+          {article.description}
+        </p>
+      </div>
+
+      <!-- Meta info -->
+      <div class="flex items-center gap-2 text-xs text-base-content/70 mt-auto">
+        {
+          category && (
+            <>
+              <a
+                href={`/categories/${category.slug.current}/1`}
+                class="text-primary hover:underline"
+              >
+                {category.title}
+              </a>
+              <Divider />
+            </>
+          )
+        }
+
+        {
+          author && (
+            <>
+              <span>{author.name}</span>
+              <Divider />
+            </>
+          )
+        }
+
+        <!-- Date for mobile -->
+        <span class="lg:hidden">
+          {getDateDistance(normalizeDate(article.publishedTime))}
         </span>
-      </time>
-      <Divider />
-      <small class="flex items-center gap-1">
-        <span class="capitalize text-sm">
-          {article.data.category.id}
-        </span>
-      </small>
+      </div>
     </div>
   </div>
+
+  <!-- Divider -->
+  {!isLast && <hr class="border-base-300 mt-4" />}
 </li>

@@ -1,0 +1,309 @@
+// src/lib/sanity.js
+import { createClient } from '@sanity/client'
+import imageUrlBuilder from '@sanity/image-url'
+
+export const sanityClient = createClient({
+  projectId: '0lbfqiht', // Votre vrai project ID
+  dataset: 'production',
+  useCdn: true, // true pour la production
+  apiVersion: '2023-05-03'
+})
+
+// Helper pour les URLs d'images
+const builder = imageUrlBuilder(sanityClient)
+export const urlFor = (source) => builder.image(source)
+
+// === FONCTIONS POUR RÉCUPÉRER LES DONNÉES ===
+
+// Headlines principaux
+export async function getMainHeadlines() {
+  return await sanityClient.fetch(`
+    *[_type == "article" && isMainHeadline == true && !isDraft] | order(publishedTime desc)[0...5] {
+      _id,
+      title,
+      description,
+      slug,
+      cover,
+      publishedTime,
+      categories[]-> {
+        title,
+        slug
+      }
+    }
+  `)
+}
+
+// Sub-headlines
+export async function getSubHeadlines() {
+  return await sanityClient.fetch(`
+    *[_type == "article" && isSubHeadline == true && !isDraft] | order(publishedTime desc)[0...10] {
+      _id,
+      title,
+      description,
+      slug,
+      cover,
+      publishedTime,
+      categories[]-> {
+        title,
+        slug
+      }
+    }
+  `)
+}
+
+// Tous les articles
+export async function getAllArticles() {
+  return await sanityClient.fetch(`
+    *[_type == "article" && !isDraft] | order(publishedTime desc) {
+      _id,
+      title,
+      description,
+      slug,
+      cover,
+      publishedTime,
+      isDraft,
+      isMainHeadline,
+      isSubHeadline,
+      categories[]-> {
+        title,
+        slug,
+        parent-> {
+          title,
+          slug
+        }
+      },
+      authors[]-> {
+        name,
+        slug
+      }
+    }
+  `)
+}
+
+// Article par slug
+export async function getArticleBySlug(slug) {
+  return await sanityClient.fetch(`
+    *[_type == "article" && slug.current == $slug][0] {
+      _id,
+      title,
+      description,
+      slug,
+      cover,
+      publishedTime,
+      isDraft,
+      isMainHeadline,
+      isSubHeadline,
+      content,
+      categories[]-> {
+        title,
+        slug,
+        parent-> {
+          title,
+          slug
+        }
+      },
+      authors[]-> {
+        name,
+        slug,
+        bio
+      }
+    }
+  `, { slug })
+}
+
+// Articles par catégorie (inclut les sous-catégories)
+export async function getArticlesByCategory(categorySlug) {
+  return await sanityClient.fetch(`
+    *[_type == "article" && 
+      (categories[]->slug.current match $slug || 
+       categories[]->parent->slug.current match $slug) && 
+      !isDraft] | order(publishedTime desc) {
+      _id,
+      title,
+      description,
+      slug,
+      cover,
+      publishedTime,
+      categories[]-> {
+        title,
+        slug,
+        parent-> {
+          title,
+          slug
+        }
+      },
+      authors[]-> {
+        name,
+        slug
+      }
+    }
+  `, { slug: categorySlug })
+}
+
+// Articles récents
+export async function getRecentArticles(limit = 10) {
+  return await sanityClient.fetch(`
+    *[_type == "article" && !isDraft] | order(publishedTime desc)[0...${limit}] {
+      _id,
+      title,
+      description,
+      slug,
+      cover,
+      publishedTime,
+      categories[]-> {
+        title,
+        slug
+      }
+    }
+  `)
+}
+
+// Toutes les catégories
+export async function getAllCategories() {
+  return await sanityClient.fetch(`
+    *[_type == "category"] | order(order asc) {
+      _id,
+      title,
+      slug,
+      description,
+      parent-> {
+        title,
+        slug
+      }
+    }
+  `)
+}
+
+// Tous les auteurs
+export async function getAllAuthors() {
+  return await sanityClient.fetch(`
+    *[_type == "author"] | order(name asc) {
+      _id,
+      name,
+      slug,
+      bio,
+      avatar
+    }
+  `)
+}
+
+
+
+
+// === NAVIGATION ===
+
+// Fonction pour récupérer la navigation
+export async function getNavigation() {
+  try {
+    const navigation = await sanityClient.fetch(`
+      *[_type == "navigation"][0]{
+        title,
+        items[]{
+          label,
+          linkType,
+          internalLink,
+          categoryLink->{
+            title,
+            slug
+          },
+          articleLink->{
+            title,
+            slug
+          },
+          externalLink,
+          openInNewTab,
+          hasSubItems,
+          subItems[]{
+            label,
+            linkType,
+            internalLink,
+            categoryLink->{
+              title,
+              slug
+            },
+            articleLink->{
+              title,
+              slug
+            },
+            externalLink,
+            openInNewTab,
+            description
+          },
+          description,
+          icon,
+          highlighted
+        }
+      }
+    `);
+
+    if (!navigation) {
+      return { title: 'Navigation', items: [] };
+    }
+
+    // Transformer les données
+    const transformedItems = navigation.items?.map(item => {
+      let href = '#';
+
+      switch (item.linkType) {
+        case 'internal':
+          href = item.internalLink || '/';
+          break;
+        case 'category':
+          href = item.categoryLink?.slug ? `/categories/${item.categoryLink.slug.current}` : '#';
+          break;
+        case 'article':
+          href = item.articleLink?.slug ? `/articles/${item.articleLink.slug.current}` : '#';
+          break;
+        case 'external':
+          href = item.externalLink || '#';
+          break;
+      }
+
+      const transformedItem = {
+        text: item.label,
+        href: href,
+        target: item.openInNewTab ? '_blank' : '_self',
+        highlighted: item.highlighted || false
+      };
+
+      if (item.hasSubItems && item.subItems) {
+        transformedItem.subItems = item.subItems.map(subItem => {
+          let subHref = '#';
+
+          switch (subItem.linkType) {
+            case 'internal':
+              subHref = subItem.internalLink || '/';
+              break;
+            case 'category':
+              subHref = subItem.categoryLink?.slug ? `/categories/${subItem.categoryLink.slug.current}` : '#';
+              break;
+            case 'article':
+              subHref = subItem.articleLink?.slug ? `/articles/${subItem.articleLink.slug.current}` : '#';
+              break;
+            case 'external':
+              subHref = subItem.externalLink || '#';
+              break;
+          }
+
+          return {
+            text: subItem.label,
+            href: subHref,
+            target: subItem.openInNewTab ? '_blank' : '_self',
+            description: subItem.description
+          };
+        });
+      }
+
+      return transformedItem;
+    }) || [];
+
+    return {
+      title: navigation.title,
+      items: transformedItems
+    };
+
+  } catch (error) {
+    console.error('Erreur navigation:', error);
+    return { title: 'Navigation', items: [] };
+  }
+}
