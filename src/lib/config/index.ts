@@ -19,10 +19,6 @@ export const OTHER_LINKS: Link[] = [
     text: "About us",
   },
   {
-    href: "/authors",
-    text: "Authors",
-  },
-  {
     href: "/contact",
     text: "Contact",
   },
