@@ -15,10 +15,10 @@ export const urlFor = (source) => builder.image(source)
 
 // === FONCTIONS POUR RÉCUPÉRER LES DONNÉES ===
 
-// Headlines principaux
+// Headlines principaux - SÉCURISÉ
 export async function getMainHeadlines() {
   return await sanityClient.fetch(`
-    *[_type == "article" && isMainHeadline == true && !isDraft] | order(publishedTime desc)[0...5] {
+    *[_type == "article" && isMainHeadline == true && !isDraft && defined(publishedTime)] | order(publishedTime desc)[0...5] {
       _id,
       title,
       description,
@@ -33,10 +33,10 @@ export async function getMainHeadlines() {
   `)
 }
 
-// Sub-headlines
+// Sub-headlines - SÉCURISÉ
 export async function getSubHeadlines() {
   return await sanityClient.fetch(`
-    *[_type == "article" && isSubHeadline == true && !isDraft] | order(publishedTime desc)[0...10] {
+    *[_type == "article" && isSubHeadline == true && !isDraft && defined(publishedTime)] | order(publishedTime desc)[0...10] {
       _id,
       title,
       description,
@@ -51,10 +51,10 @@ export async function getSubHeadlines() {
   `)
 }
 
-// Tous les articles
+// Tous les articles - SÉCURISÉ
 export async function getAllArticles() {
   return await sanityClient.fetch(`
-    *[_type == "article" && !isDraft] | order(publishedTime desc) {
+    *[_type == "article" && !isDraft && defined(publishedTime)] | order(publishedTime desc) {
       _id,
       title,
       description,
@@ -80,10 +80,10 @@ export async function getAllArticles() {
   `)
 }
 
-// Article par slug
+// Article par slug - SÉCURISÉ
 export async function getArticleBySlug(slug) {
   return await sanityClient.fetch(`
-    *[_type == "article" && slug.current == $slug][0] {
+    *[_type == "article" && slug.current == $slug && defined(publishedTime)][0] {
       _id,
       title,
       description,
@@ -111,13 +111,13 @@ export async function getArticleBySlug(slug) {
   `, { slug })
 }
 
-// Articles par catégorie (inclut les sous-catégories)
+// Articles par catégorie - SÉCURISÉ
 export async function getArticlesByCategory(categorySlug) {
   return await sanityClient.fetch(`
     *[_type == "article" && 
       (categories[]->slug.current match $slug || 
        categories[]->parent->slug.current match $slug) && 
-      !isDraft] | order(publishedTime desc) {
+      !isDraft && defined(publishedTime)] | order(publishedTime desc) {
       _id,
       title,
       description,
@@ -140,10 +140,10 @@ export async function getArticlesByCategory(categorySlug) {
   `, { slug: categorySlug })
 }
 
-// Articles récents
+// Articles récents - SÉCURISÉ
 export async function getRecentArticles(limit = 10) {
   return await sanityClient.fetch(`
-    *[_type == "article" && !isDraft] | order(publishedTime desc)[0...${limit}] {
+    *[_type == "article" && !isDraft && defined(publishedTime)] | order(publishedTime desc)[0...${limit}] {
       _id,
       title,
       description,
@@ -186,9 +186,6 @@ export async function getAllAuthors() {
     }
   `)
 }
-
-
-
 
 // === NAVIGATION ===
 
