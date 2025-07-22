@@ -8,6 +8,7 @@ import { getMeta } from "@/lib/utils/getMetaSanity";
 import TarteAuCitron from "../components/TarteAuCitron.astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
 import Analytics from "@vercel/analytics/astro";
+import AccessibilityWidget from "../components/AccessibilityWidget.astro";
 
 type Props = {
   entry: Entry;
@@ -43,5 +44,6 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
     <TarteAuCitron />
     <SpeedInsights />
     <Analytics />
+    <AccessibilityWidget />
   </body>
 </html>
