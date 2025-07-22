@@ -136,5 +136,17 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     data-key="fNbl74Cz0zyN4NtzpNBdKg"
     async></script>
 
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E5DDECQEBZ"
+  ></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag("js", new Date());
+    gtag("config", "G-E5DDECQEBZ");
+  </script>
+
   <ClientRouter />
 </head>
