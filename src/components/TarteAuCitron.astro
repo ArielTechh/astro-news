@@ -1,5 +1,5 @@
 ---
-// TarteAuCitron.astro - SOLUTION DÉFINITIVE
+// TarteAuCitron.astro - SOLUTION DÉFINITIVE CORRIGÉE
 ---
 
 <script is:inline>
@@ -26,16 +26,72 @@
         showAlertSmall: true,
       });
 
-      // ✅ SOLUTION : Configuration GTM exacte selon documentation officielle
+      // ✅ Configuration GTM
       tarteaucitron.user.googletagmanagerId = "GTM-PQC6K9BZ";
       (tarteaucitron.job = tarteaucitron.job || []).push("googletagmanager");
 
-      // Configuration Google AdSense Auto
+      // ✅ Configuration Google AdSense
       tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
       (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
 
-      console.log("TarteAuCitron initialized with GTM and AdSense");
+      // ✅ SOLUTION : Forcer la mise à jour du consentement après acceptation
+      tarteaucitron.userInterface.respondAll = function (status) {
+        var s = tarteaucitron.services;
+        for (var i = 0; i < s.length; i += 1) {
+          if (s[i].name !== undefined) {
+            if (status === true) {
+              tarteaucitron.userInterface.respond(s[i], true);
+            } else if (status === false) {
+              tarteaucitron.userInterface.respond(s[i], false);
+            }
+          }
+        }
+
+        // 🔥 FORCER LA MISE À JOUR GTM
+        if (status === true && window.dataLayer) {
+          window.dataLayer.push({
+            event: "consent_update",
+            "gtm.consent": "granted",
+            analytics_storage: "granted",
+            ad_storage: "granted",
+            functionality_storage: "granted",
+            personalization_storage: "granted",
+            security_storage: "granted",
+          });
+          console.log("✅ Consent updated in GTM DataLayer");
+        }
+      };
+
+      // ✅ Initialiser le consentement par défaut pour GTM
+      if (window.gtag) {
+        gtag("consent", "default", {
+          analytics_storage: "denied",
+          ad_storage: "denied",
+          functionality_storage: "denied",
+          personalization_storage: "denied",
+          security_storage: "granted",
+        });
+      }
+
+      console.log("TarteAuCitron initialized with GTM consent fix");
     };
     document.head.appendChild(script);
   })();
+</script>
+
+<!-- ✅ GTM Container (se charge après consentement) -->
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+
+  // Consentement par défaut refusé
+  gtag("consent", "default", {
+    analytics_storage: "denied",
+    ad_storage: "denied",
+    functionality_storage: "denied",
+    personalization_storage: "denied",
+    security_storage: "granted",
+  });
 </script>
