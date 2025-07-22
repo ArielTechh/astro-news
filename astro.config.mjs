@@ -15,42 +15,42 @@ const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
 const integrations = [
   mdx(),
-  // SITEMAP OPTIMISÉ POUR SITE DE NEWS TECH ISRAÉLIEN - NOUVELLE STRUCTURE
+  // SITEMAP OPTIMISÉ - EXCLURE /articles/ ET GARDER SEULEMENT LA RACINE
   sitemap({
     // Configuration de base
     changefreq: 'daily',
     priority: 0.7,
     lastmod: new Date(),
 
-    // Exclure les pages inutiles pour le SEO
+    // FILTER : Exclure les anciennes URLs /articles/ du sitemap
     filter: (page) => {
       const url = page.toLowerCase();
-      return !url.includes('/authors/') &&        // Pas d'auteurs pour le moment
-        !url.includes('/admin/') &&          // Pas d'admin
-        !url.includes('/preview/') &&        // Pas de preview
-        !url.includes('/api/') &&            // Pas d'API
-        !url.includes('/_astro/') &&         // Pas d'assets Astro
-        !url.includes('/404') &&             // Pas de 404
-        !url.includes('/500');               // Pas d'erreurs
+      return !url.includes('/authors/') &&
+        !url.includes('/admin/') &&
+        !url.includes('/preview/') &&
+        !url.includes('/api/') &&
+        !url.includes('/_astro/') &&
+        !url.includes('/404') &&
+        !url.includes('/500') &&
+        !url.includes('/articles/');  // ← EXCLURE /articles/ du sitemap
     },
 
-    // Personnalisation par type de page - ADAPTÉE POUR ARTICLES À LA RACINE
+    // Personnalisation par type de page - SEULEMENT STRUCTURE RACINE
     serialize(item) {
       const url = item.url;
       const path = new URL(url).pathname;
 
-      // PAGE D'ACCUEIL - Priorité maximale, mise à jour très fréquente
+      // PAGE D'ACCUEIL - Priorité maximale
       if (url === 'https://techhorizons.co.il/' || url.endsWith('/')) {
         return {
           url: url,
-          changefreq: 'hourly',    // News site = màj fréquentes
-          priority: 1.0,           // Priorité max
+          changefreq: 'hourly',
+          priority: 1.0,
           lastmod: new Date().toISOString()
         };
       }
 
-      // ARTICLES À LA RACINE - Très haute priorité (nouvelle structure /nom-article)
-      // Détection par exclusion des pages spéciales
+      // ARTICLES À LA RACINE - Très haute priorité (nouvelle structure uniquement)
       if (path !== '/' &&
         !path.includes('/categories/') &&
         !path.includes('/about') &&
@@ -58,14 +58,14 @@ const integrations = [
         !path.includes('/accessibility') &&
         !path.includes('/cookie') &&
         !path.includes('/privacy') &&
-        !path.match(/\/\d+$/) &&  // Pas de pagination
+        !path.match(/\/\d+$/) &&
         !path.includes('/search') &&
         !path.includes('/rss') &&
         !path.includes('/sitemap')) {
         return {
           url: url,
-          changefreq: 'daily',     // Articles peuvent être mis à jour
-          priority: 0.9,           // Très haute priorité pour les articles
+          changefreq: 'daily',
+          priority: 0.9,
           lastmod: new Date().toISOString()
         };
       }
@@ -74,45 +74,45 @@ const integrations = [
       if (url.includes('/categories/') && !url.match(/\/\d+$/)) {
         return {
           url: url,
-          changefreq: 'daily',     // Nouvelles news dans catégories
-          priority: 0.8,           // Haute priorité
+          changefreq: 'daily',
+          priority: 0.8,
           lastmod: new Date().toISOString()
         };
       }
 
-      // PAGINATION DES CATÉGORIES (/categories/gaming/2)
+      // PAGINATION DES CATÉGORIES
       if (url.includes('/categories/') && url.match(/\/\d+$/)) {
         return {
           url: url,
           changefreq: 'daily',
-          priority: 0.6,           // Priorité moyenne-haute
+          priority: 0.6,
           lastmod: new Date().toISOString()
         };
       }
 
-      // PAGINATION ARTICLES À LA RACINE (/2, /3, etc.)
+      // PAGINATION ARTICLES À LA RACINE
       if (url.match(/\/\d+$/) && !url.includes('/categories/')) {
         return {
           url: url,
           changefreq: 'daily',
-          priority: 0.5,           // Priorité moyenne
+          priority: 0.5,
           lastmod: new Date().toISOString()
         };
       }
 
-      // PAGES STATIQUES (about, contact, etc.)
+      // PAGES STATIQUES
       if (url.includes('/about') || url.includes('/contact') ||
         url.includes('/accessibility') || url.includes('/cookie') ||
         url.includes('/privacy') || url.includes('/search')) {
         return {
           url: url,
-          changefreq: 'monthly',   // Changent rarement
-          priority: 0.3,           // Priorité basse
+          changefreq: 'monthly',
+          priority: 0.3,
           lastmod: new Date().toISOString()
         };
       }
 
-      // AUTRES PAGES - Configuration par défaut
+      // AUTRES PAGES
       return {
         url: url,
         changefreq: 'weekly',
