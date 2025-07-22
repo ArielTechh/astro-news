@@ -1,5 +1,5 @@
 ---
-// TarteAuCitron.astro - SOLUTION DÉFINITIVE CORRIGÉE
+// TarteAuCitron.astro - SOLUTION DÉFINITIVE CORRIGÉE V2
 ---
 
 <script is:inline>
@@ -34,64 +34,92 @@
       tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
       (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
 
-      // ✅ SOLUTION : Forcer la mise à jour du consentement après acceptation
-      tarteaucitron.userInterface.respondAll = function (status) {
-        var s = tarteaucitron.services;
-        for (var i = 0; i < s.length; i += 1) {
-          if (s[i].name !== undefined) {
-            if (status === true) {
-              tarteaucitron.userInterface.respond(s[i], true);
-            } else if (status === false) {
-              tarteaucitron.userInterface.respond(s[i], false);
-            }
+      // ✅ SOLUTION : Écouter les événements TarteAuCitron
+      document.addEventListener("tac.root_available", function () {
+        console.log("TarteAuCitron root available");
+
+        // Écouter les changements de consentement
+        document.addEventListener("tac.accept_all", function () {
+          console.log("Accept all triggered");
+          setTimeout(function () {
+            updateGTMConsent(true);
+          }, 100);
+        });
+
+        document.addEventListener("tac.deny_all", function () {
+          console.log("Deny all triggered");
+          setTimeout(function () {
+            updateGTMConsent(false);
+          }, 100);
+        });
+
+        document.addEventListener("tac.service_loaded", function (e) {
+          console.log("Service loaded:", e.detail);
+          if (e.detail.service === "googletagmanager") {
+            updateGTMConsent(true);
+          }
+        });
+      });
+
+      // ✅ Fonction pour mettre à jour GTM
+      function updateGTMConsent(granted) {
+        console.log("Updating GTM consent:", granted);
+
+        if (window.gtag) {
+          if (granted) {
+            gtag("consent", "update", {
+              analytics_storage: "granted",
+              ad_storage: "granted",
+              functionality_storage: "granted",
+              personalization_storage: "granted",
+              ad_user_data: "granted",
+              ad_personalization: "granted",
+            });
+          } else {
+            gtag("consent", "update", {
+              analytics_storage: "denied",
+              ad_storage: "denied",
+              functionality_storage: "denied",
+              personalization_storage: "denied",
+              ad_user_data: "denied",
+              ad_personalization: "denied",
+            });
           }
         }
 
-        // 🔥 FORCER LA MISE À JOUR GTM
-        if (status === true && window.dataLayer) {
+        // Push dans dataLayer aussi
+        if (window.dataLayer) {
           window.dataLayer.push({
             event: "consent_update",
-            "gtm.consent": "granted",
-            analytics_storage: "granted",
-            ad_storage: "granted",
-            functionality_storage: "granted",
-            personalization_storage: "granted",
-            security_storage: "granted",
+            consent_status: granted ? "granted" : "denied",
           });
-          console.log("✅ Consent updated in GTM DataLayer");
         }
-      };
-
-      // ✅ Initialiser le consentement par défaut pour GTM
-      if (window.gtag) {
-        gtag("consent", "default", {
-          analytics_storage: "denied",
-          ad_storage: "denied",
-          functionality_storage: "denied",
-          personalization_storage: "denied",
-          security_storage: "granted",
-        });
       }
 
-      console.log("TarteAuCitron initialized with GTM consent fix");
+      console.log("TarteAuCitron initialized with GTM consent listeners");
     };
     document.head.appendChild(script);
   })();
 </script>
 
-<!-- ✅ GTM Container (se charge après consentement) -->
+<!-- ✅ GTM Initialization -->
 <script is:inline>
   window.dataLayer = window.dataLayer || [];
   function gtag() {
     dataLayer.push(arguments);
   }
 
-  // Consentement par défaut refusé
+  // Consentement par défaut refusé (attendu par GTM)
   gtag("consent", "default", {
     analytics_storage: "denied",
     ad_storage: "denied",
     functionality_storage: "denied",
     personalization_storage: "denied",
+    ad_user_data: "denied",
+    ad_personalization: "denied",
     security_storage: "granted",
   });
+
+  // Debug
+  console.log("GTM consent default set to denied");
 </script>
