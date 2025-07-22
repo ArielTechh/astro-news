@@ -9,6 +9,8 @@ import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 import StructuredData from "@/components/seo/StructuredData.astro";
 
+const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
+
 type Props = {
   meta: Meta | ArticleMeta;
   article?: any; // Données complètes de l'article pour le schema
@@ -30,9 +32,14 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <meta charset={SITE.charset} />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
+  <!-- Google Search Console Verification -->
+  <meta
+    name="google-site-verification"
+    content="7ukDuvGs_biEzOc41_DLPmQotzKzJkrVvpQCKqLoGBM"
+  />
 
   <!-- Favicons -->
-  <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/png" href="/tech_favicon.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />

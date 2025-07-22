@@ -5,6 +5,7 @@ import Header from "@/components/shared/header.astro";
 import Footer from "@/components/shared/footer.astro";
 import type { Entry } from "@/lib/types";
 import { getMeta } from "@/lib/utils/getMetaSanity";
+import TarteAuCitron from "../components/TarteAuCitron.astro";
 
 type Props = {
   entry: Entry;
@@ -15,16 +16,28 @@ type Props = {
 const { entry, article, readingTime } = Astro.props;
 
 const meta = await getMeta(entry);
+
+const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
 ---
 
 <!doctype html>
 <html lang="he" dir="rtl">
   <Head meta={meta} article={article} readingTime={readingTime} />
   <body class="flex flex-col">
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+      >
+      </iframe>
+    </noscript>
     <Header />
     <main class="flex-1">
       <slot />
     </main>
     <Footer />
+    <TarteAuCitron />
   </body>
 </html>

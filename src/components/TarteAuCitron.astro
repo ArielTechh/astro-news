@@ -1,0 +1,41 @@
+---
+// TarteAuCitron.astro - Version avec GTM et AdSense
+---
+
+<script is:inline>
+  var tarteaucitronForceLanguage = "en";
+
+  (function () {
+    var script = document.createElement("script");
+    script.src =
+      "https://cdn.jsdelivr.net/npm/tarteaucitronjs@1/tarteaucitron.js";
+    script.onload = function () {
+      tarteaucitron.init({
+        privacyUrl: "/privacy-policy",
+        bodyPosition: "bottom",
+        hashtag: "#tarteaucitron",
+        cookieName: "tarteaucitron",
+        orientation: "middle",
+        showDetailsOnClick: true,
+        serviceDefaultState: "wait",
+        DenyAllCta: true,
+        AcceptAllCta: true,
+        highPrivacy: true,
+        showIcon: true,
+        iconPosition: "BottomRight",
+        showAlertSmall: true,
+      });
+
+      // Configuration Google Tag Manager
+      tarteaucitron.user.gtagUa = "GTM-PQC6K9BZ";
+      (tarteaucitron.job = tarteaucitron.job || []).push("gtag");
+
+      // Configuration Google AdSense Auto avec ton ID
+      tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
+      (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
+
+      console.log("TarteAuCitron initialized with GTM and AdSense");
+    };
+    document.head.appendChild(script);
+  })();
+</script>
