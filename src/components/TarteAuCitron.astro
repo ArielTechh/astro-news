@@ -1,5 +1,5 @@
 ---
-// TarteAuCitron.astro
+// TarteAuCitron.astro - SOLUTION DÉFINITIVE
 ---
 
 <script is:inline>
@@ -26,9 +26,9 @@
         showAlertSmall: true,
       });
 
-      // CORRECTION : Pour GTM, utilisez gtagManager au lieu de gtagUa
-      tarteaucitron.user.gtagManager = "GTM-PQC6K9BZ";
-      (tarteaucitron.job = tarteaucitron.job || []).push("gtagmanager");
+      // ✅ SOLUTION : Configuration GTM exacte selon documentation officielle
+      tarteaucitron.user.googletagmanagerId = "GTM-PQC6K9BZ";
+      (tarteaucitron.job = tarteaucitron.job || []).push("googletagmanager");
 
       // Configuration Google AdSense Auto
       tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
