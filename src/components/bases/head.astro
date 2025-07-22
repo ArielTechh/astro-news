@@ -9,7 +9,8 @@ import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 import StructuredData from "@/components/seo/StructuredData.astro";
 
-const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
+// Changez cette ligne pour utiliser PUBLIC_GTM_ID
+const GTM_ID = import.meta.env.PUBLIC_GTM_ID || "GTM-PQC6K9BZ";
 
 type Props = {
   meta: Meta | ArticleMeta;
@@ -32,10 +33,30 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <meta charset={SITE.charset} />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
+
+  <!-- Google Tag Manager -->
+  <script>
+    (function (w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+      var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s),
+        dl = l != "dataLayer" ? "&l=" + l : "";
+      j.async = true;
+      j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, "script", "dataLayer", `${GTM_ID}`);
+  </script>
+  <!-- End Google Tag Manager -->
+
   <!-- Google Search Console Verification -->
   <meta
     name="google-site-verification"
     content="7ukDuvGs_biEzOc41_DLPmQotzKzJkrVvpQCKqLoGBM"
+  />
+  <meta
+    name="impact-site-verification"
+    value="4698de27-0b12-448d-84b6-e8b7f98bc746"
   />
 
   <!-- Favicons -->
@@ -109,6 +130,11 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       <StructuredData article={article} readingTime={readingTime} />
     ) : null
   }
+
+  <script
+    src="https://analytics.ahrefs.com/analytics.js"
+    data-key="fNbl74Cz0zyN4NtzpNBdKg"
+    async></script>
 
   <ClientRouter />
 </head>

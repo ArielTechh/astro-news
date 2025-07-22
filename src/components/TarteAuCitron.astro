@@ -1,5 +1,5 @@
 ---
-// TarteAuCitron.astro - Version avec GTM et AdSense
+// TarteAuCitron.astro
 ---
 
 <script is:inline>
@@ -26,11 +26,11 @@
         showAlertSmall: true,
       });
 
-      // Configuration Google Tag Manager
-      tarteaucitron.user.gtagUa = "GTM-PQC6K9BZ";
-      (tarteaucitron.job = tarteaucitron.job || []).push("gtag");
+      // CORRECTION : Pour GTM, utilisez gtagManager au lieu de gtagUa
+      tarteaucitron.user.gtagManager = "GTM-PQC6K9BZ";
+      (tarteaucitron.job = tarteaucitron.job || []).push("gtagmanager");
 
-      // Configuration Google AdSense Auto avec ton ID
+      // Configuration Google AdSense Auto
       tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
       (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
 
