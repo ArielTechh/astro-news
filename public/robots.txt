@@ -1,4 +1,6 @@
 # robots.txt pour TechHorizons - Site de News Tech Israël
+# CORRIGÉ pour la nouvelle structure: articles à la racine (techhorizons.co.il/nom-article)
+
 User-agent: *
 Allow: /
 
@@ -10,8 +12,8 @@ Disallow: /preview/
 Disallow: /404
 Disallow: /500
 
-# Allow critical content for news sites
-Allow: /articles/
+# Allow critical content for news sites - STRUCTURE CORRIGÉE
+# Plus de /articles/ car articles maintenant à la racine
 Allow: /categories/
 
 # Main sitemap location  
@@ -22,72 +24,61 @@ Crawl-delay: 1
 
 # Configuration spéciale pour Google News Bot
 User-agent: Googlebot-News
-Allow: /articles/
-Allow: /categories/
+# Plus de /articles/ - les articles sont à la racine maintenant
+Allow: /
 Crawl-delay: 0
 
 # Configuration pour les moteurs de recherche principaux
 User-agent: Googlebot
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 0.5
 
 User-agent: Bingbot
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 1
 
 # ===== ACCÈS AUTORISÉ POUR LES IA/LLMs =====
 
 # OpenAI (GPT, ChatGPT) - AUTORISÉ
 User-agent: GPTBot
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 2
 
 User-agent: ChatGPT-User  
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 2
 
 # Anthropic (Claude) - AUTORISÉ
 User-agent: Claude-Web
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 2
 
 # Google Bard/Gemini - AUTORISÉ
 User-agent: Google-Extended
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 1
 
 User-agent: Bard
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 1
 
 # Meta AI - AUTORISÉ
 User-agent: Meta-ExternalAgent
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 2
 
 # Autres crawlers IA - AUTORISÉS
 User-agent: CCBot
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 3
 
 User-agent: AI2Bot
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 2
 
 # CommonCrawl (utilisé pour l'entraînement) - AUTORISÉ
 User-agent: CommonCrawl
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Crawl-delay: 5
 
 # ===== BÉNÉFICES POUR TON SITE =====

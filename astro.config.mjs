@@ -15,7 +15,7 @@ const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
 const integrations = [
   mdx(),
-  // SITEMAP OPTIMISÉ POUR SITE DE NEWS TECH ISRAÉLIEN
+  // SITEMAP OPTIMISÉ POUR SITE DE NEWS TECH ISRAÉLIEN - NOUVELLE STRUCTURE
   sitemap({
     // Configuration de base
     changefreq: 'daily',
@@ -34,9 +34,10 @@ const integrations = [
         !url.includes('/500');               // Pas d'erreurs
     },
 
-    // Personnalisation par type de page
+    // Personnalisation par type de page - ADAPTÉE POUR ARTICLES À LA RACINE
     serialize(item) {
       const url = item.url;
+      const path = new URL(url).pathname;
 
       // PAGE D'ACCUEIL - Priorité maximale, mise à jour très fréquente
       if (url === 'https://techhorizons.co.il/' || url.endsWith('/')) {
@@ -48,12 +49,23 @@ const integrations = [
         };
       }
 
-      // ARTICLES - Très haute priorité (contenu principal)
-      if (url.includes('/articles/') && !url.match(/\/\d+$/)) {
+      // ARTICLES À LA RACINE - Très haute priorité (nouvelle structure /nom-article)
+      // Détection par exclusion des pages spéciales
+      if (path !== '/' &&
+        !path.includes('/categories/') &&
+        !path.includes('/about') &&
+        !path.includes('/contact') &&
+        !path.includes('/accessibility') &&
+        !path.includes('/cookie') &&
+        !path.includes('/privacy') &&
+        !path.match(/\/\d+$/) &&  // Pas de pagination
+        !path.includes('/search') &&
+        !path.includes('/rss') &&
+        !path.includes('/sitemap')) {
         return {
           url: url,
           changefreq: 'daily',     // Articles peuvent être mis à jour
-          priority: 0.9,           // Très haute priorité
+          priority: 0.9,           // Très haute priorité pour les articles
           lastmod: new Date().toISOString()
         };
       }
@@ -78,7 +90,7 @@ const integrations = [
         };
       }
 
-      // PAGINATION ARTICLES (/articles/2, /3, etc.)
+      // PAGINATION ARTICLES À LA RACINE (/2, /3, etc.)
       if (url.match(/\/\d+$/) && !url.includes('/categories/')) {
         return {
           url: url,
@@ -90,7 +102,8 @@ const integrations = [
 
       // PAGES STATIQUES (about, contact, etc.)
       if (url.includes('/about') || url.includes('/contact') ||
-        url.includes('/accessibility') || url.includes('/cookie')) {
+        url.includes('/accessibility') || url.includes('/cookie') ||
+        url.includes('/privacy') || url.includes('/search')) {
         return {
           url: url,
           changefreq: 'monthly',   // Changent rarement
