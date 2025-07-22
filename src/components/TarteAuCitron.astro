@@ -1,26 +1,24 @@
----
-// TarteAuCitron.astro - SOLUTION RADICALE QUI FONCTIONNE
----
-
-<!-- ✅ ÉTAPE 1: GTM en premier AVANT TarteAuCitron -->
-<script is:inline>
+<!-- Google Consent Mode v2 - SIMPLE ET EFFICACE -->
+<script>
+  // Consentement par défaut (AVANT GTM)
   window.dataLayer = window.dataLayer || [];
   function gtag() {
     dataLayer.push(arguments);
   }
 
-  // Consentement par défaut refusé
   gtag("consent", "default", {
     analytics_storage: "denied",
     ad_storage: "denied",
-    functionality_storage: "denied",
-    personalization_storage: "denied",
     ad_user_data: "denied",
     ad_personalization: "denied",
+    functionality_storage: "denied",
+    personalization_storage: "denied",
     security_storage: "granted",
   });
+</script>
 
-  // ✅ CHARGER GTM MANUELLEMENT (pas via TarteAuCitron)
+<!-- GTM -->
+<script>
   (function (w, d, s, l, i) {
     w[l] = w[l] || [];
     w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
@@ -31,130 +29,264 @@
     j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
     f.parentNode.insertBefore(j, f);
   })(window, document, "script", "dataLayer", "GTM-PQC6K9BZ");
-
-  console.log("GTM loaded manually with consent denied by default");
 </script>
 
-<script is:inline>
-  var tarteaucitronForceLanguage = "en";
+<!-- Cookie Consent Banner -->
+<div
+  id="consent-banner"
+  style="position:fixed;bottom:0;left:0;right:0;background:#1a1a1a;color:white;padding:20px;z-index:9999;display:none;"
+>
+  <div
+    style="max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:20px;flex-wrap:wrap;"
+  >
+    <div style="flex:1;min-width:300px;">
+      <p style="margin:0;font-size:14px;">
+        🍪 We use cookies to improve your experience and deliver personalized
+        content.
+        <a href="/privacy-policy" style="color:#4CAF50;">Privacy Policy</a>
+      </p>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <button
+        onclick="acceptConsent()"
+        style="background:#4CAF50;color:white;border:none;padding:12px 24px;border-radius:5px;cursor:pointer;"
+      >
+        ✓ Accept All
+      </button>
+      <button
+        onclick="denyConsent()"
+        style="background:#f44336;color:white;border:none;padding:12px 24px;border-radius:5px;cursor:pointer;"
+      >
+        ✗ Reject All
+      </button>
+      <button
+        onclick="showSettings()"
+        style="background:#2196F3;color:white;border:none;padding:12px 24px;border-radius:5px;cursor:pointer;"
+      >
+        ⚙️ Customize
+      </button>
+    </div>
+  </div>
+</div>
 
-  (function () {
-    var script = document.createElement("script");
-    script.src =
-      "https://cdn.jsdelivr.net/npm/tarteaucitronjs@1/tarteaucitron.js";
-    script.onload = function () {
-      tarteaucitron.init({
-        privacyUrl: "/privacy-policy",
-        bodyPosition: "bottom",
-        hashtag: "#tarteaucitron",
-        cookieName: "tarteaucitron",
-        orientation: "middle",
-        showDetailsOnClick: true,
-        serviceDefaultState: "wait",
-        DenyAllCta: true,
-        AcceptAllCta: true,
-        highPrivacy: true,
-        showIcon: true,
-        iconPosition: "BottomRight",
-        showAlertSmall: true,
+<!-- Settings Modal -->
+<div
+  id="consent-settings"
+  style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:10000;display:none;align-items:center;justify-content:center;"
+>
+  <div
+    style="background:white;padding:30px;border-radius:10px;max-width:500px;width:90%;"
+  >
+    <h3 style="margin-top:0;">Cookie Settings</h3>
+
+    <div style="margin:20px 0;">
+      <label
+        style="display:flex;align-items:center;margin:15px 0;cursor:pointer;"
+      >
+        <input type="checkbox" id="analytics" style="margin-right:10px;" />
+        <div>
+          <strong>Analytics Cookies</strong><br />
+          <small style="color:#666;"
+            >Help us understand how visitors interact with our website</small
+          >
+        </div>
+      </label>
+
+      <label
+        style="display:flex;align-items:center;margin:15px 0;cursor:pointer;"
+      >
+        <input type="checkbox" id="advertising" style="margin-right:10px;" />
+        <div>
+          <strong>Advertising Cookies</strong><br />
+          <small style="color:#666;"
+            >Used to deliver personalized advertisements</small
+          >
+        </div>
+      </label>
+
+      <label
+        style="display:flex;align-items:center;margin:15px 0;cursor:pointer;"
+      >
+        <input type="checkbox" id="functional" style="margin-right:10px;" />
+        <div>
+          <strong>Functional Cookies</strong><br />
+          <small style="color:#666;"
+            >Enable enhanced functionality and personalization</small
+          >
+        </div>
+      </label>
+
+      <div
+        style="background:#f5f5f5;padding:10px;border-radius:5px;margin:15px 0;"
+      >
+        <label style="display:flex;align-items:center;cursor:not-allowed;">
+          <input type="checkbox" checked disabled style="margin-right:10px;" />
+          <div>
+            <strong>Essential Cookies</strong><br />
+            <small style="color:#666;"
+              >Required for basic website functionality (always active)</small
+            >
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div
+      style="display:flex;gap:10px;justify-content:flex-end;margin-top:30px;"
+    >
+      <button
+        onclick="closeSettings()"
+        style="background:#666;color:white;border:none;padding:12px 20px;border-radius:5px;cursor:pointer;"
+      >
+        Cancel
+      </button>
+      <button
+        onclick="saveSettings()"
+        style="background:#4CAF50;color:white;border:none;padding:12px 20px;border-radius:5px;cursor:pointer;"
+      >
+        Save Preferences
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Consent Management Functions
+  function showBanner() {
+    if (!localStorage.getItem("consent-choice")) {
+      document.getElementById("consent-banner").style.display = "block";
+    }
+  }
+
+  function acceptConsent() {
+    // Grant all consent types
+    gtag("consent", "update", {
+      analytics_storage: "granted",
+      ad_storage: "granted",
+      ad_user_data: "granted",
+      ad_personalization: "granted",
+      functionality_storage: "granted",
+      personalization_storage: "granted",
+    });
+
+    localStorage.setItem("consent-choice", "accepted");
+    document.getElementById("consent-banner").style.display = "none";
+
+    // Trigger GTM events
+    dataLayer.push({ event: "consent_granted", consent_method: "accept_all" });
+    console.log("✅ All cookies accepted");
+  }
+
+  function denyConsent() {
+    // Keep consent denied (already set as default)
+    localStorage.setItem("consent-choice", "denied");
+    document.getElementById("consent-banner").style.display = "none";
+
+    dataLayer.push({ event: "consent_denied", consent_method: "reject_all" });
+    console.log("❌ All cookies rejected");
+  }
+
+  function showSettings() {
+    document.getElementById("consent-settings").style.display = "flex";
+  }
+
+  function closeSettings() {
+    document.getElementById("consent-settings").style.display = "none";
+  }
+
+  function saveSettings() {
+    const analytics = document.getElementById("analytics").checked;
+    const advertising = document.getElementById("advertising").checked;
+    const functional = document.getElementById("functional").checked;
+
+    // Update consent based on user choices
+    gtag("consent", "update", {
+      analytics_storage: analytics ? "granted" : "denied",
+      ad_storage: advertising ? "granted" : "denied",
+      ad_user_data: advertising ? "granted" : "denied",
+      ad_personalization: advertising ? "granted" : "denied",
+      functionality_storage: functional ? "granted" : "denied",
+      personalization_storage: functional ? "granted" : "denied",
+    });
+
+    // Save user preferences
+    localStorage.setItem("consent-choice", "custom");
+    localStorage.setItem(
+      "consent-settings",
+      JSON.stringify({
+        analytics,
+        advertising,
+        functional,
+      }),
+    );
+
+    closeSettings();
+    document.getElementById("consent-banner").style.display = "none";
+
+    dataLayer.push({
+      event: "consent_updated",
+      consent_method: "custom",
+      analytics_consent: analytics,
+      advertising_consent: advertising,
+      functional_consent: functional,
+    });
+
+    console.log("⚙️ Custom cookie preferences saved:", {
+      analytics,
+      advertising,
+      functional,
+    });
+  }
+
+  // Restore previous consent choices on page load
+  function restoreConsent() {
+    const choice = localStorage.getItem("consent-choice");
+
+    if (choice === "accepted") {
+      // User previously accepted all
+      gtag("consent", "update", {
+        analytics_storage: "granted",
+        ad_storage: "granted",
+        ad_user_data: "granted",
+        ad_personalization: "granted",
+        functionality_storage: "granted",
+        personalization_storage: "granted",
       });
-
-      // ✅ NE PAS utiliser le service GTM de TarteAuCitron
-      // On le gère manuellement maintenant
-
-      // Configuration Google AdSense seulement
-      tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
-      (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
-
-      // ✅ FORCER la mise à jour du consentement GTM
-      function forceGTMConsent(granted) {
-        console.log("🔥 FORCING GTM consent update:", granted);
-
-        if (granted) {
-          gtag("consent", "update", {
-            analytics_storage: "granted",
-            ad_storage: "granted",
-            functionality_storage: "granted",
-            personalization_storage: "granted",
-            ad_user_data: "granted",
-            ad_personalization: "granted",
-          });
-
-          // Double sécurité avec dataLayer
-          window.dataLayer.push({
-            event: "consent_granted",
-            analytics_storage: "granted",
-            ad_storage: "granted",
-            functionality_storage: "granted",
-            personalization_storage: "granted",
-            ad_user_data: "granted",
-            ad_personalization: "granted",
-          });
-        } else {
-          gtag("consent", "update", {
-            analytics_storage: "denied",
-            ad_storage: "denied",
-            functionality_storage: "denied",
-            personalization_storage: "denied",
-            ad_user_data: "denied",
-            ad_personalization: "denied",
-          });
-
-          window.dataLayer.push({
-            event: "consent_denied",
-            analytics_storage: "denied",
-            ad_storage: "denied",
-          });
-        }
-      }
-
-      // ✅ Intercepter les clics sur les boutons
-      document.addEventListener("click", function (e) {
-        // Bouton Accept All
-        if (
-          e.target.id === "tarteaucitronAllAllowed" ||
-          e.target.classList.contains("tarteaucitronAllow")
-        ) {
-          console.log("🟢 Accept All clicked");
-          setTimeout(function () {
-            forceGTMConsent(true);
-          }, 200);
-        }
-
-        // Bouton Deny All
-        if (
-          e.target.id === "tarteaucitronAllDenied" ||
-          e.target.classList.contains("tarteaucitronDeny")
-        ) {
-          console.log("🔴 Deny All clicked");
-          setTimeout(function () {
-            forceGTMConsent(false);
-          }, 200);
-        }
+      console.log("🔄 Restored: All cookies accepted");
+    } else if (choice === "custom") {
+      // User had custom settings
+      const settings = JSON.parse(
+        localStorage.getItem("consent-settings") || "{}",
+      );
+      gtag("consent", "update", {
+        analytics_storage: settings.analytics ? "granted" : "denied",
+        ad_storage: settings.advertising ? "granted" : "denied",
+        ad_user_data: settings.advertising ? "granted" : "denied",
+        ad_personalization: settings.advertising ? "granted" : "denied",
+        functionality_storage: settings.functional ? "granted" : "denied",
+        personalization_storage: settings.functional ? "granted" : "denied",
       });
+      console.log("🔄 Restored custom settings:", settings);
+    }
+    // If 'denied' or no choice, keep default denied state
+  }
 
-      // ✅ Vérifier le statut au chargement
-      setTimeout(function () {
-        if (
-          tarteaucitron.state &&
-          Object.keys(tarteaucitron.state).length > 0
-        ) {
-          var hasAccepted = Object.values(tarteaucitron.state).some(
-            (s) => s === true,
-          );
-          if (hasAccepted) {
-            forceGTMConsent(true);
-          }
-        }
-      }, 1000);
+  // Show cookie preferences button (optional)
+  function showCookiePreferences() {
+    document.getElementById("consent-banner").style.display = "block";
+  }
 
-      console.log("✅ TarteAuCitron with MANUAL GTM consent management");
-    };
-    document.head.appendChild(script);
-  })();
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    restoreConsent();
+    showBanner();
+    console.log("🍪 Cookie consent system initialized");
+  });
+
+  // Optional: Add a "Cookie Settings" link in footer
+  // <a href="#" onclick="showCookiePreferences()">Cookie Settings</a>
 </script>
 
-<!-- ✅ GTM noscript fallback -->
 <noscript>
   <iframe
     src="https://www.googletagmanager.com/ns.html?id=GTM-PQC6K9BZ"
