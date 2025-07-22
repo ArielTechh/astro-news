@@ -33,7 +33,7 @@ const { article, isLast } = Astro.props;
 
 // VÉRIFICATIONS SÉCURISÉES
 const articleSlug = article.slug?.current;
-const articleUrl = articleSlug ? `/articles/${articleSlug}` : "#";
+const articleUrl = articleSlug ? `/${articleSlug}` : "#";
 const hasValidSlug = Boolean(articleSlug);
 
 // URL de l'image
