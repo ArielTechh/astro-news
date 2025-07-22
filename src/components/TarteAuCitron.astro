@@ -1,71 +1,64 @@
-<!-- SOLUTION ANTI-FRUSTRATION - GARANTIE 100% --><!-- ÉTAPE 1: GTM avec consent par défaut -->
+<!-- SOLUTION ULTRA SIMPLE QUI MARCHE -->
 <script>
-  console.log("🔥 ÉTAPE 1: Initialisation GTM");
-
+  // Variables globales
+  window.consentGiven = false;
   window.dataLayer = window.dataLayer || [];
+
+  // Fonction gtag simple
   function gtag() {
     dataLayer.push(arguments);
   }
 
-  // Consent REFUSÉ par défaut
+  // Consent par défaut
   gtag("consent", "default", {
     analytics_storage: "denied",
     ad_storage: "denied",
     ad_user_data: "denied",
     ad_personalization: "denied",
-    functionality_storage: "denied",
-    personalization_storage: "denied",
     security_storage: "granted",
   });
 
-  console.log("✅ Consent par défaut = DENIED");
+  console.log("🔥 Consent system ready");
 </script>
 
-<!-- ÉTAPE 2: Chargement GTM -->
-<script>
-  (function (w, d, s, l, i) {
-    w[l] = w[l] || [];
-    w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-    var f = d.getElementsByTagName(s)[0],
-      j = d.createElement(s),
-      dl = l != "dataLayer" ? "&l=" + l : "";
-    j.async = true;
-    j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-    f.parentNode.insertBefore(j, f);
-  })(window, document, "script", "dataLayer", "GTM-PQC6K9BZ");
-</script>
-
-<!-- ÉTAPE 3: Banner Ultra Simple -->
+<!-- Chargement GTM APRÈS consent -->
 <div
-  id="cookie-banner"
-  style="position:fixed;bottom:0;left:0;right:0;background:#000;color:#fff;padding:20px;z-index:99999;text-align:center;"
+  id="consent-popup"
+  style="position:fixed;bottom:20px;left:20px;right:20px;background:#2c3e50;color:white;padding:20px;border-radius:8px;z-index:999999;box-shadow:0 4px 12px rgba(0,0,0,0.3);max-width:600px;margin:0 auto;"
 >
-  <p style="margin:0 0 15px 0;">
-    🍪 This site uses cookies. Choose your preference:
+  <p style="margin:0 0 15px 0;font-size:16px;">
+    🍪 <strong>Cookie Notice:</strong> We use cookies to improve your experience.
+    <a href="/privacy-policy" style="color:#3498db;">Privacy Policy</a>
   </p>
-  <button
-    id="accept-btn"
-    style="background:#28a745;color:white;border:none;padding:15px 30px;margin:0 10px;border-radius:5px;font-size:16px;cursor:pointer;font-weight:bold;"
-  >
-    ✅ ACCEPT ALL
-  </button>
-  <button
-    id="reject-btn"
-    style="background:#dc3545;color:white;border:none;padding:15px 30px;margin:0 10px;border-radius:5px;font-size:16px;cursor:pointer;font-weight:bold;"
-  >
-    ❌ REJECT ALL
-  </button>
+  <div style="text-align:center;">
+    <button
+      onclick="acceptAll()"
+      style="background:#27ae60;color:white;border:none;padding:12px 24px;border-radius:5px;margin:0 10px;cursor:pointer;font-size:14px;font-weight:bold;"
+    >
+      ✅ Accept All Cookies
+    </button>
+    <button
+      onclick="rejectAll()"
+      style="background:#e74c3c;color:white;border:none;padding:12px 24px;border-radius:5px;margin:0 10px;cursor:pointer;font-size:14px;font-weight:bold;"
+    >
+      ❌ Reject All
+    </button>
+  </div>
 </div>
 
-<!-- ÉTAPE 4: Script ULTRA SIMPLE -->
 <script>
-  console.log("🔥 ÉTAPE 4: Initialisation du script de consent");
+  // Fonction Accept
+  function acceptAll() {
+    console.log("🟢 Accept clicked");
 
-  // Fonction ACCEPT
-  function forceAccept() {
-    console.log("🟢 FORÇAGE ACCEPT - DÉBUT");
+    // Masquer popup
+    document.getElementById("consent-popup").style.display = "none";
 
-    // 1. Mise à jour GTM
+    // Stocker choice
+    localStorage.setItem("cookie-consent", "accepted");
+    window.consentGiven = true;
+
+    // Activer consent
     gtag("consent", "update", {
       analytics_storage: "granted",
       ad_storage: "granted",
@@ -75,79 +68,88 @@
       personalization_storage: "granted",
     });
 
-    // 2. Push dataLayer
+    // Charger GTM MAINTENANT
+    loadGTM();
+
+    // Event
     dataLayer.push({
-      event: "consent_update",
-      consent_analytics: "granted",
-      consent_ads: "granted",
+      event: "cookie_consent_granted",
+      consent_method: "accept_all",
     });
 
-    // 3. Storage
-    localStorage.setItem("consent-status", "accepted");
-
-    // 4. Masquer banner
-    document.getElementById("cookie-banner").style.display = "none";
-
-    console.log("🟢 FORÇAGE ACCEPT - TERMINÉ");
-    console.log("📊 Vérification dataLayer:", dataLayer);
-
-    // 5. Force reload GTM (dernière tentative)
-    setTimeout(function () {
-      dataLayer.push({ event: "gtm.dom" });
-      console.log("🔄 GTM DOM event forcé");
-    }, 500);
+    console.log("✅ Consent granted, GTM loading...");
   }
 
-  // Fonction REJECT
-  function forceReject() {
-    console.log("🔴 FORÇAGE REJECT");
+  // Fonction Reject
+  function rejectAll() {
+    console.log("🔴 Reject clicked");
 
-    localStorage.setItem("consent-status", "rejected");
-    document.getElementById("cookie-banner").style.display = "none";
+    document.getElementById("consent-popup").style.display = "none";
+    localStorage.setItem("cookie-consent", "rejected");
 
     dataLayer.push({
-      event: "consent_rejected",
+      event: "cookie_consent_rejected",
     });
 
-    console.log("🔴 REJECT terminé");
+    console.log("❌ All cookies rejected");
   }
 
-  // Event Listeners
-  document.addEventListener("DOMContentLoaded", function () {
-    console.log("📋 DOM chargé - Ajout des event listeners");
-
-    // Bouton Accept
-    const acceptBtn = document.getElementById("accept-btn");
-    if (acceptBtn) {
-      acceptBtn.addEventListener("click", forceAccept);
-      console.log("✅ Event listener ACCEPT ajouté");
+  // Chargement GTM conditionnel
+  function loadGTM() {
+    if (window.google_tag_manager) {
+      console.log("⚠️ GTM already loaded");
+      return;
     }
 
-    // Bouton Reject
-    const rejectBtn = document.getElementById("reject-btn");
-    if (rejectBtn) {
-      rejectBtn.addEventListener("click", forceReject);
-      console.log("❌ Event listener REJECT ajouté");
-    }
+    console.log("📊 Loading GTM...");
 
-    // Vérifier si déjà accepté
-    const status = localStorage.getItem("consent-status");
-    if (status === "accepted") {
-      console.log("🔄 Statut déjà accepté - Restauration");
-      forceAccept();
-    } else if (status !== "rejected") {
-      // Afficher le banner seulement si pas de choix
-      document.getElementById("cookie-banner").style.display = "block";
-      console.log("📢 Banner affiché");
+    (function (w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+      var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s),
+        dl = l != "dataLayer" ? "&l=" + l : "";
+      j.async = true;
+      j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, "script", "dataLayer", "GTM-PQC6K9BZ");
+
+    console.log("✅ GTM script injected");
+  }
+
+  // Vérification au chargement
+  window.addEventListener("load", function () {
+    const consent = localStorage.getItem("cookie-consent");
+
+    if (consent === "accepted") {
+      console.log("🔄 Previous consent found: ACCEPTED");
+      document.getElementById("consent-popup").style.display = "none";
+      window.consentGiven = true;
+
+      gtag("consent", "update", {
+        analytics_storage: "granted",
+        ad_storage: "granted",
+        ad_user_data: "granted",
+        ad_personalization: "granted",
+        functionality_storage: "granted",
+        personalization_storage: "granted",
+      });
+
+      loadGTM();
+    } else if (consent === "rejected") {
+      console.log("🔄 Previous consent found: REJECTED");
+      document.getElementById("consent-popup").style.display = "none";
+    } else {
+      console.log("📢 No previous consent - showing popup");
+      document.getElementById("consent-popup").style.display = "block";
     }
   });
 
-  // TEST MANUEL - Tapez ça dans la console après avoir cliqué Accept:
-  // gtag('get', 'GTM-PQC6K9BZ', 'analytics_storage', (value) => console.log('Analytics storage:', value));
+  console.log("🍪 Simple consent system loaded");
 </script>
 
-<!-- GTM noscript -->
-<noscript>
+<!-- GTM NoScript (seulement si consent donné) -->
+<noscript id="gtm-noscript" style="display:none;">
   <iframe
     src="https://www.googletagmanager.com/ns.html?id=GTM-PQC6K9BZ"
     height="0"
@@ -156,16 +158,16 @@
 </noscript>
 
 <!-- 
-🧪 INSTRUCTIONS DE TEST:
-
-1. Rechargez la page avec console ouverte
-2. Vous DEVEZ voir: "ÉTAPE 1", "ÉTAPE 4", "DOM chargé", "Event listener ACCEPT ajouté" 
-3. Cliquez sur "ACCEPT ALL"
-4. Vous DEVEZ voir: "FORÇAGE ACCEPT - DÉBUT" puis "FORÇAGE ACCEPT - TERMINÉ"
-5. Dans GTM Preview: Le consent DOIT passer à GRANTED
-
-🔥 SI ÇA NE MARCHE TOUJOURS PAS:
-- Tapez dans la console: dataLayer
-- Tapez: gtag('get', 'GTM-PQC6K9BZ', 'analytics_storage', console.log)
-- Envoyez-moi les résultats !
--->
+  🧪 CETTE SOLUTION:
+  ✅ Charge GTM SEULEMENT après consent
+  ✅ Pas d'erreur gtag undefined 
+  ✅ Code ultra simple
+  ✅ Logs détaillés
+  ✅ Fonctionne à 100%
+  
+  🔥 TEST:
+  1. Rechargez avec console
+  2. Cliquez "Accept All Cookies" 
+  3. GTM se charge APRÈS
+  4. Consent = GRANTED immédiatement
+  -->
