@@ -45,5 +45,16 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
     <SpeedInsights />
     <Analytics />
     <AccessibilityWidget />
+    <script
+      async
+      src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168"
+      crossorigin="anonymous"></script>
+    <script is:inline>
+      document.addEventListener("astro:page-load", () => {
+        if (window.adsbygoogle) {
+          (adsbygoogle = window.adsbygoogle || []).push({});
+        }
+      });
+    </script>
   </body>
 </html>

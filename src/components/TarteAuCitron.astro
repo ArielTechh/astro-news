@@ -145,6 +145,13 @@
       document.head.appendChild(script);
     }
 
+    // Écouter les navigations Astro
+    document.addEventListener("astro:page-load", function () {
+      if (window.tarteaucitron && window.tarteaucitron.job) {
+        tarteaucitron.job.push("adsenseauto");
+      }
+    });
+
     // Initialiser quand prêt
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", initGlobalConsent);
