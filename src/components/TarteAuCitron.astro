@@ -1,13 +1,11 @@
 ---
-// src/components/GlobalConsent.astro
-// Composant à inclure dans toutes vos pages ou dans votre layout
+// src/components/GlobalConsent.astro - VERSION CORRIGÉE
 ---
 
-<!-- ✅ GTM + TarteAuCitron Global -->
 <script is:inline>
-  // Éviter les doubles chargements sur les navigations côté client
   if (!window.globalConsentLoaded) {
     window.globalConsentLoaded = true;
+    window.adsenseInitialized = false; // Flag pour AdSense
 
     // GTM Setup
     window.dataLayer = window.dataLayer || [];
@@ -36,7 +34,6 @@
       f.parentNode.insertBefore(j, f);
     })(window, document, "script", "dataLayer", "GTM-PQC6K9BZ");
 
-    // TarteAuCitron Setup
     var tarteaucitronForceLanguage = "en";
 
     function initGlobalConsent() {
@@ -64,9 +61,10 @@
         });
 
         tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
-        (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
 
-        // Gestion globale du consentement
+        // ⚠️ NE PAS PUSH adsenseauto ici - laissez TarteAuCitron le gérer
+        // (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
+
         function updateGlobalConsent(granted) {
           console.log("🌍 Global consent update:", granted);
 
@@ -79,6 +77,12 @@
               ad_user_data: "granted",
               ad_personalization: "granted",
             });
+
+            // ✅ Initialiser AdSense seulement après consentement
+            if (!window.adsenseInitialized) {
+              (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
+              window.adsenseInitialized = true;
+            }
 
             window.dataLayer.push({
               event: "global_consent_granted",
@@ -101,7 +105,6 @@
           }
         }
 
-        // Écouter les interactions globalement
         document.addEventListener("click", function (e) {
           if (
             e.target.id === "tarteaucitronAllAllowed" ||
@@ -120,7 +123,6 @@
           }
         });
 
-        // Vérifier l'état existant
         setTimeout(function () {
           if (
             tarteaucitron.state &&
@@ -145,14 +147,21 @@
       document.head.appendChild(script);
     }
 
-    // Écouter les navigations Astro
+    // ✅ Gestion améliorée des navigations Astro
     document.addEventListener("astro:page-load", function () {
-      if (window.tarteaucitron && window.tarteaucitron.job) {
-        tarteaucitron.job.push("adsenseauto");
+      console.log("🔄 Astro page load detected:", window.location.pathname);
+
+      // Laisser TarteAuCitron gérer AdSense automatiquement
+      if (window.tarteaucitron && window.tarteaucitron.reloadServices) {
+        // Recharger les services TarteAuCitron si nécessaire
+        setTimeout(() => {
+          if (window.adsenseInitialized) {
+            window.tarteaucitron.reloadServices();
+          }
+        }, 100);
       }
     });
 
-    // Initialiser quand prêt
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", initGlobalConsent);
     } else {
@@ -161,7 +170,6 @@
   }
 </script>
 
-<!-- GTM noscript fallback -->
 <noscript>
   <iframe
     src="https://www.googletagmanager.com/ns.html?id=GTM-PQC6K9BZ"
