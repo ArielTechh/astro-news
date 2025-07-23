@@ -54,6 +54,11 @@ const readingTime = calculateReadingTime(fullArticle.content);
       {
         fullArticle.content &&
           fullArticle.content.map((block, index) => {
+            // Calculer la position pour insérer l'AdSense au milieu
+            const totalBlocks = fullArticle.content.length;
+            const midPoint = Math.floor(totalBlocks / 2);
+            const shouldShowAd = index === midPoint;
+
             if (block._type === "block") {
               const text =
                 block.children?.map((child) => child.text).join("") || "";
@@ -117,77 +122,136 @@ const readingTime = calculateReadingTime(fullArticle.content);
                 .filter((line) => line.trim().length > 0);
 
               return (
-                <div key={index}>
-                  {lines.map((line, lineIndex) => {
-                    const trimmedLine = line.trim();
+                <>
+                  {/* Insérer AdSense au milieu du contenu */}
+                  {shouldShowAd && (
+                    <div class="my-8 not-prose flex justify-center">
+                      <div class="w-full max-w-2xl">
+                        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168" crossorigin="anonymous"></script>
+                        <!-- mid_prod -->
+                        <ins class="adsbygoogle"
+                             style="display:block"
+                             data-ad-client="ca-pub-1113800966089168"
+                             data-ad-slot="3535803759"
+                             data-ad-format="auto"
+                             data-full-width-responsive="true"></ins>
+                        <script>
+                             (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+                      </div>
+                    </div>
+                  )}
 
-                    // Détecter les titres
-                    if (trimmedLine.startsWith("### ")) {
-                      const titleText = trimmedLine.replace(/^### /, "");
-                      return (
-                        <h3
-                          key={lineIndex}
-                          class="text-xl font-medium mt-6 mb-3"
-                        >
-                          {renderMarkdownText(titleText)}
-                        </h3>
-                      );
-                    }
+                  <div key={index}>
+                    {lines.map((line, lineIndex) => {
+                      const trimmedLine = line.trim();
 
-                    if (trimmedLine.startsWith("## ")) {
-                      const titleText = trimmedLine.replace(/^## /, "");
-                      return (
-                        <h2
-                          key={lineIndex}
-                          class="text-2xl font-semibold mt-8 mb-4"
-                        >
-                          {renderMarkdownText(titleText)}
-                        </h2>
-                      );
-                    }
+                      // Détecter les titres
+                      if (trimmedLine.startsWith("### ")) {
+                        const titleText = trimmedLine.replace(/^### /, "");
+                        return (
+                          <h3
+                            key={lineIndex}
+                            class="text-xl font-medium mt-6 mb-3"
+                          >
+                            {renderMarkdownText(titleText)}
+                          </h3>
+                        );
+                      }
 
-                    if (trimmedLine.startsWith("# ")) {
-                      const titleText = trimmedLine.replace(/^# /, "");
-                      return (
-                        <h1
-                          key={lineIndex}
-                          class="text-3xl font-bold mt-10 mb-5"
-                        >
-                          {renderMarkdownText(titleText)}
-                        </h1>
-                      );
-                    }
+                      if (trimmedLine.startsWith("## ")) {
+                        const titleText = trimmedLine.replace(/^## /, "");
+                        return (
+                          <h2
+                            key={lineIndex}
+                            class="text-2xl font-semibold mt-8 mb-4"
+                          >
+                            {renderMarkdownText(titleText)}
+                          </h2>
+                        );
+                      }
 
-                    // Ligne normale avec Markdown
-                    if (trimmedLine.length > 0) {
-                      return (
-                        <p key={lineIndex} class="mb-4 leading-relaxed">
-                          {renderMarkdownText(trimmedLine)}
-                        </p>
-                      );
-                    }
+                      if (trimmedLine.startsWith("# ")) {
+                        const titleText = trimmedLine.replace(/^# /, "");
+                        return (
+                          <h1
+                            key={lineIndex}
+                            class="text-3xl font-bold mt-10 mb-5"
+                          >
+                            {renderMarkdownText(titleText)}
+                          </h1>
+                        );
+                      }
 
-                    return null;
-                  })}
-                </div>
+                      // Ligne normale avec Markdown
+                      if (trimmedLine.length > 0) {
+                        return (
+                          <p key={lineIndex} class="mb-4 leading-relaxed">
+                            {renderMarkdownText(trimmedLine)}
+                          </p>
+                        );
+                      }
+
+                      return null;
+                    })}
+                  </div>
+                </>
               );
             }
 
             if (block._type === "image") {
               return (
-                <div key={index} class="my-8">
-                  <img
-                    src={urlFor(block).width(800).url()}
-                    alt="Image de l'article"
-                    class="w-full rounded-lg shadow-md"
-                  />
-                </div>
+                <>
+                  {/* Insérer AdSense au milieu du contenu */}
+                  {shouldShowAd && (
+                    <div class="my-8 not-prose flex justify-center">
+                      <div class="w-full max-w-2xl">
+                        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168" crossorigin="anonymous"></script>
+                        <!-- mid_prod -->
+                        <ins class="adsbygoogle"
+                             style="display:block"
+                             data-ad-client="ca-pub-1113800966089168"
+                             data-ad-slot="3535803759"
+                             data-ad-format="auto"
+                             data-full-width-responsive="true"></ins>
+                        <script>
+                             (adsbygoogle = window.adsbygoogle || []).push({});
+                        </script>
+                      </div>
+                    </div>
+                  )}
+
+                  <div key={index} class="my-8">
+                    <img
+                      src={urlFor(block).width(800).url()}
+                      alt="Image de l'article"
+                      class="w-full rounded-lg shadow-md"
+                    />
+                  </div>
+                </>
               );
             }
 
             return null;
           })
       }
+    </div>
+
+    <!-- AdSense en fin d'article -->
+    <div class="my-8 not-prose flex justify-center">
+      <div class="w-full max-w-2xl">
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168" crossorigin="anonymous"></script>
+        <!-- foot_prod -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-1113800966089168"
+             data-ad-slot="5360262563"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script>
+             (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+      </div>
     </div>
   </ContentLayout>
 </BaseLayout>
