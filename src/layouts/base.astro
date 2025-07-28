@@ -14,10 +14,10 @@ type Props = {
   entry: Entry;
   article?: any; // Pour passer les données complètes de l'article
   readingTime?: number;
-  canonical?: string; // ← AJOUT : URL canonique
+  canonical?: string; // ← AJOUT : prop canonical
 };
 
-const { entry, article, readingTime, canonical } = Astro.props;
+const { entry, article, readingTime, canonical } = Astro.props; // ← AJOUT : canonical
 
 const meta = await getMeta(entry);
 
@@ -32,6 +32,7 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
     readingTime={readingTime}
     canonical={canonical}
   />
+  <!-- ← AJOUT : canonical={canonical} -->
   <body class="flex flex-col">
     <noscript>
       <iframe

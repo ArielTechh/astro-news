@@ -1,10 +1,10 @@
 import type { Link } from "../types";
 
 export const SITE = {
-  title: "TechHorizons", // Corrigé le nom aussi
+  title: "TechHorizons",
   description: "A news website built with Astro",
   author: "TechHorizons",
-  url: "https://techhorizons.co.il", // ← CORRIGÉ ICI
+  url: "https://www.techhorizons.co.il", // ← AJOUTEZ www
   locale: "he-IL",
   dir: "RTL",
   charset: "UTF-8",

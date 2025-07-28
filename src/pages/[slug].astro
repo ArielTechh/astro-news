@@ -41,6 +41,7 @@ const calculateReadingTime = (content) => {
 };
 
 const readingTime = calculateReadingTime(fullArticle.content);
+const canonicalUrl = `/${article.slug.current}`;
 
 // Fonction pour parser un tableau Markdown
 const parseTable = (text) => {
@@ -89,7 +90,12 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
 breadcrumbItems.push({ name: "מאמרים", url: "/articles" });
 ---
 
-<BaseLayout entry={fullArticle} article={fullArticle} readingTime={readingTime}>
+<BaseLayout
+  entry={fullArticle}
+  article={fullArticle}
+  readingTime={readingTime}
+  canonical={canonicalUrl}
+>
   <!-- Breadcrumbs alignés avec le container max-w-5xl -->
   <div class="container mx-auto px-4 max-w-5xl">
     <Breadcrumbs items={breadcrumbItems} current={fullArticle.title} />
