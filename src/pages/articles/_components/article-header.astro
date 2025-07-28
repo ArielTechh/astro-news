@@ -44,6 +44,21 @@ const authors = article.authors || [];
 const coverImageUrl = article.cover
   ? urlFor(article.cover).width(1200).height(600).url()
   : null;
+
+// Fonction pour formater la date en dd/mm/yyyy avec timezone Jerusalem
+const formatJerusalemDate = (dateString) => {
+  const date = new Date(dateString);
+  // Convertir en timezone de Jerusalem (Asia/Jerusalem)
+  const jerusalemDate = new Date(
+    date.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }),
+  );
+
+  const day = jerusalemDate.getDate().toString().padStart(2, "0");
+  const month = (jerusalemDate.getMonth() + 1).toString().padStart(2, "0");
+  const year = jerusalemDate.getFullYear();
+
+  return `${day}/${month}/${year}`;
+};
 ---
 
 <section
@@ -103,23 +118,14 @@ const coverImageUrl = article.cover
 
         <span class="flex items-center gap-1">
           <Calendar04 size="15" />
-          <time
-            class="hidden lg:block"
-            datetime={normalizeDate(article.publishedTime)}
-          >
-            {formatDate(normalizeDate(article.publishedTime), "long")}
-          </time>
-          <time
-            class="block lg:hidden"
-            datetime={normalizeDate(article.publishedTime)}
-          >
-            {formatDate(normalizeDate(article.publishedTime), "short")}
+          <time datetime={normalizeDate(article.publishedTime)}>
+            {formatJerusalemDate(article.publishedTime)}
           </time>
         </span>
         <Divider />
         <span class="flex items-center gap-1">
           <Time04 size="15" />
-          <span>{readingTime} min read</span>
+          <span>{readingTime} דק' קריאה</span>
         </span>
       </div>
 

@@ -1,5 +1,5 @@
 ---
-// src/pages/[slug].astro (nouveau fichier à la racine de pages/)
+// src/pages/[slug].astro
 import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "@/pages/articles/_components/article-header.astro";
@@ -10,7 +10,7 @@ export const getStaticPaths = async () => {
   const articles = await getAllArticles();
 
   return articles.map((article) => ({
-    params: { slug: article.slug.current }, // ✅ Changé 'id' en 'slug' pour plus de clarté
+    params: { slug: article.slug.current },
     props: { article },
   }));
 };
@@ -24,7 +24,6 @@ const fullArticle = await getArticleBySlug(article.slug.current);
 const calculateReadingTime = (content) => {
   if (!content) return 1;
 
-  // Compter les mots dans le contenu
   let wordCount = 0;
   content.forEach((block) => {
     if (block._type === "block" && block.children) {
@@ -41,136 +40,103 @@ const calculateReadingTime = (content) => {
 };
 
 const readingTime = calculateReadingTime(fullArticle.content);
-
-// Passer directement l'article Sanity à BaseLayout
-// La nouvelle version de getMeta saura le gérer
 ---
 
 <BaseLayout entry={fullArticle} article={fullArticle} readingTime={readingTime}>
   <ArticleHeader article={fullArticle} readingTime={readingTime} />
   <ContentLayout>
-    <!-- Rendu du contenu Sanity avec Markdown parsing -->
-    <div class="prose prose-lg max-w-none">
+    <div class="prose prose-lg lg:prose-2xl max-w-none">
       {
         fullArticle.content &&
           fullArticle.content.map((block, index) => {
             if (block._type === "block") {
-              const text =
-                block.children?.map((child) => child.text).join("") || "";
+              // Récupérer le contenu texte
+              const textContent =
+                block.children?.map((child) => {
+                  let text = child.text || "";
 
-              // Fonction pour parser le Markdown manuellement
-              const renderMarkdownText = (text) => {
-                const parts = [];
-                let remaining = text;
-                let key = 0;
-
-                while (remaining.length > 0) {
-                  // Chercher le gras **texte**
-                  const boldMatch = remaining.match(/\*\*(.*?)\*\*/);
-                  if (boldMatch) {
-                    const beforeBold = remaining.substring(0, boldMatch.index);
-                    if (beforeBold) {
-                      parts.push(<span key={key++}>{beforeBold}</span>);
-                    }
-                    parts.push(<strong key={key++}>{boldMatch[1]}</strong>);
-                    remaining = remaining.substring(
-                      boldMatch.index + boldMatch[0].length,
-                    );
-                    continue;
+                  // Appliquer le formatage simple
+                  if (child.marks?.includes("strong")) {
+                    return <strong>{text}</strong>;
+                  } else if (child.marks?.includes("em")) {
+                    return <em>{text}</em>;
+                  } else {
+                    return text;
                   }
+                }) || [];
 
-                  // Chercher les liens [texte](url)
-                  const linkMatch = remaining.match(/\[([^\]]+)\]\(([^)]+)\)/);
-                  if (linkMatch) {
-                    const beforeLink = remaining.substring(0, linkMatch.index);
-                    if (beforeLink) {
-                      parts.push(<span key={key++}>{beforeLink}</span>);
-                    }
-                    parts.push(
-                      <a
-                        key={key++}
-                        href={linkMatch[2]}
-                        target="_blank"
-                        rel="noopener"
-                        class="text-blue-600 hover:underline"
-                      >
-                        {linkMatch[1]}
-                      </a>,
-                    );
-                    remaining = remaining.substring(
-                      linkMatch.index + linkMatch[0].length,
-                    );
-                    continue;
-                  }
-
-                  // Aucun match trouvé, ajouter le reste
-                  parts.push(<span key={key++}>{remaining}</span>);
-                  break;
-                }
-
-                return parts;
-              };
-
-              // Séparer le texte en lignes
-              const lines = text
-                .split("\n")
-                .filter((line) => line.trim().length > 0);
-
-              return (
-                <div key={index}>
-                  {lines.map((line, lineIndex) => {
-                    const trimmedLine = line.trim();
-
-                    // Détecter les titres
-                    if (trimmedLine.startsWith("### ")) {
-                      const titleText = trimmedLine.replace(/^### /, "");
-                      return (
-                        <h3
-                          key={lineIndex}
-                          class="text-xl font-medium mt-6 mb-3"
-                        >
-                          {renderMarkdownText(titleText)}
-                        </h3>
-                      );
-                    }
-
-                    if (trimmedLine.startsWith("## ")) {
-                      const titleText = trimmedLine.replace(/^## /, "");
-                      return (
-                        <h2
-                          key={lineIndex}
-                          class="text-2xl font-semibold mt-8 mb-4"
-                        >
-                          {renderMarkdownText(titleText)}
-                        </h2>
-                      );
-                    }
-
-                    if (trimmedLine.startsWith("# ")) {
-                      const titleText = trimmedLine.replace(/^# /, "");
-                      return (
-                        <h1
-                          key={lineIndex}
-                          class="text-3xl font-bold mt-10 mb-5"
-                        >
-                          {renderMarkdownText(titleText)}
-                        </h1>
-                      );
-                    }
-
-                    // Ligne normale avec Markdown
-                    if (trimmedLine.length > 0) {
-                      return (
-                        <p key={lineIndex} class="mb-4 leading-relaxed">
-                          {renderMarkdownText(trimmedLine)}
-                        </p>
-                      );
-                    }
-
-                    return null;
-                  })}
-                </div>
-              );
+              // Rendu basé sur le style
+              if (block.style === "h1") {
+                return (
+                  <h1
+                    key={index}
+                    class="text-3xl font-bold mt-10 mb-5 text-gray-900"
+                  >
+                    {textContent}
+                  </h1>
+                );
+              } else if (block.style === "h2") {
+                return (
+                  <h2
+                    key={index}
+                    class="text-2xl font-semibold mt-8 mb-4 text-gray-900"
+                  >
+                    {textContent}
+                  </h2>
+                );
+              } else if (block.style === "h3") {
+                return (
+                  <h3
+                    key={index}
+                    class="text-xl font-medium mt-6 mb-3 text-gray-900"
+                  >
+                    {textContent}
+                  </h3>
+                );
+              } else if (block.style === "h4") {
+                return (
+                  <h4
+                    key={index}
+                    class="text-lg font-medium mt-5 mb-2 text-gray-900"
+                  >
+                    {textContent}
+                  </h4>
+                );
+              } else if (block.style === "h5") {
+                return (
+                  <h5
+                    key={index}
+                    class="text-base font-medium mt-4 mb-2 text-gray-900"
+                  >
+                    {textContent}
+                  </h5>
+                );
+              } else if (block.style === "h6") {
+                return (
+                  <h6
+                    key={index}
+                    class="text-sm font-medium mt-3 mb-2 text-gray-900"
+                  >
+                    {textContent}
+                  </h6>
+                );
+              } else if (block.style === "blockquote") {
+                return (
+                  <blockquote
+                    key={index}
+                    class="border-l-4 border-blue-500 pl-6 my-6 italic text-gray-700 bg-gray-50 py-4 rounded-r"
+                  >
+                    {textContent}
+                  </blockquote>
+                );
+              } else {
+                // Paragraphe normal
+                return (
+                  <p key={index} class="mb-4 leading-relaxed text-gray-800">
+                    {textContent}
+                  </p>
+                );
+              }
             }
 
             if (block._type === "image") {
@@ -178,8 +144,9 @@ const readingTime = calculateReadingTime(fullArticle.content);
                 <div key={index} class="my-8">
                   <img
                     src={urlFor(block).width(800).url()}
-                    alt="Image de l'article"
+                    alt={block.alt || "Image de l'article"}
                     class="w-full rounded-lg shadow-md"
+                    loading="lazy"
                   />
                 </div>
               );

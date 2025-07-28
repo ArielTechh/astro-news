@@ -36,7 +36,7 @@ export async function getMainHeadlines() {
 // Sub-headlines - ENTIÈREMENT SÉCURISÉ
 export async function getSubHeadlines() {
   return await sanityClient.fetch(`
-    *[_type == "article" && isSubHeadline == true && !isDraft && defined(publishedTime) && defined(slug.current)] | order(publishedTime desc)[0...10] {
+    *[_type == "article" && isSubHeadline == true && !isDraft && defined(publishedTime) && defined(slug.current)] | order(publishedTime desc)[0...4] {
       _id,
       title,
       description,
@@ -80,7 +80,9 @@ export async function getAllArticles() {
   `)
 }
 
-// Article par slug - ENTIÈREMENT SÉCURISÉ
+// Ajoutez cette fonction mise à jour dans votre sanity.js
+
+// Article par slug - AVEC STRUCTURE PORTABLE TEXT COMPLÈTE
 export async function getArticleBySlug(slug) {
   return await sanityClient.fetch(`
     *[_type == "article" && slug.current == $slug && defined(publishedTime) && defined(slug.current)][0] {
