@@ -15,23 +15,7 @@ export const urlFor = (source) => builder.image(source)
 
 // === FONCTIONS POUR RÉCUPÉRER LES DONNÉES ===
 
-// Headlines principaux - ENTIÈREMENT SÉCURISÉ
-export async function getMainHeadlines() {
-  return await sanityClient.fetch(`
-    *[_type == "article" && isMainHeadline == true && !isDraft && defined(publishedTime) && defined(slug.current)] | order(publishedTime desc)[0...5] {
-      _id,
-      title,
-      description,
-      slug,
-      cover,
-      publishedTime,
-      categories[]-> {
-        title,
-        slug
-      }
-    }
-  `)
-}
+
 
 // Ajoutez ces fonctions dans votre sanity.js
 
