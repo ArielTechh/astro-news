@@ -20,9 +20,26 @@ type Props = {
   };
   isFirst?: boolean;
   isLast?: boolean;
+  // Nouvelles props pour la configuration
+  showImage?: boolean;
+  showCategory?: boolean;
+  showDate?: boolean;
 };
 
-const { article, isLast, isFirst } = Astro.props;
+const {
+  article,
+  isLast,
+  isFirst,
+  showImage = true,
+  showCategory = true,
+  showDate = true,
+} = Astro.props;
+
+// Vérification de sécurité - si pas d'article, ne rien rendre
+if (!article) {
+  console.error("SubHeadlineCard: Article is undefined");
+  return null;
+}
 
 // Fonction pour nettoyer le texte hébreu
 const cleanHebrewText = (text: string) => {
@@ -37,11 +54,13 @@ const cleanHebrewText = (text: string) => {
     .trim();
 };
 
-// Récupérer l'URL de l'image avec Sanity
-const coverImageUrl = article.cover
-  ? urlFor(article.cover).width(320).height(250).url()
-  : null;
-const category = article.categories?.[0];
+// Récupérer l'URL de l'image avec Sanity - avec vérifications
+const coverImageUrl =
+  article?.cover && showImage
+    ? urlFor(article.cover).width(320).height(250).url()
+    : null;
+
+const category = article?.categories?.[0];
 ---
 
 <article
@@ -54,24 +73,22 @@ const category = article.categories?.[0];
 >
   <!-- Lien principal couvrant tout l'article -->
   <a
-    href={`/${article.slug.current}`}
+    href={`/${article.slug?.current || "#"}`}
     class="flex items-stretch gap-2 focus:outline-none focus:ring-2 focus:ring-primary rounded-lg"
   >
-    <!-- Image (à droite en RTL) -->
-    <div
-      class="overflow-hidden w-[165px] h-[125px] md:w-[120px] md:h-full shrink-0 rounded"
-    >
-      {
-        coverImageUrl && (
+    <!-- Image (à droite en RTL) - conditionnelle -->
+    {
+      showImage && coverImageUrl && (
+        <div class="overflow-hidden w-[165px] h-[125px] md:w-[120px] md:h-full shrink-0 rounded">
           <img
             src={coverImageUrl}
-            alt={article.title}
+            alt={cleanHebrewText(article.title) || "Article image"}
             loading="eager"
             class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
           />
-        )
-      }
-    </div>
+        </div>
+      )
+    }
 
     <!-- Contenu (à gauche en RTL) -->
     <div class="flex flex-col flex-1">
@@ -80,30 +97,34 @@ const category = article.categories?.[0];
           <h3
             class="text-base group-hover:underline mb-1 text-right font-medium leading-tight"
           >
-            {cleanHebrewText(article.title)}
+            {cleanHebrewText(article.title) || "Titre non disponible"}
           </h3>
-          <p
-            class="text-sm text-base-content/80 md:line-clamp-2 lg:line-clamp-3 text-right leading-relaxed"
-          >
-            {cleanHebrewText(article.description)}
-          </p>
+          {
+            article.description && (
+              <p class="text-sm text-base-content/80 md:line-clamp-2 lg:line-clamp-3 text-right leading-relaxed">
+                {cleanHebrewText(article.description)}
+              </p>
+            )
+          }
         </div>
       </div>
-      <div
-        class="flex items-center justify-end text-xs text-base-content/80 mt-1 lg:mt-auto"
-      >
-        <span>{getDateDistance(article.publishedTime)}</span>
-        {
-          category && (
-            <>
-              <Divider />
+
+      <!-- Métadonnées conditionnelles -->
+      {
+        (showDate || showCategory) && (
+          <div class="flex items-center justify-end text-xs text-base-content/80 mt-1 lg:mt-auto">
+            {showDate && article.publishedTime && (
+              <span>{getDateDistance(article.publishedTime)}</span>
+            )}
+            {showDate && showCategory && category && <Divider />}
+            {showCategory && category && (
               <span class="text-primary dark:text-secondary">
                 {category.title}
               </span>
-            </>
-          )
-        }
-      </div>
+            )}
+          </div>
+        )
+      }
     </div>
   </a>
 </article>

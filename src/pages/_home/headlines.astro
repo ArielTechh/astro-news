@@ -2,33 +2,79 @@
 // src/pages/_home/headlines.astro
 import MainHeadline from "@/components/cards/mainHeadline.astro";
 import SubHeadlineCard from "@/components/cards/subHeadlineCard.astro";
-import { getMainHeadlines, getSubHeadlines } from "@/lib/sanity";
+import {
+  getMainHeadlines,
+  getSubHeadlines,
+  getMainHeadlinesConfig,
+  getSubHeadlinesConfig,
+} from "@/lib/sanity";
 
-// Récupérer les headlines depuis Sanity
+// Récupérer les headlines et configurations depuis Sanity
 const mainHeadlines = await getMainHeadlines();
 const subHeadlines = await getSubHeadlines();
 
+// Récupérer les configurations (peut être null si pas créées)
+let mainConfig = null;
+let subConfig = null;
+
+try {
+  mainConfig = await getMainHeadlinesConfig();
+  subConfig = await getSubHeadlinesConfig();
+} catch (error) {
+  console.log(
+    "Pas de configuration trouvée, utilisation des valeurs par défaut",
+  );
+}
+
 // Prendre le premier main headline comme article principal
 const mainHeadlineArticle = mainHeadlines[0];
-const subHeadlinesArticles = subHeadlines;
+
+// FILTRER les articles invalides
+const subHeadlinesArticles = subHeadlines.filter(
+  (article) => article && article._id && article.title && article.slug?.current,
+);
+
+console.log("Sub-headlines bruts:", subHeadlines.length);
+console.log("Sub-headlines valides:", subHeadlinesArticles.length);
 ---
 
 <section
   class="grid grid-cols-1 gap-6 md:grid-cols-10 container pt-4 md:pt-8"
   data-pagefind-ignore="all"
 >
-  <div class="col-span-1 md:col-span-6">
-    {mainHeadlineArticle && <MainHeadline article={mainHeadlineArticle} />}
-  </div>
-  <div class="col-span-1 md:col-span-4">
+  <div
+    class:list={[
+      "col-span-1",
+      subHeadlinesArticles.length > 0 ? "md:col-span-6" : "md:col-span-10",
+    ]}
+  >
     {
-      subHeadlinesArticles.map((article, index) => (
-        <SubHeadlineCard
-          article={article}
-          isFirst={index === 0}
-          isLast={index === subHeadlinesArticles.length - 1}
+      mainHeadlineArticle && (
+        <MainHeadline
+          article={mainHeadlineArticle}
+          showImage={mainConfig?.showImage ?? true}
+          showCategory={mainConfig?.showCategory ?? true}
+          showDate={mainConfig?.showDate ?? true}
+          showDescription={mainConfig?.showDescription ?? true}
         />
-      ))
+      )
     }
   </div>
+
+  {
+    subHeadlinesArticles.length > 0 && (
+      <div class="col-span-1 md:col-span-4">
+        {subHeadlinesArticles.map((article, index) => (
+          <SubHeadlineCard
+            article={article}
+            isFirst={index === 0}
+            isLast={index === subHeadlinesArticles.length - 1}
+            showImage={subConfig?.showImages ?? true}
+            showCategory={subConfig?.showCategories ?? true}
+            showDate={subConfig?.showDates ?? true}
+          />
+        ))}
+      </div>
+    )
+  }
 </section>

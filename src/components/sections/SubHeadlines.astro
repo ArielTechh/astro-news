@@ -1,0 +1,42 @@
+---
+// src/components/sections/SubHeadlinesSection.astro
+import SubHeadlineCard from "@/components/cards/subHeadlineCard.astro";
+import { getSubHeadlinesConfig, getSubHeadlinesArticles } from "@/lib/sanity";
+
+// Récupérer la configuration et les articles
+const subHeadlinesConfig = await getSubHeadlinesConfig();
+const subHeadlinesArticles = await getSubHeadlinesArticles();
+
+// Vérifier si les sub-headlines sont actives
+const showSubHeadlines =
+  subHeadlinesConfig?.isActive && subHeadlinesArticles?.length > 0;
+
+// Si pas actif, ne rien rendre
+if (!showSubHeadlines) return null;
+---
+
+<div class="col-span-1 md:col-span-4">
+  <!-- Titre optionnel pour les sub-headlines -->
+  {
+    subHeadlinesConfig.title &&
+      subHeadlinesConfig.title !== "Sub-Headlines" && (
+        <h2 class="text-xl font-bold mb-4 text-right">
+          {subHeadlinesConfig.title}
+        </h2>
+      )
+  }
+
+  <!-- Articles sub-headlines avec configuration -->
+  {
+    subHeadlinesArticles.map((article, index) => (
+      <SubHeadlineCard
+        article={article}
+        isFirst={index === 0}
+        isLast={index === subHeadlinesArticles.length - 1}
+        showImage={subHeadlinesConfig.showImages ?? true}
+        showCategory={subHeadlinesConfig.showCategories ?? true}
+        showDate={subHeadlinesConfig.showDates ?? true}
+      />
+    ))
+  }
+</div>
