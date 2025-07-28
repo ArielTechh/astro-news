@@ -5,6 +5,7 @@ import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "@/pages/articles/_components/article-header.astro";
 import { getAllArticles, getArticleBySlug, urlFor } from "@/lib/sanity";
 import StructuredData from "@/components/seo/StructuredData.astro";
+import Breadcrumbs from "@/components/navigation/Breadcrumbs.astro";
 
 export const getStaticPaths = async () => {
   const articles = await getAllArticles();
@@ -69,9 +70,31 @@ const parseTable = (text) => {
 
   return { headers, rows };
 };
+
+// Créer les breadcrumbs pour l'article
+const breadcrumbItems = [
+  { name: "בית", url: "/" }, // "Accueil" en hébreu
+];
+
+// Ajouter la catégorie si elle existe
+if (fullArticle.categories && fullArticle.categories.length > 0) {
+  const category = fullArticle.categories[0];
+  breadcrumbItems.push({
+    name: category.title,
+    url: `/categories/${category.slug.current}`,
+  });
+}
+
+// Ajouter "מאמרים" (Articles)
+breadcrumbItems.push({ name: "מאמרים", url: "/articles" });
 ---
 
 <BaseLayout entry={fullArticle} article={fullArticle} readingTime={readingTime}>
+  <!-- Breadcrumbs alignés avec le container max-w-5xl -->
+  <div class="container mx-auto px-4 max-w-5xl">
+    <Breadcrumbs items={breadcrumbItems} current={fullArticle.title} />
+  </div>
+
   <ArticleHeader article={fullArticle} readingTime={readingTime} />
   <ContentLayout>
     <div class="prose prose-lg lg:prose-2xl max-w-none">

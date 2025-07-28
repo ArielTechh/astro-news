@@ -1,0 +1,85 @@
+---
+// src/components/navigation/Breadcrumbs.astro
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export interface Props {
+  items: BreadcrumbItem[];
+  current?: string; // Page actuelle (optionnel)
+}
+
+const { items, current } = Astro.props;
+
+// Créer les données structurées JSON-LD pour Google
+const structuredData = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: items.map((item, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    name: item.name,
+    item: `${Astro.site?.href || "https://votre-site.com"}${item.url}`,
+  })),
+};
+
+// Ajouter la page actuelle si fournie
+if (current) {
+  structuredData.itemListElement.push({
+    "@type": "ListItem",
+    position: items.length + 1,
+    name: current,
+    item: Astro.url.href,
+  });
+}
+---
+
+<!-- Données structurées pour Google -->
+<script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+
+<!-- Breadcrumbs visuels -->
+<nav aria-label="Breadcrumbs" class="py-4" dir="rtl">
+  <ol
+    class="flex items-center space-x-2 space-x-reverse text-sm text-gray-600 dark:text-gray-400"
+  >
+    {
+      items.map((item, index) => (
+        <li class="flex items-center">
+          <a
+            href={item.url}
+            class="hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
+            title={item.name}
+          >
+            {item.name}
+          </a>
+          {(index < items.length - 1 || current) && (
+            <svg
+              class="w-4 h-4 mx-2 text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          )}
+        </li>
+      ))
+    }
+
+    {
+      current && (
+        <li
+          class="text-gray-900 dark:text-gray-100 font-medium"
+          aria-current="page"
+        >
+          {current}
+        </li>
+      )
+    }
+  </ol>
+</nav>
