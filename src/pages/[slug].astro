@@ -140,16 +140,30 @@ const readingTime = calculateReadingTime(fullArticle.content);
             }
 
             if (block._type === "image") {
-              return (
-                <div key={index} class="my-8">
-                  <img
-                    src={urlFor(block).width(800).url()}
-                    alt={block.alt || "Image de l'article"}
-                    class="w-full rounded-lg shadow-md"
-                    loading="lazy"
-                  />
-                </div>
-              );
+              try {
+                // Vérifier que l'image a un asset valide avant de générer l'URL
+                if (block.asset || block._ref) {
+                  const imageUrl = urlFor(block).width(800).url();
+                  return (
+                    <div key={index} class="my-8">
+                      <img
+                        src={imageUrl}
+                        alt={block.alt || "Image de l'article"}
+                        class="w-full rounded-lg shadow-md"
+                        loading="lazy"
+                      />
+                    </div>
+                  );
+                } else {
+                  // Image sans asset valide - ne pas la rendre
+                  console.warn("Image sans asset trouvée, ignorée:", block);
+                  return null;
+                }
+              } catch (error) {
+                // Si erreur dans la génération de l'URL, ne pas rendre l'image
+                console.warn("Erreur lors du rendu de l'image:", error, block);
+                return null;
+              }
             }
 
             return null;
