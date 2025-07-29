@@ -4,7 +4,7 @@ export const SITE = {
   title: "TechHorizons",
   description: "A news website built with Astro",
   author: "TechHorizons",
-  url: "https://www.techhorizons.co.il", // ← AJOUTEZ www
+  url: "https://techhorizons.co.il", // ← AJOUTEZ www
   locale: "he-IL",
   dir: "RTL",
   charset: "UTF-8",
