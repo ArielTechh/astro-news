@@ -83,14 +83,15 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
           script.crossOrigin = "anonymous";
           document.head.appendChild(script);
           adsenseLoaded = true;
+          console.log("AdSense chargé"); // Pour debug
         }
       }
 
-      // Charger AdSense après premier scroll, clic, ou après 3 secondes
+      // Charger AdSense après premier scroll, clic, ou après 2 secondes
       document.addEventListener("scroll", loadAdsense, { once: true });
       document.addEventListener("click", loadAdsense, { once: true });
       document.addEventListener("touchstart", loadAdsense, { once: true }); // Pour mobile
-      setTimeout(loadAdsense, 3000); // Fallback après 3 secondes
+      setTimeout(loadAdsense, 2000); // Fallback après 2 secondes (réduit à 2s)
     </script>
   </body>
 </html>
