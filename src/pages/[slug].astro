@@ -247,18 +247,37 @@ breadcrumbItems.push({ name: "מאמרים", url: "/articles" });
               }
             }
 
+            // ✅ OPTIMISATION IMAGES - ÉTAPE 1
             if (block._type === "image") {
               try {
                 // Vérifier que l'image a un asset valide avant de générer l'URL
                 if (block.asset || block._ref) {
-                  const imageUrl = urlFor(block).width(800).url();
+                  // Générer plusieurs tailles pour images responsives
+                  const imageSrcSet = [
+                    `${urlFor(block).width(400).quality(85).format("webp").url()} 400w`,
+                    `${urlFor(block).width(800).quality(85).format("webp").url()} 800w`,
+                    `${urlFor(block).width(1200).quality(85).format("webp").url()} 1200w`,
+                  ].join(", ");
+
+                  // Image par défaut (800px)
+                  const imageUrl = urlFor(block)
+                    .width(800)
+                    .quality(85)
+                    .format("webp")
+                    .url();
+
                   return (
                     <div key={index} class="my-8">
                       <img
                         src={imageUrl}
+                        srcset={imageSrcSet}
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
                         alt={block.alt || "Image de l'article"}
                         class="w-full rounded-lg shadow-md"
                         loading="lazy"
+                        width="800"
+                        height="400"
+                        decoding="async"
                       />
                     </div>
                   );
