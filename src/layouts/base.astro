@@ -6,19 +6,18 @@ import Footer from "@/components/shared/footer.astro";
 import type { Entry } from "@/lib/types";
 import { getMeta } from "@/lib/utils/getMetaSanity";
 import TarteAuCitron from "../components/TarteAuCitron.astro";
-// 🚀 CHANGEMENT 1 : Composants Vercel commentés temporairement
-// import SpeedInsights from "@vercel/speed-insights/astro";
-// import Analytics from "@vercel/analytics/astro";
+import SpeedInsights from "@vercel/speed-insights/astro";
+import Analytics from "@vercel/analytics/astro";
 import AccessibilityWidget from "../components/AccessibilityWidget.astro";
 
 type Props = {
   entry: Entry;
-  article?: any;
+  article?: any; // Pour passer les données complètes de l'article
   readingTime?: number;
-  canonical?: string;
+  canonical?: string; // ← AJOUT : prop canonical
 };
 
-const { entry, article, readingTime, canonical } = Astro.props;
+const { entry, article, readingTime, canonical } = Astro.props; // ← AJOUT : canonical
 
 const meta = await getMeta(entry);
 
@@ -33,7 +32,9 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
     readingTime={readingTime}
     canonical={canonical}
   />
+  <!-- ← AJOUT : canonical={canonical} -->
   <body class="flex flex-col">
+    <!-- Iframe GTM noscript - gardé pour la compatibilité -->
     <noscript>
       <iframe
         src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
@@ -50,14 +51,13 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
     </main>
     <Footer />
     <TarteAuCitron />
-    <!-- 🚀 CHANGEMENT 1 : Vercel Analytics commentés -->
-    <!-- <SpeedInsights /> -->
-    <!-- <Analytics /> -->
+    <SpeedInsights />
+    <Analytics />
     <AccessibilityWidget />
 
-    <!-- 🚀 CHANGEMENT 2 : GTM différé à 3 secondes au lieu de 1 seconde -->
+    <!-- Scripts optimisés pour les performances -->
     <script define:vars={{ GTM_ID }}>
-      // Chargement différé de Google Tag Manager (après 3 secondes)
+      // Chargement différé de Google Tag Manager (après 1 seconde)
       setTimeout(() => {
         (function (w, d, s, l, i) {
           w[l] = w[l] || [];
@@ -69,7 +69,7 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
           j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
           f.parentNode.insertBefore(j, f);
         })(window, document, "script", "dataLayer", GTM_ID);
-      }, 3000); // 🚀 GTM chargé après 3 secondes au lieu de 1
+      }, 1000); // GTM chargé après 1 seconde
 
       // Chargement différé d'AdSense (après interaction utilisateur)
       let adsenseLoaded = false;
@@ -83,15 +83,15 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
           script.crossOrigin = "anonymous";
           document.head.appendChild(script);
           adsenseLoaded = true;
-          console.log("AdSense chargé");
+          console.log("AdSense chargé"); // Pour debug
         }
       }
 
-      // 🚀 CHANGEMENT 2 : AdSense différé à 4 secondes minimum
+      // Charger AdSense après premier scroll, clic, ou après 2 secondes
       document.addEventListener("scroll", loadAdsense, { once: true });
       document.addEventListener("click", loadAdsense, { once: true });
-      document.addEventListener("touchstart", loadAdsense, { once: true });
-      setTimeout(loadAdsense, 4000); // 🚀 Fallback après 4 secondes au lieu de 2
+      document.addEventListener("touchstart", loadAdsense, { once: true }); // Pour mobile
+      setTimeout(loadAdsense, 2000); // Fallback après 2 secondes (réduit à 2s)
     </script>
   </body>
 </html>
