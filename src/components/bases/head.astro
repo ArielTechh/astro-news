@@ -1,28 +1,30 @@
 ---
 import "@/styles/global.css";
-// Gardons seulement les poids essentiels des polices
 import "@fontsource/source-sans-pro/400.css";
 import "@fontsource/source-sans-pro/600.css";
+import "@fontsource/source-sans-pro/700.css";
 import "@fontsource-variable/source-serif-4";
-
 import { ClientRouter } from "astro:transitions";
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 import StructuredData from "@/components/seo/StructuredData.astro";
 
+// Changez cette ligne pour utiliser PUBLIC_GTM_ID
 const GTM_ID = import.meta.env.PUBLIC_GTM_ID || "GTM-PQC6K9BZ";
 
 type Props = {
   meta: Meta | ArticleMeta;
-  article?: any;
+  article?: any; // Données complètes de l'article pour le schema
   readingTime?: number;
 };
 
 const { meta, article, readingTime } = Astro.props;
 
+// Type guard to check if props is ArticleMeta
 const isArticleMeta = (props: Props["meta"]): props is ArticleMeta =>
   props.type === "article";
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
+
 const OGImage = new URL(meta.ogImage, Astro.url).href;
 ---
 
@@ -32,9 +34,20 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
 
-  <!-- PRECONNECT pour améliorer les performances réseau -->
-  <link rel="preconnect" href="https://www.googletagmanager.com" />
-  <link rel="preconnect" href="https://analytics.ahrefs.com" />
+  <!-- Google Tag Manager -->
+  <!-- <script>
+    (function (w, d, s, l, i) {
+      w[l] = w[l] || [];
+      w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+      var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s),
+        dl = l != "dataLayer" ? "&l=" + l : "";
+      j.async = true;
+      j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+      f.parentNode.insertBefore(j, f);
+    })(window, document, "script", "dataLayer", `GTM-PQC6K9BZ`);
+  </script> -->
+  <!-- End Google Tag Manager -->
 
   <!-- Google Search Console Verification -->
   <meta
@@ -99,6 +112,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
           property="article:modified_time"
           content={new Date(meta.lastModified).toISOString()}
         />
+
         {meta.authors.map((author) => (
           <>
             <meta property="author" content={author.name} />
@@ -111,50 +125,27 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       </>
     ) : null
   }
-
   {
     isArticleMeta(meta) && article ? (
       <StructuredData article={article} readingTime={readingTime} />
     ) : null
   }
 
-  <!-- Scripts analytics différés pour améliorer les performances -->
+  <script
+    src="https://analytics.ahrefs.com/analytics.js"
+    data-key="fNbl74Cz0zyN4NtzpNBdKg"
+    async></script>
+
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E5DDECQEBZ"
+  ></script>
   <script>
-    // Chargement différé des analytics après interaction utilisateur
-    function loadAnalytics() {
-      // Ahrefs Analytics
-      if (!document.querySelector('[data-key="fNbl74Cz0zyN4NtzpNBdKg"]')) {
-        var ahrefs = document.createElement("script");
-        ahrefs.src = "https://analytics.ahrefs.com/analytics.js";
-        ahrefs.setAttribute("data-key", "fNbl74Cz0zyN4NtzpNBdKg");
-        ahrefs.async = true;
-        document.head.appendChild(ahrefs);
-      }
-
-      // Google Analytics
-      if (!window.gtag) {
-        var gtag = document.createElement("script");
-        gtag.async = true;
-        gtag.src = "https://www.googletagmanager.com/gtag/js?id=G-E5DDECQEBZ";
-        document.head.appendChild(gtag);
-
-        gtag.onload = function () {
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag("js", new Date());
-          gtag("config", "G-E5DDECQEBZ");
-          window.gtag = gtag;
-        };
-      }
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
     }
-
-    // Chargement après interaction ou après 1.5 secondes
-    document.addEventListener("scroll", loadAnalytics, { once: true });
-    document.addEventListener("click", loadAnalytics, { once: true });
-    document.addEventListener("touchstart", loadAnalytics, { once: true });
-    setTimeout(loadAnalytics, 1500);
+    gtag("js", new Date());
+    gtag("config", "G-E5DDECQEBZ");
   </script>
 
   <ClientRouter />
