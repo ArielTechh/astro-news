@@ -40,15 +40,46 @@ const { article, readingTime } = Astro.props;
 const category = article.categories?.[0];
 const authors = article.authors || [];
 
-// URL de l'image de couverture
-const coverImageUrl = article.cover
-  ? urlFor(article.cover).width(1200).height(600).url()
+// 🚀 IMAGES OPTIMISÉES AVEC TAILLES RESPONSIVES
+const coverImages = article.cover
+  ? {
+      // Mobile : 412x206 (ratio détecté par Lighthouse)
+      mobile: urlFor(article.cover)
+        .width(412)
+        .height(206)
+        .format("webp")
+        .quality(80)
+        .url(),
+
+      // Tablet : 768x384
+      tablet: urlFor(article.cover)
+        .width(768)
+        .height(384)
+        .format("webp")
+        .quality(80)
+        .url(),
+
+      // Desktop : 1024x512 (max nécessaire)
+      desktop: urlFor(article.cover)
+        .width(1024)
+        .height(512)
+        .format("webp")
+        .quality(80)
+        .url(),
+
+      // Fallback JPEG pour compatibilité
+      fallback: urlFor(article.cover)
+        .width(1024)
+        .height(512)
+        .format("jpg")
+        .quality(75)
+        .url(),
+    }
   : null;
 
 // Fonction pour formater la date en dd/mm/yyyy avec timezone Jerusalem
 const formatJerusalemDate = (dateString) => {
   const date = new Date(dateString);
-  // Convertir en timezone de Jerusalem (Asia/Jerusalem)
   const jerusalemDate = new Date(
     date.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }),
   );
@@ -68,13 +99,38 @@ const formatJerusalemDate = (dateString) => {
     class="container px-0 max-w-5xl lg:mt-4 overflow-hidden aspect-[20/9] rounded-md"
   >
     {
-      coverImageUrl && (
-        <img
-          src={coverImageUrl}
-          alt={article.title}
-          loading="eager"
-          class="w-full h-full object-cover object-center"
-        />
+      coverImages && (
+        <picture>
+          {/* WebP pour les navigateurs modernes */}
+          <source
+            media="(max-width: 480px)"
+            srcset={coverImages.mobile}
+            type="image/webp"
+          />
+          <source
+            media="(max-width: 768px)"
+            srcset={coverImages.tablet}
+            type="image/webp"
+          />
+          <source
+            media="(min-width: 769px)"
+            srcset={coverImages.desktop}
+            type="image/webp"
+          />
+
+          {/* Fallback JPEG */}
+          <img
+            src={coverImages.fallback}
+            alt={article.title}
+            width="1024"
+            height="512"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            class="w-full h-full object-cover object-center"
+            sizes="(max-width: 480px) 412px, (max-width: 768px) 768px, 1024px"
+          />
+        </picture>
       )
     }
   </div>
@@ -142,11 +198,17 @@ const formatJerusalemDate = (dateString) => {
                     <div class="w-8 rounded-full">
                       {author.avatar ? (
                         <img
-                          src={urlFor(author.avatar).width(48).height(48).url()}
+                          src={urlFor(author.avatar)
+                            .width(48)
+                            .height(48)
+                            .format("webp")
+                            .quality(80)
+                            .url()}
                           alt={author.name}
                           width="48"
                           height="48"
-                          loading="eager"
+                          loading="lazy"
+                          decoding="async"
                           class="rounded-full"
                         />
                       ) : (
