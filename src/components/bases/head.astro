@@ -1,26 +1,21 @@
 ---
 import "@/styles/global.css";
-import "@fontsource/source-sans-pro/400.css";
-import "@fontsource/source-sans-pro/600.css";
-import "@fontsource/source-sans-pro/700.css";
-import "@fontsource-variable/source-serif-4";
+// 🚀 FONTS SUPPRIMÉES DU TOP - Chargées de manière non-bloquante plus bas
 import { ClientRouter } from "astro:transitions";
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 import StructuredData from "@/components/seo/StructuredData.astro";
 
-// Changez cette ligne pour utiliser PUBLIC_GTM_ID
 const GTM_ID = import.meta.env.PUBLIC_GTM_ID || "GTM-PQC6K9BZ";
 
 type Props = {
   meta: Meta | ArticleMeta;
-  article?: any; // Données complètes de l'article pour le schema
+  article?: any;
   readingTime?: number;
 };
 
 const { meta, article, readingTime } = Astro.props;
 
-// Type guard to check if props is ArticleMeta
 const isArticleMeta = (props: Props["meta"]): props is ArticleMeta =>
   props.type === "article";
 const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
@@ -34,20 +29,26 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
 
-  <!-- Google Tag Manager -->
-  <!-- <script>
-    (function (w, d, s, l, i) {
-      w[l] = w[l] || [];
-      w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-      var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != "dataLayer" ? "&l=" + l : "";
-      j.async = true;
-      j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, "script", "dataLayer", `GTM-PQC6K9BZ`);
-  </script> -->
-  <!-- End Google Tag Manager -->
+  <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES -->
+  <link
+    rel="preload"
+    href="/_astro/source-sa….tpsLXCSJ.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
+  <link
+    rel="preload"
+    href="/_astro/source-sa….BM2CBz6W.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
+
+  <!-- 🚀 PRÉCONNEXION OPTIMISÉE -->
+  <link rel="preconnect" href="https://cdn.sanity.io" />
+  <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+  <link rel="preconnect" href="https://www.google-analytics.com" />
 
   <!-- Google Search Console Verification -->
   <meta
@@ -131,22 +132,58 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     ) : null
   }
 
-  <script
-    src="https://analytics.ahrefs.com/analytics.js"
-    data-key="fNbl74Cz0zyN4NtzpNBdKg"
-    async></script>
-
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-E5DDECQEBZ"
-  ></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() {
-      dataLayer.push(arguments);
-    }
-    gtag("js", new Date());
-    gtag("config", "G-E5DDECQEBZ");
-  </script>
+  <!-- 🚀 CHARGEMENT FONTS NON-BLOQUANT -->
+  <link
+    rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
+    media="print"
+    onload="this.media='all'"
+  />
+  <noscript>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
+    />
+  </noscript>
 
   <ClientRouter />
+
+  <!-- 🚀 SCRIPTS ANALYTICS DIFFÉRÉS -->
+  <script>
+    // Chargement différé de tous les analytics après interaction ou 1.5 secondes
+    let analyticsLoaded = false;
+
+    function loadAnalytics() {
+      if (analyticsLoaded) return;
+      analyticsLoaded = true;
+
+      // Ahrefs Analytics
+      const ahrefsScript = document.createElement("script");
+      ahrefsScript.src = "https://analytics.ahrefs.com/analytics.js";
+      ahrefsScript.setAttribute("data-key", "fNbl74Cz0zyN4NtzpNBdKg");
+      ahrefsScript.async = true;
+      document.head.appendChild(ahrefsScript);
+
+      // Google Analytics
+      const gtag1 = document.createElement("script");
+      gtag1.async = true;
+      gtag1.src = "https://www.googletagmanager.com/gtag/js?id=G-E5DDECQEBZ";
+      document.head.appendChild(gtag1);
+
+      gtag1.onload = function () {
+        window.dataLayer = window.dataLayer || [];
+        function gtag() {
+          dataLayer.push(arguments);
+        }
+        gtag("js", new Date());
+        gtag("config", "G-E5DDECQEBZ");
+      };
+    }
+
+    // Charger après interaction ou fallback 1.5 secondes
+    ["scroll", "click", "touchstart", "keydown"].forEach((event) => {
+      document.addEventListener(event, loadAnalytics, { once: true });
+    });
+    setTimeout(loadAnalytics, 1500);
+  </script>
 </head>
