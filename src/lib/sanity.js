@@ -6,7 +6,9 @@ export const sanityClient = createClient({
   projectId: '0lbfqiht', // Votre vrai project ID
   dataset: 'production',
   useCdn: true, // true pour la production
-  apiVersion: '2023-05-03'
+  apiVersion: '2023-05-03',
+  perspective: 'published',
+  stega: false
 })
 
 // Helper pour les URLs d'images
@@ -387,7 +389,13 @@ export async function getArticleBySlug(slug) {
         avatar
       }
     }
-  `, { slug })
+  `,
+    { slug },
+    {
+      // 🚀 CACHE AJOUTÉ
+      cache: 'force-cache',
+      next: { revalidate: 300 }
+    })
 }
 
 // Articles par catégorie - ENTIÈREMENT SÉCURISÉ
