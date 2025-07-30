@@ -15,14 +15,11 @@ const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
 const integrations = [
   mdx(),
-  // SITEMAP OPTIMISÉ - EXCLURE /articles/ ET GARDER SEULEMENT LA RACINE
+  // SITEMAP - Votre configuration existante conservée
   sitemap({
-    // Configuration de base
     changefreq: 'daily',
     priority: 0.7,
     lastmod: new Date(),
-
-    // FILTER : Exclure les anciennes URLs /articles/ du sitemap
     filter: (page) => {
       const url = page.toLowerCase();
       return !url.includes('/authors/') &&
@@ -32,15 +29,12 @@ const integrations = [
         !url.includes('/_astro/') &&
         !url.includes('/404') &&
         !url.includes('/500') &&
-        !url.includes('/articles/');  // ← EXCLURE /articles/ du sitemap
+        !url.includes('/articles/');
     },
-
-    // Personnalisation par type de page - SEULEMENT STRUCTURE RACINE
     serialize(item) {
       const url = item.url;
       const path = new URL(url).pathname;
 
-      // PAGE D'ACCUEIL - Priorité maximale
       if (url === 'https://techhorizons.co.il/' || url.endsWith('/')) {
         return {
           url: url,
@@ -50,7 +44,6 @@ const integrations = [
         };
       }
 
-      // ARTICLES À LA RACINE - Très haute priorité (nouvelle structure uniquement)
       if (path !== '/' &&
         !path.includes('/categories/') &&
         !path.includes('/about') &&
@@ -70,7 +63,6 @@ const integrations = [
         };
       }
 
-      // CATÉGORIES PRINCIPALES - Haute priorité
       if (url.includes('/categories/') && !url.match(/\/\d+$/)) {
         return {
           url: url,
@@ -80,7 +72,6 @@ const integrations = [
         };
       }
 
-      // PAGINATION DES CATÉGORIES
       if (url.includes('/categories/') && url.match(/\/\d+$/)) {
         return {
           url: url,
@@ -90,7 +81,6 @@ const integrations = [
         };
       }
 
-      // PAGINATION ARTICLES À LA RACINE
       if (url.match(/\/\d+$/) && !url.includes('/categories/')) {
         return {
           url: url,
@@ -100,7 +90,6 @@ const integrations = [
         };
       }
 
-      // PAGES STATIQUES
       if (url.includes('/about') || url.includes('/contact') ||
         url.includes('/accessibility') || url.includes('/cookie') ||
         url.includes('/privacy') || url.includes('/search')) {
@@ -112,7 +101,6 @@ const integrations = [
         };
       }
 
-      // AUTRES PAGES
       return {
         url: url,
         changefreq: 'weekly',
@@ -141,12 +129,55 @@ export default defineConfig({
   markdown: {
     remarkPlugins: [readingTime, modifiedTime],
   },
-  experimental: {
-    // responsiveImages: true,
+  // experimental: {
+  //   // responsiveImages est maintenant intégré par défaut dans Astro v4+
+  // },
+  image: {
+    // 🚀 OPTIMISATIONS IMAGES pour LCP
+    domains: ["cdn.sanity.io"], // Ajoutez vos domaines d'images
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.sanity.io",
+      },
+    ],
+    // Formats optimisés
+    formats: ["avif", "webp"],
+    // Qualité optimisée
+    quality: 80,
   },
-  image: {},
   integrations,
   vite: {
     plugins: [tailwindcss()],
+    // 🚀 OPTIMISATIONS VITE pour LCP
+    build: {
+      // Inliner les petits assets
+      assetsInlineLimit: 4096,
+      // Optimiser les chunks
+      rollupOptions: {
+        output: {
+          // Séparer les vendors pour un meilleur caching
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            sanity: ['@sanity/client'],
+          },
+        },
+      },
+    },
+    // Optimisations SSR
+    ssr: {
+      // Éviter d'externaliser les deps critiques
+      noExternal: ['@fontsource/source-sans-pro', '@fontsource-variable/source-serif-4'],
+    },
+  },
+  // 🚀 OPTIMISATIONS BUILD
+  build: {
+    // Inlining des styles critiques
+    inlineStylesheets: 'auto',
+  },
+  // 🚀 OPTIMISATIONS SERVER
+  server: {
+    // Préchargement des modules
+    preload: true,
   },
 });
