@@ -6,12 +6,14 @@ import ViewListHeader from "@/components/shared/view-list-header.astro";
 type Props = {
   header: string;
   entry: CollectionEntry<"views">;
+  canonical?: string; // ✅ AJOUT : prop canonical
 };
 
-const { entry, header } = Astro.props;
+const { entry, header, canonical } = Astro.props; // ✅ AJOUT : récupérer canonical
 ---
 
-<BaseLayout entry={entry}>
+<BaseLayout entry={entry} canonical={canonical}>
+  <!-- ✅ AJOUT : passer canonical -->
   <div
     class="container flex flex-col h-full pb-8 pt-4"
     data-pagefind-ignore="all"

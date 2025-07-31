@@ -38,19 +38,25 @@ const integrations = [
     // Personnalisation par type de page - SEULEMENT STRUCTURE RACINE
     serialize(item) {
       const url = item.url;
-      const path = new URL(url).pathname;
 
-      // PAGE D'ACCUEIL - Priorité maximale
-      if (url === 'https://techhorizons.co.il/' || url.endsWith('/')) {
+      // ✅ AJOUT : Enlever le slash final pour TOUT sauf l'accueil
+      const cleanUrl = url.endsWith('/') && url !== 'https://techhorizons.co.il/'
+        ? url.slice(0, -1)
+        : url;
+
+      const path = new URL(cleanUrl).pathname;
+
+      // PAGE D'ACCUEIL - Priorité maximale (garde le slash)
+      if (cleanUrl === 'https://techhorizons.co.il/') {
         return {
-          url: url,
+          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
           changefreq: 'hourly',
           priority: 1.0,
           lastmod: new Date().toISOString()
         };
       }
 
-      // ARTICLES À LA RACINE - Très haute priorité (nouvelle structure uniquement)
+      // ARTICLES À LA RACINE - Très haute priorité
       if (path !== '/' &&
         !path.includes('/categories/') &&
         !path.includes('/about') &&
@@ -63,13 +69,8 @@ const integrations = [
         !path.includes('/rss') &&
         !path.includes('/sitemap')) {
 
-
-        // Enlever le slash final pour les articles uniquement
-        const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
-
-
         return {
-          url: url,
+          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
           changefreq: 'daily',
           priority: 0.9,
           lastmod: new Date().toISOString()
@@ -77,9 +78,9 @@ const integrations = [
       }
 
       // CATÉGORIES PRINCIPALES - Haute priorité
-      if (url.includes('/categories/') && !url.match(/\/\d+$/)) {
+      if (cleanUrl.includes('/categories/') && !cleanUrl.match(/\/\d+$/)) {
         return {
-          url: url,
+          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
           changefreq: 'daily',
           priority: 0.8,
           lastmod: new Date().toISOString()
@@ -87,9 +88,9 @@ const integrations = [
       }
 
       // PAGINATION DES CATÉGORIES
-      if (url.includes('/categories/') && url.match(/\/\d+$/)) {
+      if (cleanUrl.includes('/categories/') && cleanUrl.match(/\/\d+$/)) {
         return {
-          url: url,
+          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
           changefreq: 'daily',
           priority: 0.6,
           lastmod: new Date().toISOString()
@@ -97,9 +98,9 @@ const integrations = [
       }
 
       // PAGINATION ARTICLES À LA RACINE
-      if (url.match(/\/\d+$/) && !url.includes('/categories/')) {
+      if (cleanUrl.match(/\/\d+$/) && !cleanUrl.includes('/categories/')) {
         return {
-          url: url,
+          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
           changefreq: 'daily',
           priority: 0.5,
           lastmod: new Date().toISOString()
@@ -107,11 +108,11 @@ const integrations = [
       }
 
       // PAGES STATIQUES
-      if (url.includes('/about') || url.includes('/contact') ||
-        url.includes('/accessibility') || url.includes('/cookie') ||
-        url.includes('/privacy') || url.includes('/search')) {
+      if (cleanUrl.includes('/about') || cleanUrl.includes('/contact') ||
+        cleanUrl.includes('/accessibility') || cleanUrl.includes('/cookie') ||
+        cleanUrl.includes('/privacy') || cleanUrl.includes('/search')) {
         return {
-          url: url,
+          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
           changefreq: 'monthly',
           priority: 0.3,
           lastmod: new Date().toISOString()
@@ -120,7 +121,7 @@ const integrations = [
 
       // AUTRES PAGES
       return {
-        url: url,
+        url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
         changefreq: 'weekly',
         priority: 0.4,
         lastmod: new Date().toISOString()
@@ -144,6 +145,7 @@ if (RUN_KEYSTATIC === "true") {
 export default defineConfig({
   site: SITE.url,
   base: SITE.basePath,
+  trailingSlash: 'never',
   markdown: {
     remarkPlugins: [readingTime, modifiedTime],
   },

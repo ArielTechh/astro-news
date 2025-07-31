@@ -51,9 +51,15 @@ if (!entry) {
 
 // Titre de la catégorie en hébreu ou utiliser le titre Sanity
 const categoryTitle = categoryInfo?.title || params.category;
+
+// ✅ AJOUT : URL canonique SANS slash final
+const canonicalUrl =
+  page.currentPage === 1
+    ? `${SITE.url}/categories/${params.category}`
+    : `${SITE.url}/categories/${params.category}/${page.currentPage}`;
 ---
 
-<ListLayout header={categoryTitle} entry={entry}>
+<ListLayout header={categoryTitle} entry={entry} canonical={canonicalUrl}>
   <div dir="rtl">
     <!-- Breadcrumb pour catégories hiérarchiques -->
     {
