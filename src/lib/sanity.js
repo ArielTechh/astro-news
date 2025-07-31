@@ -150,6 +150,8 @@ export async function getAllArticles() {
       isDraft,
       isMainHeadline,
       isSubHeadline,
+      _createdAt,
+      _updatedAt,
       categories[]-> {
         title,
         slug,

@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
+import { getAllArticles } from './src/lib/sanity.js'; // ← Ajoutez cette ligne en haut
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
@@ -10,6 +11,7 @@ import react from "@astrojs/react";
 import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
 import sanity from '@sanity/astro';
+
 
 const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
@@ -36,7 +38,7 @@ const integrations = [
     },
 
     // Personnalisation par type de page - SEULEMENT STRUCTURE RACINE
-    serialize(item) {
+    serialize: async (item) => {
       const url = item.url;
 
       // ✅ AJOUT : Enlever le slash final pour TOUT sauf l'accueil
@@ -49,14 +51,14 @@ const integrations = [
       // PAGE D'ACCUEIL - Priorité maximale (garde le slash)
       if (cleanUrl === 'https://techhorizons.co.il/') {
         return {
-          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
+          url: cleanUrl,
           changefreq: 'hourly',
           priority: 1.0,
           lastmod: new Date().toISOString()
         };
       }
 
-      // ARTICLES À LA RACINE - Très haute priorité
+      // ✨ NOUVEAU : ARTICLES À LA RACINE avec dates Sanity
       if (path !== '/' &&
         !path.includes('/categories/') &&
         !path.includes('/about') &&
@@ -69,8 +71,37 @@ const integrations = [
         !path.includes('/rss') &&
         !path.includes('/sitemap')) {
 
+        try {
+          // Extraire le slug depuis l'URL
+          const slug = path.replace('/', '');
+
+          // ✨ Récupérer les articles depuis Sanity
+          const articles = await getAllArticles();
+          const article = articles.find(a => a.slug?.current === slug);
+
+          if (article) {
+            // ✨ Utiliser les vraies dates Sanity !
+            const articleDate = new Date(
+              article._updatedAt ||    // Date de modification
+              article.publishedTime || // Date de publication
+              article._createdAt ||    // Date de création
+              new Date()              // Fallback
+            ).toISOString();
+
+            return {
+              url: cleanUrl,
+              changefreq: 'daily',
+              priority: 0.9,
+              lastmod: articleDate // ← VOILÀ LA VRAIE DATE !
+            };
+          }
+        } catch (error) {
+          console.error(`Erreur Sanity pour ${path}:`, error);
+        }
+
+        // Fallback si erreur
         return {
-          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
+          url: cleanUrl,
           changefreq: 'daily',
           priority: 0.9,
           lastmod: new Date().toISOString()
@@ -80,7 +111,7 @@ const integrations = [
       // CATÉGORIES PRINCIPALES - Haute priorité
       if (cleanUrl.includes('/categories/') && !cleanUrl.match(/\/\d+$/)) {
         return {
-          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
+          url: cleanUrl,
           changefreq: 'daily',
           priority: 0.8,
           lastmod: new Date().toISOString()
@@ -90,7 +121,7 @@ const integrations = [
       // PAGINATION DES CATÉGORIES
       if (cleanUrl.includes('/categories/') && cleanUrl.match(/\/\d+$/)) {
         return {
-          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
+          url: cleanUrl,
           changefreq: 'daily',
           priority: 0.6,
           lastmod: new Date().toISOString()
@@ -100,7 +131,7 @@ const integrations = [
       // PAGINATION ARTICLES À LA RACINE
       if (cleanUrl.match(/\/\d+$/) && !cleanUrl.includes('/categories/')) {
         return {
-          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
+          url: cleanUrl,
           changefreq: 'daily',
           priority: 0.5,
           lastmod: new Date().toISOString()
@@ -112,16 +143,16 @@ const integrations = [
         cleanUrl.includes('/accessibility') || cleanUrl.includes('/cookie') ||
         cleanUrl.includes('/privacy') || cleanUrl.includes('/search')) {
         return {
-          url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
+          url: cleanUrl,
           changefreq: 'monthly',
           priority: 0.3,
-          lastmod: new Date().toISOString()
+          lastmod: '2024-01-01T00:00:00.000Z'
         };
       }
 
       // AUTRES PAGES
       return {
-        url: cleanUrl, // ✅ CHANGÉ : cleanUrl au lieu de url
+        url: cleanUrl,
         changefreq: 'weekly',
         priority: 0.4,
         lastmod: new Date().toISOString()
