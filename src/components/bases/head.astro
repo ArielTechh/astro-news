@@ -5,6 +5,8 @@ import { ClientRouter } from "astro:transitions";
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 import StructuredData from "@/components/seo/StructuredData.astro";
+// ✨ AJOUT : Import d'astro-seo
+import { SEO } from "astro-seo";
 
 const GTM_ID = import.meta.env.PUBLIC_GTM_ID || "GTM-PQC6K9BZ";
 
@@ -12,10 +14,10 @@ type Props = {
   meta: Meta | ArticleMeta;
   article?: any;
   readingTime?: number;
-  canonical?: string; // ← AJOUT
+  canonical?: string;
 };
 
-const { meta, article, readingTime, canonical } = Astro.props; // ← AJOUT
+const { meta, article, readingTime, canonical } = Astro.props;
 
 const isArticleMeta = (props: Props["meta"]): props is ArticleMeta =>
   props.type === "article";
@@ -25,10 +27,93 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 ---
 
 <head>
-  <!-- Global Metadata -->
+  <!-- ✅ CHARSET EN PREMIER - OBLIGATOIRE -->
   <meta charset={SITE.charset} />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
+  <meta
+    name="robots"
+    content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+  />
+  <!-- ✨ astro-seo pour toutes les balises SEO -->
+  <SEO
+    title={meta.title}
+    titleTemplate={`%s | ${SITE.title}`}
+    description={meta.description}
+    canonical={canonicalURL}
+    openGraph={{
+      basic: {
+        title: meta.metaTitle,
+        type: meta.type === "article" ? "article" : "website",
+        image: OGImage,
+        url: canonicalURL,
+      },
+      optional: {
+        description: meta.description,
+        siteName: SITE.title,
+        locale: "he_IL",
+      },
+      ...(isArticleMeta(meta) && {
+        article: {
+          publishedTime: new Date(meta.publishedTime).toISOString(),
+          modifiedTime: new Date(meta.lastModified).toISOString(),
+          authors: meta.authors.map(
+            (author) => `${Astro.site}authors/${author.link}`,
+          ),
+        },
+      }),
+    }}
+    twitter={{
+      card: "summary_large_image",
+      site: SITE.title,
+      title: meta.metaTitle,
+      description: meta.description,
+      image: OGImage,
+      imageAlt: meta.ogImageAlt,
+    }}
+    extend={{
+      meta: [
+        {
+          name: "google-site-verification",
+          content: "7ukDuvGs_biEzOc41_DLPmQotzKzJkrVvpQCKqLoGBM",
+        },
+        {
+          name: "impact-site-verification",
+          content: "4698de27-0b12-448d-84b6-e8b7f98bc746",
+        },
+        { name: "apple-mobile-web-app-title", content: "Astro News" },
+        ...(isArticleMeta(meta)
+          ? meta.authors.map((author) => ({
+              name: "author",
+              content: author.name,
+            }))
+          : []),
+      ],
+      link: [
+        {
+          rel: "icon",
+          type: "image/png",
+          href: "/tech_favicon.png",
+          sizes: "96x96",
+        },
+        { rel: "icon", type: "image/svg+xml", href: "/fav.svg" },
+        { rel: "shortcut icon", href: "/fav.ico" },
+        {
+          rel: "apple-touch-icon",
+          sizes: "180x180",
+          href: "/apple-touch-icon.png",
+        },
+        { rel: "manifest", href: "/site.webmanifest" },
+        { rel: "sitemap", href: "/sitemap-index.xml" },
+        {
+          rel: "alternate",
+          type: "application/rss+xml",
+          title: SITE.title,
+          href: new URL("rss.xml", Astro.site).href,
+        },
+      ],
+    }}
+  />
 
   <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES -->
   <link
@@ -51,82 +136,6 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <link rel="dns-prefetch" href="https://cdn.sanity.io" />
   <link rel="preconnect" href="https://www.google-analytics.com" />
 
-  <!-- Google Search Console Verification -->
-  <meta
-    name="google-site-verification"
-    content="7ukDuvGs_biEzOc41_DLPmQotzKzJkrVvpQCKqLoGBM"
-  />
-  <meta
-    name="impact-site-verification"
-    value="4698de27-0b12-448d-84b6-e8b7f98bc746"
-  />
-
-  <!-- Favicons -->
-  <link rel="icon" type="image/png" href="/tech_favicon.png" sizes="96x96" />
-  <link rel="icon" type="image/svg+xml" href="/fav.svg" />
-  <link rel="shortcut icon" href="/fav.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <meta name="apple-mobile-web-app-title" content="Astro News" />
-  <link rel="manifest" href="/site.webmanifest" />
-
-  <!-- RSS & Sitemap -->
-  <link rel="sitemap" href="/sitemap-index.xml" />
-  <link
-    rel="alternate"
-    type="application/rss+xml"
-    title={SITE.title}
-    href={new URL("rss.xml", Astro.site)}
-  />
-
-  <!-- Canonical URL -->
-  <link rel="canonical" href={canonicalURL} />
-
-  <!-- Page Metadata -->
-  <title>{meta.title}</title>
-  <meta name="title" content={meta.metaTitle} />
-  <meta name="description" content={meta.description} />
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content={meta.type} />
-  <meta property="og:url" content={canonicalURL} />
-  <meta property="og:title" content={meta.metaTitle} />
-  <meta property="og:description" content={meta.description} />
-  <meta property="og:image" content={OGImage} />
-  <meta property="og:image:alt" content={meta.ogImageAlt} />
-
-  <!-- Twitter -->
-  <meta property="twitter:site" content={Astro.site} />
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content={canonicalURL} />
-  <meta property="twitter:title" content={meta.metaTitle} />
-  <meta property="twitter:description" content={meta.description} />
-  <meta property="twitter:image" content={OGImage} />
-  <meta property="twitter:image:alt" content={meta.ogImageAlt} />
-
-  {
-    isArticleMeta(meta) ? (
-      <>
-        <meta
-          property="article:published_time"
-          content={new Date(meta.publishedTime).toISOString()}
-        />
-        <meta
-          property="article:modified_time"
-          content={new Date(meta.lastModified).toISOString()}
-        />
-
-        {meta.authors.map((author) => (
-          <>
-            <meta property="author" content={author.name} />
-            <meta
-              property="article:author"
-              content={`${Astro.site}authors/${author.link}`}
-            />
-          </>
-        ))}
-      </>
-    ) : null
-  }
   {
     isArticleMeta(meta) && article ? (
       <StructuredData article={article} readingTime={readingTime} />
