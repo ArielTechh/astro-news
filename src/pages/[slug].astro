@@ -249,49 +249,107 @@ breadcrumbItems.push({ name: "מאמרים", url: "/articles" });
               }
             }
 
-            // ✅ OPTIMISATION IMAGES - ÉTAPE 1
+            // ✨ IMAGES OPTIMISÉES - VERSION ULTRA PERFORMANTE
             if (block._type === "image") {
               try {
-                // Vérifier que l'image a un asset valide avant de générer l'URL
+                // Vérifier que l'image a un asset valide
                 if (block.asset || block._ref) {
-                  // Générer plusieurs tailles pour images responsives
-                  const imageSrcSet = [
-                    `${urlFor(block).width(400).quality(85).format("webp").url()} 400w`,
-                    `${urlFor(block).width(800).quality(85).format("webp").url()} 800w`,
-                    `${urlFor(block).width(1200).quality(85).format("webp").url()} 1200w`,
-                  ].join(", ");
+                  // ✨ Alt text intelligent depuis Sanity
+                  const altText =
+                    block.alt ||
+                    block.caption ||
+                    `Image de l'article: ${fullArticle.title}` ||
+                    "Image de l'article";
 
-                  // Image par défaut (800px)
-                  const imageUrl = urlFor(block)
+                  // ✨ Fonction pour générer les srcsets optimisés
+                  const generateImageSrcSet = (baseImage, format = "webp") => {
+                    return [
+                      `${urlFor(baseImage).width(400).quality(85).format(format).url()} 400w`,
+                      `${urlFor(baseImage).width(800).quality(85).format(format).url()} 800w`,
+                      `${urlFor(baseImage).width(1200).quality(80).format(format).url()} 1200w`,
+                      `${urlFor(baseImage).width(1600).quality(75).format(format).url()} 1600w`,
+                    ].join(", ");
+                  };
+
+                  // ✨ Sources multiples pour compatibilité maximale
+                  const avifSrcSet = generateImageSrcSet(block, "avif");
+                  const webpSrcSet = generateImageSrcSet(block, "webp");
+                  const jpegSrcSet = generateImageSrcSet(block, "jpg");
+
+                  // Image par défaut optimisée
+                  const defaultImageUrl = urlFor(block)
                     .width(800)
                     .quality(85)
                     .format("webp")
                     .url();
 
+                  // ✨ Dimensions pour éviter layout shift
+                  const imageWidth = 800;
+                  const imageHeight = Math.round(imageWidth * 0.6); // Ratio 5:3
+
                   return (
-                    <div key={index} class="my-8">
-                      <img
-                        src={imageUrl}
-                        srcset={imageSrcSet}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
-                        alt={block.alt || "Image de l'article"}
-                        class="w-full rounded-lg shadow-md"
-                        loading="lazy"
-                        width="800"
-                        height="400"
-                        decoding="async"
-                      />
-                    </div>
+                    <figure key={index} class="my-8 w-full">
+                      <picture class="block w-full">
+                        {/* ✨ AVIF - Format le plus moderne (~50% plus léger) */}
+                        <source
+                          srcset={avifSrcSet}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 85vw, 800px"
+                          type="image/avif"
+                        />
+
+                        {/* ✨ WebP - Excellent compromis performance/compatibilité */}
+                        <source
+                          srcset={webpSrcSet}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 85vw, 800px"
+                          type="image/webp"
+                        />
+
+                        {/* ✅ JPEG - Fallback pour anciens navigateurs */}
+                        <source
+                          srcset={jpegSrcSet}
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 85vw, 800px"
+                          type="image/jpeg"
+                        />
+
+                        {/* ✅ Image principale optimisée */}
+                        <img
+                          src={defaultImageUrl}
+                          alt={altText}
+                          class="w-full rounded-lg shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.01]"
+                          loading={index < 2 ? "eager" : "lazy"}
+                          decoding="async"
+                          width={imageWidth}
+                          height={imageHeight}
+                          style={`aspect-ratio: ${imageWidth}/${imageHeight}; opacity: 0; transition: opacity 0.3s ease-in-out;`}
+                          onload="this.style.opacity='1'"
+                          onerror="this.style.opacity='0.5'; this.alt='Image non disponible'"
+                        />
+                      </picture>
+
+                      {/* ✨ Légende si disponible */}
+                      {block.caption && (
+                        <figcaption class="mt-3 text-sm text-gray-600 dark:text-gray-400 text-center italic leading-relaxed">
+                          {block.caption}
+                        </figcaption>
+                      )}
+                    </figure>
                   );
                 } else {
-                  // Image sans asset valide - ne pas la rendre
+                  // Image sans asset valide
                   console.warn("Image sans asset trouvée, ignorée:", block);
                   return null;
                 }
               } catch (error) {
-                // Si erreur dans la génération de l'URL, ne pas rendre l'image
+                // Gestion d'erreur gracieuse
                 console.warn("Erreur lors du rendu de l'image:", error, block);
-                return null;
+                return (
+                  <div
+                    key={index}
+                    class="my-8 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center text-gray-500"
+                  >
+                    <p>Image temporairement indisponible</p>
+                  </div>
+                );
               }
             }
 
