@@ -3,11 +3,12 @@
 
 # AUTORISATIONS GÉNÉRALES
 User-agent: *
-Allow: /articles/
+Allow: /
 Allow: /categories/
 Disallow: /admin/
 Disallow: /api/
 Disallow: /_astro/
+Disallow: /preview/
 
 # INFORMATIONS SUR LE SITE
 Site-Name: TechHorizons
@@ -18,25 +19,21 @@ Content-Type: technology news, reviews, guides
 
 # AUTORISATIONS SPÉCIFIQUES PAR IA
 User-agent: GPTBot
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Use-case: training, inference
 Attribution: required
 
 User-agent: Claude-Web  
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Use-case: training, inference
 Attribution: preferred
 
 User-agent: Google-Extended
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Use-case: training, inference
 
 User-agent: CCBot
-Allow: /articles/
-Allow: /categories/
+Allow: /
 Use-case: training
 Crawl-delay: 5
 
@@ -51,5 +48,5 @@ Inference: allowed
 Commercial-use: allowed-with-attribution
 
 # MISE À JOUR
-Last-modified: 2025-07-21
-Version: 1.0
+Last-modified: 2025-07-31
+Version: 1.1

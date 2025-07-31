@@ -6,6 +6,7 @@ import ArticleHeader from "@/pages/articles/_components/article-header.astro";
 import { getAllArticles, getArticleBySlug, urlFor } from "@/lib/sanity";
 import StructuredData from "@/components/seo/StructuredData.astro";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs.astro";
+import { SITE } from "../lib/config/index.ts";
 
 export const getStaticPaths = async () => {
   const articles = await getAllArticles();
@@ -41,7 +42,8 @@ const calculateReadingTime = (content) => {
 };
 
 const readingTime = calculateReadingTime(fullArticle.content);
-const canonicalUrl = `/${article.slug.current}`;
+// ✅ Articles sans slash
+const canonicalUrl = `${SITE.url}/${article.slug.current}`;
 
 // Fonction pour parser un tableau Markdown
 const parseTable = (text) => {

@@ -62,6 +62,12 @@ const integrations = [
         !path.includes('/search') &&
         !path.includes('/rss') &&
         !path.includes('/sitemap')) {
+
+
+        // Enlever le slash final pour les articles uniquement
+        const cleanUrl = url.endsWith('/') ? url.slice(0, -1) : url;
+
+
         return {
           url: url,
           changefreq: 'daily',
