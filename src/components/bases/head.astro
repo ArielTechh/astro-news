@@ -12,13 +12,14 @@ type Props = {
   meta: Meta | ArticleMeta;
   article?: any;
   readingTime?: number;
+  canonical?: string; // ← AJOUT
 };
 
-const { meta, article, readingTime } = Astro.props;
+const { meta, article, readingTime, canonical } = Astro.props; // ← AJOUT
 
 const isArticleMeta = (props: Props["meta"]): props is ArticleMeta =>
   props.type === "article";
-const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
+const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site).href;
 
 const OGImage = new URL(meta.ogImage, Astro.url).href;
 ---
