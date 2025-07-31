@@ -1,5 +1,5 @@
 // src/integrations/custom-sitemap.ts
-// Plugin personnalisé pour créer des sitemaps nommés par type
+// Version corrigée - Classification plus robuste
 
 import fs from 'fs';
 import path from 'path';
@@ -19,12 +19,26 @@ export function customSitemap() {
         const categoryPages = [];
         const articlePages = [];
 
-        for (const page of pages) {
-          const url = new URL(page.pathname, SITE_URL).href;
-          const cleanUrl = url.endsWith('/') && url !== `${SITE_URL}/`
-            ? url.slice(0, -1)
-            : url;
+        // AJOUT MANUEL des pages statiques connues (au cas où Astro ne les détecte pas)
+        staticPages.push({
+          url: `${SITE_URL}/`,
+          lastmod: new Date().toISOString(),
+          changefreq: 'hourly',
+          priority: '1.0'
+        });
 
+        // Pages statiques supplémentaires (ajoutez selon vos pages réelles)
+        const knownStaticPages = ['/about', '/contact', '/accessibility', '/cookie-policy', '/privacy', '/search'];
+        knownStaticPages.forEach(pagePath => {
+          staticPages.push({
+            url: `${SITE_URL}${pagePath}`,
+            lastmod: new Date().toISOString(),
+            changefreq: 'monthly',
+            priority: '0.3'
+          });
+        });
+
+        for (const page of pages) {
           const pathname = page.pathname;
 
           // Filtrer les pages indésirables
@@ -33,28 +47,22 @@ export function customSitemap() {
             pathname.includes('/_astro/') ||
             pathname.includes('/404') ||
             pathname.includes('/500') ||
-            pathname.includes('/articles/')) {
+            pathname.includes('/articles/') ||
+            pathname.includes('/authors/') ||
+            pathname.includes('/preview/') ||
+            pathname.includes('/rss') ||
+            pathname.includes('/sitemap')) {
             continue;
           }
 
-          // Classer par type
-          if (pathname === '/' ||
-            pathname.includes('/about') ||
-            pathname.includes('/contact') ||
-            pathname.includes('/accessibility') ||
-            pathname.includes('/cookie') ||
-            pathname.includes('/privacy') ||
-            pathname.includes('/search')) {
+          const url = new URL(pathname, SITE_URL).href;
+          const cleanUrl = url.endsWith('/') && url !== `${SITE_URL}/`
+            ? url.slice(0, -1)
+            : url;
 
-            staticPages.push({
-              url: cleanUrl,
-              lastmod: new Date().toISOString(),
-              changefreq: pathname === '/' ? 'hourly' : 'monthly',
-              priority: pathname === '/' ? '1.0' : '0.3'
-            });
-
-          } else if (pathname.includes('/categories/')) {
-
+          // Classification plus stricte
+          if (pathname.includes('/categories/')) {
+            // CATÉGORIES
             categoryPages.push({
               url: cleanUrl,
               lastmod: new Date().toISOString(),
@@ -63,9 +71,14 @@ export function customSitemap() {
             });
 
           } else if (pathname !== '/' &&
-            !pathname.includes('/categories/') &&
+            !pathname.includes('/about') &&
+            !pathname.includes('/contact') &&
+            !pathname.includes('/accessibility') &&
+            !pathname.includes('/cookie') &&
+            !pathname.includes('/privacy') &&
+            !pathname.includes('/search') &&
             !pathname.match(/\/\d+$/)) {
-
+            // ARTICLES (tout ce qui reste et qui n'est pas une page statique ou pagination)
             articlePages.push({
               url: cleanUrl,
               lastmod: new Date().toISOString(),
@@ -93,15 +106,13 @@ ${urlsXML}
 
         const sitemapFiles = [];
 
-        // 1. Créer sitemap-static.xml
-        if (staticPages.length > 0) {
-          const staticXML = createSitemapXML(staticPages);
-          fs.writeFileSync(path.join(distPath, 'sitemap-static.xml'), staticXML);
-          sitemapFiles.push('sitemap-static.xml');
-          console.log(`✅ sitemap-static.xml créé avec ${staticPages.length} pages`);
-        }
+        // 1. Créer sitemap-static.xml (TOUJOURS créé)
+        const staticXML = createSitemapXML(staticPages);
+        fs.writeFileSync(path.join(distPath, 'sitemap-static.xml'), staticXML);
+        sitemapFiles.push('sitemap-static.xml');
+        console.log(`✅ sitemap-static.xml créé avec ${staticPages.length} pages`);
 
-        // 2. Créer sitemap-categories.xml
+        // 2. Créer sitemap-categories.xml (si catégories détectées)
         if (categoryPages.length > 0) {
           const categoriesXML = createSitemapXML(categoryPages);
           fs.writeFileSync(path.join(distPath, 'sitemap-categories.xml'), categoriesXML);
@@ -110,16 +121,18 @@ ${urlsXML}
         }
 
         // 3. Créer sitemap-articles-X.xml (par groupes de 300)
-        const articlesPerSitemap = 300;
-        for (let i = 0; i < articlePages.length; i += articlesPerSitemap) {
-          const chunk = articlePages.slice(i, i + articlesPerSitemap);
-          const sitemapNumber = Math.floor(i / articlesPerSitemap) + 1;
-          const filename = `sitemap-articles-${sitemapNumber}.xml`;
+        if (articlePages.length > 0) {
+          const articlesPerSitemap = 300;
+          for (let i = 0; i < articlePages.length; i += articlesPerSitemap) {
+            const chunk = articlePages.slice(i, i + articlesPerSitemap);
+            const sitemapNumber = Math.floor(i / articlesPerSitemap) + 1;
+            const filename = `sitemap-articles-${sitemapNumber}.xml`;
 
-          const articlesXML = createSitemapXML(chunk);
-          fs.writeFileSync(path.join(distPath, filename), articlesXML);
-          sitemapFiles.push(filename);
-          console.log(`✅ ${filename} créé avec ${chunk.length} articles`);
+            const articlesXML = createSitemapXML(chunk);
+            fs.writeFileSync(path.join(distPath, filename), articlesXML);
+            sitemapFiles.push(filename);
+            console.log(`✅ ${filename} créé avec ${chunk.length} articles`);
+          }
         }
 
         // 4. Créer sitemap-index.xml
@@ -135,9 +148,8 @@ ${sitemapsXML}
 </sitemapindex>`;
 
         fs.writeFileSync(path.join(distPath, 'sitemap-index.xml'), indexXML);
-        sitemapFiles.push('sitemap-index.xml');
 
-        console.log(`🎉 sitemap-index.xml créé avec ${sitemapFiles.length - 1} sitemaps`);
+        console.log(`🎉 sitemap-index.xml créé avec ${sitemapFiles.length} sitemaps`);
         console.log(`📊 Total: ${staticPages.length} pages statiques, ${categoryPages.length} catégories, ${articlePages.length} articles`);
       }
     }
