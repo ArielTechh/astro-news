@@ -153,21 +153,24 @@ export async function getAllArticles() {
       _createdAt,
       _updatedAt,
       categories[]-> {
+        _id,           // ✅ AJOUTÉ : _id pour le matching
         title,
         slug,
         parent-> {
+          _id,         // ✅ AJOUTÉ : _id du parent aussi
           title,
           slug
         }
       },
       authors[]-> {
+        _id,           // ✅ AJOUTÉ : _id pour les auteurs
         name,
         slug
-      }
+      },
+      tags,
     }
   `)
 }
-
 // Ajoutez cette fonction mise à jour dans votre sanity.js
 
 
@@ -626,13 +629,11 @@ export async function getPageBySlug(slug) {
 
 
 
+// Remplacez votre fonction getSiteSettings par celle-ci :
 
-
-
-// Récupérer les paramètres du site
 export async function getSiteSettings() {
   try {
-    const settings = await client.fetch(`
+    const settings = await sanityClient.fetch(`  // ✅ CORRIGÉ : sanityClient au lieu de client
       *[_type == "siteSettings"][0] {
         relatedDisplay,
         relatedCount,
@@ -644,6 +645,18 @@ export async function getSiteSettings() {
       }
     `);
 
+    // Si aucun paramètre trouvé, retourner des valeurs par défaut
+    if (!settings) {
+      return {
+        relatedDisplay: 'grid',
+        relatedCount: 3,
+        relatedTitle: 'Articles similaires',
+        relatedCriteria: 'categories',
+        excludeDrafts: true,
+        prioritizeHeadlines: false
+      };
+    }
+
     return settings;
   } catch (error) {
     console.error('Erreur lors de la récupération des paramètres:', error);
@@ -652,182 +665,54 @@ export async function getSiteSettings() {
       relatedDisplay: 'grid',
       relatedCount: 3,
       relatedTitle: 'Articles similaires',
-      relatedCriteria: 'smart',
-      smartWeighting: {
-        categoryWeight: 3,
-        tagWeight: 2,
-        authorWeight: 1,
-        recencyWeight: 1
-      },
+      relatedCriteria: 'categories',
       excludeDrafts: true,
       prioritizeHeadlines: false
     };
   }
 }
 
-// Fonction pour calculer le score intelligent
-function calculateSmartScore(article, currentArticle, weights) {
-  let score = 0;
+// Remplacez votre fonction getRelatedArticles par celle-ci (VERSION SIMPLIFIÉE) :
 
-  // Score basé sur les catégories partagées
-  if (weights.categoryWeight > 0) {
-    const sharedCategories = article.categories?.filter(cat =>
-      currentArticle.categories?.some(currentCat => currentCat._id === cat._id)
-    ).length || 0;
-
-    const totalCurrentCategories = currentArticle.categories?.length || 1;
-    const categoryScore = (sharedCategories / totalCurrentCategories) * weights.categoryWeight;
-    score += categoryScore;
-  }
-
-  // Score basé sur les tags partagés
-  if (weights.tagWeight > 0) {
-    const sharedTags = article.tags?.filter(tag =>
-      currentArticle.tags?.includes(tag)
-    ).length || 0;
-
-    const totalCurrentTags = currentArticle.tags?.length || 1;
-    const tagScore = (sharedTags / totalCurrentTags) * weights.tagWeight;
-    score += tagScore;
-  }
-
-  // Score basé sur les auteurs partagés
-  if (weights.authorWeight > 0) {
-    const sharedAuthors = article.authors?.filter(author =>
-      currentArticle.authors?.some(currentAuthor => currentAuthor._id === author._id)
-    ).length || 0;
-
-    if (sharedAuthors > 0) {
-      score += weights.authorWeight;
-    }
-  }
-
-  // Score basé sur la récence
-  if (weights.recencyWeight > 0) {
-    const daysDifference = Math.abs(
-      (new Date(article.publishedTime) - new Date(currentArticle.publishedTime)) / (1000 * 60 * 60 * 24)
-    );
-    const recencyScore = Math.max(0, (30 - daysDifference) / 30) * weights.recencyWeight;
-    score += recencyScore;
-  }
-
-  return score;
-}
-
-// Récupérer les articles associés selon les paramètres
 export async function getRelatedArticles(currentArticle, settings) {
   try {
-    // Construire la requête de base
-    let query = `*[_type == "article" && _id != "${currentArticle._id}"`;
+    // Utiliser getAllArticles qui fonctionne déjà
+    const allArticles = await getAllArticles();
 
-    // Exclure les brouillons si configuré
-    if (settings.excludeDrafts) {
-      query += ` && !isDraft`;
-    }
+    // Filtrer l'article actuel
+    let relatedArticles = allArticles.filter(article => article._id !== currentArticle._id);
 
-    query += `] {
-      _id,
-      title,
-      description,
-      tags,
-      slug,
-      cover {
-        asset,
-        alt
-      },
-      categories[]-> {
-        _id,
-        title,
-        slug
-      },
-      authors[]-> {
-        _id,
-        name,
-        slug
-      },
-      publishedTime,
-      isDraft,
-      isMainHeadline,
-      isSubHeadline
-    }`;
+    console.log("Total articles disponibles:", relatedArticles.length);
+    console.log("Article actuel catégories:", currentArticle.categories?.map(c => c.title));
 
-    const allArticles = await client.fetch(query);
+    // Filtrer par catégories
+    if (settings.relatedCriteria === 'categories' && currentArticle.categories?.length > 0) {
+      const categorizedArticles = relatedArticles.filter(article => {
+        if (!article.categories || article.categories.length === 0) return false;
 
-    if (!allArticles || allArticles.length === 0) {
-      return [];
-    }
-
-    let relatedArticles = [];
-
-    switch (settings.relatedCriteria) {
-      case 'smart':
-        const weights = settings.smartWeighting || {
-          categoryWeight: 3,
-          tagWeight: 2,
-          authorWeight: 1,
-          recencyWeight: 1
-        };
-
-        // Calculer le score pour chaque article
-        relatedArticles = allArticles.map(article => ({
-          ...article,
-          _score: calculateSmartScore(article, currentArticle, weights)
-        }))
-          .filter(article => article._score > 0)
-          .sort((a, b) => b._score - a._score);
-        break;
-
-      case 'categories':
-        relatedArticles = allArticles.filter(article =>
-          article.categories?.some(cat =>
-            currentArticle.categories?.some(currentCat => currentCat._id === cat._id)
-          )
+        const hasMatch = article.categories.some(cat =>
+          currentArticle.categories.some(currentCat => currentCat._id === cat._id)
         );
-        break;
 
-      case 'tags':
-        relatedArticles = allArticles.filter(article =>
-          article.tags?.some(tag =>
-            currentArticle.tags?.includes(tag)
-          )
-        );
-        break;
+        if (hasMatch) {
+          console.log("MATCH trouvé:", article.title, "catégories:", article.categories.map(c => c.title));
+        }
 
-      case 'authors':
-        relatedArticles = allArticles.filter(article =>
-          article.authors?.some(author =>
-            currentArticle.authors?.some(currentAuthor => currentAuthor._id === author._id)
-          )
-        );
-        break;
-
-      case 'recent':
-      default:
-        relatedArticles = allArticles.sort((a, b) =>
-          new Date(b.publishedTime) - new Date(a.publishedTime)
-        );
-        break;
-    }
-
-    // Prioriser les headlines si configuré
-    if (settings.prioritizeHeadlines) {
-      relatedArticles = relatedArticles.sort((a, b) => {
-        const aIsHeadline = a.isMainHeadline || a.isSubHeadline;
-        const bIsHeadline = b.isMainHeadline || b.isSubHeadline;
-
-        if (aIsHeadline && !bIsHeadline) return -1;
-        if (!aIsHeadline && bIsHeadline) return 1;
-
-        // Garder l'ordre existant (par score pour smart)
-        return settings.relatedCriteria === 'smart' ? (b._score || 0) - (a._score || 0) : 0;
+        return hasMatch;
       });
+
+      console.log("Articles par catégorie trouvés:", categorizedArticles.length);
+
+      if (categorizedArticles.length > 0) {
+        relatedArticles = categorizedArticles;
+      }
     }
 
-    // Limiter le nombre d'articles
+    // Limiter et retourner
     return relatedArticles.slice(0, settings.relatedCount || 3);
 
   } catch (error) {
-    console.error('Erreur lors de la récupération des articles associés:', error);
+    console.error('Erreur getRelatedArticles:', error);
     return [];
   }
 }
