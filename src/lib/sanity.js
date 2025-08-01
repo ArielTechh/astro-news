@@ -621,3 +621,213 @@ export async function getPageBySlug(slug) {
     }
   `, { slug })
 }
+
+
+
+
+
+
+
+
+// Récupérer les paramètres du site
+export async function getSiteSettings() {
+  try {
+    const settings = await client.fetch(`
+      *[_type == "siteSettings"][0] {
+        relatedDisplay,
+        relatedCount,
+        relatedTitle,
+        relatedCriteria,
+        smartWeighting,
+        excludeDrafts,
+        prioritizeHeadlines
+      }
+    `);
+
+    return settings;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des paramètres:', error);
+    // Valeurs par défaut si erreur
+    return {
+      relatedDisplay: 'grid',
+      relatedCount: 3,
+      relatedTitle: 'Articles similaires',
+      relatedCriteria: 'smart',
+      smartWeighting: {
+        categoryWeight: 3,
+        tagWeight: 2,
+        authorWeight: 1,
+        recencyWeight: 1
+      },
+      excludeDrafts: true,
+      prioritizeHeadlines: false
+    };
+  }
+}
+
+// Fonction pour calculer le score intelligent
+function calculateSmartScore(article, currentArticle, weights) {
+  let score = 0;
+
+  // Score basé sur les catégories partagées
+  if (weights.categoryWeight > 0) {
+    const sharedCategories = article.categories?.filter(cat =>
+      currentArticle.categories?.some(currentCat => currentCat._id === cat._id)
+    ).length || 0;
+
+    const totalCurrentCategories = currentArticle.categories?.length || 1;
+    const categoryScore = (sharedCategories / totalCurrentCategories) * weights.categoryWeight;
+    score += categoryScore;
+  }
+
+  // Score basé sur les tags partagés
+  if (weights.tagWeight > 0) {
+    const sharedTags = article.tags?.filter(tag =>
+      currentArticle.tags?.includes(tag)
+    ).length || 0;
+
+    const totalCurrentTags = currentArticle.tags?.length || 1;
+    const tagScore = (sharedTags / totalCurrentTags) * weights.tagWeight;
+    score += tagScore;
+  }
+
+  // Score basé sur les auteurs partagés
+  if (weights.authorWeight > 0) {
+    const sharedAuthors = article.authors?.filter(author =>
+      currentArticle.authors?.some(currentAuthor => currentAuthor._id === author._id)
+    ).length || 0;
+
+    if (sharedAuthors > 0) {
+      score += weights.authorWeight;
+    }
+  }
+
+  // Score basé sur la récence
+  if (weights.recencyWeight > 0) {
+    const daysDifference = Math.abs(
+      (new Date(article.publishedTime) - new Date(currentArticle.publishedTime)) / (1000 * 60 * 60 * 24)
+    );
+    const recencyScore = Math.max(0, (30 - daysDifference) / 30) * weights.recencyWeight;
+    score += recencyScore;
+  }
+
+  return score;
+}
+
+// Récupérer les articles associés selon les paramètres
+export async function getRelatedArticles(currentArticle, settings) {
+  try {
+    // Construire la requête de base
+    let query = `*[_type == "article" && _id != "${currentArticle._id}"`;
+
+    // Exclure les brouillons si configuré
+    if (settings.excludeDrafts) {
+      query += ` && !isDraft`;
+    }
+
+    query += `] {
+      _id,
+      title,
+      description,
+      tags,
+      slug,
+      cover {
+        asset,
+        alt
+      },
+      categories[]-> {
+        _id,
+        title,
+        slug
+      },
+      authors[]-> {
+        _id,
+        name,
+        slug
+      },
+      publishedTime,
+      isDraft,
+      isMainHeadline,
+      isSubHeadline
+    }`;
+
+    const allArticles = await client.fetch(query);
+
+    if (!allArticles || allArticles.length === 0) {
+      return [];
+    }
+
+    let relatedArticles = [];
+
+    switch (settings.relatedCriteria) {
+      case 'smart':
+        const weights = settings.smartWeighting || {
+          categoryWeight: 3,
+          tagWeight: 2,
+          authorWeight: 1,
+          recencyWeight: 1
+        };
+
+        // Calculer le score pour chaque article
+        relatedArticles = allArticles.map(article => ({
+          ...article,
+          _score: calculateSmartScore(article, currentArticle, weights)
+        }))
+          .filter(article => article._score > 0)
+          .sort((a, b) => b._score - a._score);
+        break;
+
+      case 'categories':
+        relatedArticles = allArticles.filter(article =>
+          article.categories?.some(cat =>
+            currentArticle.categories?.some(currentCat => currentCat._id === cat._id)
+          )
+        );
+        break;
+
+      case 'tags':
+        relatedArticles = allArticles.filter(article =>
+          article.tags?.some(tag =>
+            currentArticle.tags?.includes(tag)
+          )
+        );
+        break;
+
+      case 'authors':
+        relatedArticles = allArticles.filter(article =>
+          article.authors?.some(author =>
+            currentArticle.authors?.some(currentAuthor => currentAuthor._id === author._id)
+          )
+        );
+        break;
+
+      case 'recent':
+      default:
+        relatedArticles = allArticles.sort((a, b) =>
+          new Date(b.publishedTime) - new Date(a.publishedTime)
+        );
+        break;
+    }
+
+    // Prioriser les headlines si configuré
+    if (settings.prioritizeHeadlines) {
+      relatedArticles = relatedArticles.sort((a, b) => {
+        const aIsHeadline = a.isMainHeadline || a.isSubHeadline;
+        const bIsHeadline = b.isMainHeadline || b.isSubHeadline;
+
+        if (aIsHeadline && !bIsHeadline) return -1;
+        if (!aIsHeadline && bIsHeadline) return 1;
+
+        // Garder l'ordre existant (par score pour smart)
+        return settings.relatedCriteria === 'smart' ? (b._score || 0) - (a._score || 0) : 0;
+      });
+    }
+
+    // Limiter le nombre d'articles
+    return relatedArticles.slice(0, settings.relatedCount || 3);
+
+  } catch (error) {
+    console.error('Erreur lors de la récupération des articles associés:', error);
+    return [];
+  }
+}

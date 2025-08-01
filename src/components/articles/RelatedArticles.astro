@@ -1,0 +1,227 @@
+---
+// src/components/articles/RelatedArticles.astro
+import { getSiteSettings, getRelatedArticles, urlFor } from "@/lib/sanity";
+
+interface Props {
+  currentArticle: any;
+}
+
+const { currentArticle } = Astro.props;
+
+// Récupérer les paramètres du site
+const siteSettings = await getSiteSettings();
+
+// Si l'affichage est masqué, ne pas rendre le composant
+if (!siteSettings || siteSettings.relatedDisplay === "hidden") {
+  return null;
+}
+
+// Récupérer les articles associés
+const relatedArticles = await getRelatedArticles(currentArticle, siteSettings);
+
+// Si aucun article associé, ne pas rendre
+if (!relatedArticles || relatedArticles.length === 0) {
+  return null;
+}
+
+// Fonction pour formater la date
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("fr-FR", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
+
+// Classes CSS selon le type d'affichage
+const getContainerClasses = () => {
+  switch (siteSettings.relatedDisplay) {
+    case "grid":
+      return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+    case "list":
+      return "space-y-6";
+    case "carousel":
+      return "flex overflow-x-auto gap-6 pb-4 scroll-smooth snap-x snap-mandatory";
+    default:
+      return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+  }
+};
+
+const getArticleClasses = () => {
+  switch (siteSettings.relatedDisplay) {
+    case "carousel":
+      return "min-w-[320px] snap-start";
+    case "list":
+      return "flex gap-4";
+    default:
+      return "";
+  }
+};
+---
+
+<section
+  class="mt-16 border-t border-gray-200 dark:border-gray-700 pt-12"
+  aria-labelledby="related-articles-title"
+>
+  <div class="container mx-auto px-4 max-w-5xl">
+    <header class="mb-8">
+      <h2
+        id="related-articles-title"
+        class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-gray-100 mb-2"
+      >
+        {siteSettings.relatedTitle || "Articles similaires"}
+      </h2>
+      <p class="text-gray-600 dark:text-gray-400 text-sm">
+        Découvrez d'autres articles qui pourraient vous intéresser
+      </p>
+    </header>
+
+    <div class={getContainerClasses()}>
+      {
+        relatedArticles.map((article) => {
+          const imageUrl = article.cover
+            ? urlFor(article.cover)
+                .width(400)
+                .height(250)
+                .quality(85)
+                .format("webp")
+                .url()
+            : null;
+
+          const isListLayout = siteSettings.relatedDisplay === "list";
+
+          return (
+            <article
+              key={article._id}
+              class={`group ${getArticleClasses()} bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600`}
+            >
+              <a
+                href={`/${article.slug.current}`}
+                class={`block ${isListLayout ? "flex-1" : ""}`}
+                aria-label={`Lire l'article : ${article.title}`}
+              >
+                {imageUrl && (
+                  <div
+                    class={`relative overflow-hidden ${isListLayout ? "w-32 h-24 flex-shrink-0" : "aspect-video"} rounded-t-xl`}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={article.cover?.alt || article.title}
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      loading="lazy"
+                      width="400"
+                      height="250"
+                      decoding="async"
+                    />
+
+                    {/* Badge pour les articles headlines */}
+                    {(article.isMainHeadline || article.isSubHeadline) && (
+                      <div class="absolute top-2 left-2">
+                        <span class="bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
+                          ⭐ À la une
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <div class={`p-4 ${isListLayout ? "flex-1" : ""}`}>
+                  {/* Catégories */}
+                  {article.categories && article.categories.length > 0 && (
+                    <div class="flex flex-wrap gap-1 mb-2">
+                      {article.categories.slice(0, 2).map((category) => (
+                        <span
+                          key={category._id}
+                          class="inline-block bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 text-xs font-medium px-2 py-1 rounded-full"
+                        >
+                          {category.title}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  <h3
+                    class={`font-semibold text-gray-900 dark:text-gray-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-2 ${isListLayout ? "text-base" : "text-lg"} mb-2`}
+                  >
+                    {article.title}
+                  </h3>
+
+                  {article.description && (
+                    <p
+                      class={`text-gray-600 dark:text-gray-400 line-clamp-2 ${isListLayout ? "text-sm" : "text-base"} mb-3`}
+                    >
+                      {article.description}
+                    </p>
+                  )}
+
+                  {/* Métadonnées */}
+                  <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+                    <time datetime={article.publishedTime}>
+                      {formatDate(article.publishedTime)}
+                    </time>
+
+                    {article.authors && article.authors.length > 0 && (
+                      <>
+                        <span>•</span>
+                        <span>Par {article.authors[0].name}</span>
+                      </>
+                    )}
+
+                    {article.tags && article.tags.length > 0 && (
+                      <>
+                        <span>•</span>
+                        <span class="line-clamp-1">
+                          #{article.tags.slice(0, 2).join(", #")}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </a>
+            </article>
+          );
+        })
+      }
+    </div>
+
+    {/* Navigation pour le carousel */}
+    {
+      siteSettings.relatedDisplay === "carousel" && (
+        <div class="flex justify-center mt-6 gap-2">
+          <button
+            onclick="document.querySelector('.flex.overflow-x-auto').scrollBy({left: -320, behavior: 'smooth'})"
+            class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            aria-label="Article précédent"
+          >
+            ←
+          </button>
+          <button
+            onclick="document.querySelector('.flex.overflow-x-auto').scrollBy({left: 320, behavior: 'smooth'})"
+            class="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+            aria-label="Article suivant"
+          >
+            →
+          </button>
+        </div>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  /* Classes utilitaires pour line-clamp */
+  .line-clamp-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>
