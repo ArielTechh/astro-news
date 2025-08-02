@@ -65,9 +65,9 @@ const isProduction = import.meta.env.PROD;
     <!-- ♿ Widget d'accessibilité -->
     <AccessibilityWidget />
 
-    <!-- 🚀 ADSENSE FORCE LOADING - Version simplifiée qui marche -->
+    <!-- 🚀 ADSENSE avec AUTO ADS forcé -->
     <script>
-      // Force AdSense après 2 secondes, point final
+      // Force AdSense après 2 secondes
       setTimeout(() => {
         if (!document.querySelector('script[src*="adsbygoogle"]')) {
           const script = document.createElement("script");
@@ -77,23 +77,26 @@ const isProduction = import.meta.env.PROD;
           script.crossOrigin = "anonymous";
           document.head.appendChild(script);
 
-          console.log("🚀 AdSense FORCED - Should work now!");
-
-          // Configuration auto ads
+          // FORCER Auto Ads après chargement
           script.onload = function () {
-            try {
-              (adsbygoogle = window.adsbygoogle || []).push({
-                google_ad_client: "ca-pub-1113800966089168",
-                enable_page_level_ads: true,
-              });
-              console.log("✅ AdSense auto ads configured");
-            } catch (e) {
-              console.log(
-                "⚠️ AdSense config error (normal if no ad slots):",
-                e,
-              );
-            }
+            // Attendre un peu que le script soit prêt
+            setTimeout(() => {
+              try {
+                // Méthode alternative pour activer Auto Ads
+                window.adsbygoogle = window.adsbygoogle || [];
+                window.adsbygoogle.push({
+                  google_ad_client: "ca-pub-1113800966089168",
+                  enable_page_level_ads: true,
+                  overlays: { bottom: true },
+                });
+                console.log("✅ AdSense Auto Ads forcé");
+              } catch (e) {
+                console.log("⚠️ Auto Ads déjà configuré:", e.message);
+              }
+            }, 1000);
           };
+
+          console.log("✅ AdSense script loaded");
         }
       }, 2000);
     </script>
