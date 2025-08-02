@@ -1,14 +1,10 @@
 ---
 import "@/styles/global.css";
-// 🚀 FONTS SUPPRIMÉES DU TOP - Chargées de manière non-bloquante plus bas
 import { ClientRouter } from "astro:transitions";
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 import StructuredData from "@/components/seo/StructuredData.astro";
-// ✨ AJOUT : Import d'astro-seo
 import { SEO } from "astro-seo";
-
-const GTM_ID = import.meta.env.PUBLIC_GTM_ID || "GTM-PQC6K9BZ";
 
 type Props = {
   meta: Meta | ArticleMeta;
@@ -35,6 +31,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     name="robots"
     content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
   />
+
   <!-- ✨ astro-seo pour toutes les balises SEO -->
   <SEO
     title={meta.title}
@@ -134,7 +131,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <!-- 🚀 PRÉCONNEXION OPTIMISÉE -->
   <link rel="preconnect" href="https://cdn.sanity.io" />
   <link rel="dns-prefetch" href="https://cdn.sanity.io" />
-  <link rel="preconnect" href="https://www.google-analytics.com" />
+  <link rel="preconnect" href="https://analytics.ahrefs.com" />
 
   {
     isArticleMeta(meta) && article ? (
@@ -158,42 +155,28 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 
   <ClientRouter />
 
-  <!-- 🚀 SCRIPTS ANALYTICS DIFFÉRÉS -->
+  <!-- 🚀 AHREFS ANALYTICS SEULEMENT - Chargement différé -->
   <script>
-    // Chargement différé de tous les analytics après interaction ou 1.5 secondes
-    let analyticsLoaded = false;
+    let ahrefsLoaded = false;
 
-    function loadAnalytics() {
-      if (analyticsLoaded) return;
-      analyticsLoaded = true;
+    function loadAhrefs() {
+      if (ahrefsLoaded) return;
+      ahrefsLoaded = true;
 
-      // Ahrefs Analytics
+      // Ahrefs Analytics seulement
       const ahrefsScript = document.createElement("script");
       ahrefsScript.src = "https://analytics.ahrefs.com/analytics.js";
       ahrefsScript.setAttribute("data-key", "fNbl74Cz0zyN4NtzpNBdKg");
       ahrefsScript.async = true;
       document.head.appendChild(ahrefsScript);
 
-      // Google Analytics
-      const gtag1 = document.createElement("script");
-      gtag1.async = true;
-      gtag1.src = "https://www.googletagmanager.com/gtag/js?id=G-E5DDECQEBZ";
-      document.head.appendChild(gtag1);
-
-      gtag1.onload = function () {
-        window.dataLayer = window.dataLayer || [];
-        function gtag() {
-          dataLayer.push(arguments);
-        }
-        gtag("js", new Date());
-        gtag("config", "G-E5DDECQEBZ");
-      };
+      console.log("✅ Ahrefs Analytics loaded");
     }
 
-    // Charger après interaction ou fallback 1.5 secondes
+    // Charger après interaction ou fallback 2 secondes
     ["scroll", "click", "touchstart", "keydown"].forEach((event) => {
-      document.addEventListener(event, loadAnalytics, { once: true });
+      document.addEventListener(event, loadAhrefs, { once: true });
     });
-    setTimeout(loadAnalytics, 1500);
+    setTimeout(loadAhrefs, 2000);
   </script>
 </head>

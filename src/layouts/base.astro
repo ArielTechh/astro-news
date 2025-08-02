@@ -12,16 +12,20 @@ import AccessibilityWidget from "../components/AccessibilityWidget.astro";
 
 type Props = {
   entry: Entry;
-  article?: any; // Pour passer les données complètes de l'article
+  article?: any;
   readingTime?: number;
-  canonical?: string; // ← AJOUT : prop canonical
+  canonical?: string;
 };
 
-const { entry, article, readingTime, canonical } = Astro.props; // ← AJOUT : canonical
+const { entry, article, readingTime, canonical } = Astro.props;
 
 const meta = await getMeta(entry);
 
+// Seulement pour le noscript GTM
 const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
+
+// Chargement conditionnel des analytics Vercel (seulement en production)
+const isProduction = import.meta.env.PROD;
 ---
 
 <!doctype html>
@@ -32,9 +36,9 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
     readingTime={readingTime}
     canonical={canonical}
   />
-  <!-- ← AJOUT : canonical={canonical} -->
+
   <body class="flex flex-col">
-    <!-- Iframe GTM noscript - gardé pour la compatibilité -->
+    <!-- GTM noscript - seulement pour les utilisateurs sans JS -->
     <noscript>
       <iframe
         src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
@@ -50,48 +54,48 @@ const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
       <slot />
     </main>
     <Footer />
+
+    <!-- 🍪 Gestion globale du consentement + GTM + AdSense -->
     <TarteAuCitron />
-    <SpeedInsights />
-    <Analytics />
+
+    <!-- 📊 Analytics Vercel - seulement en production -->
+    {isProduction && <SpeedInsights />}
+    {isProduction && <Analytics />}
+
+    <!-- ♿ Widget d'accessibilité -->
     <AccessibilityWidget />
 
-    <!-- Scripts optimisés pour les performances -->
-    <script define:vars={{ GTM_ID }}>
-      // Chargement différé de Google Tag Manager (après 1 seconde)
-      setTimeout(() => {
-        (function (w, d, s, l, i) {
-          w[l] = w[l] || [];
-          w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-          var f = d.getElementsByTagName(s)[0],
-            j = d.createElement(s),
-            dl = l != "dataLayer" ? "&l=" + l : "";
-          j.async = true;
-          j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-          f.parentNode.insertBefore(j, f);
-        })(window, document, "script", "dataLayer", GTM_ID);
-      }, 1000); // GTM chargé après 1 seconde
+    <!-- 🚀 SCRIPT OPTIMISÉ : Chargement différé AdSense seulement si pas géré par TarteAuCitron -->
+    <script>
+      // Vérification si AdSense doit être chargé manuellement
+      // (si TarteAuCitron ne gère pas AdSense, décommentez le bloc ci-dessous)
 
-      // Chargement différé d'AdSense (après interaction utilisateur)
+      /*
       let adsenseLoaded = false;
+      
+      function loadAdsenseManual() {
+        if (adsenseLoaded || window.tarteaucitron) return; // Éviter conflit avec TarteAuCitron
+        adsenseLoaded = true;
 
-      function loadAdsense() {
-        if (!adsenseLoaded) {
-          const script = document.createElement("script");
-          script.async = true;
-          script.src =
-            "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
-          script.crossOrigin = "anonymous";
-          document.head.appendChild(script);
-          adsenseLoaded = true;
-          console.log("AdSense chargé"); // Pour debug
-        }
+        const script = document.createElement("script");
+        script.async = true;
+        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
+        script.crossOrigin = "anonymous";
+        document.head.appendChild(script);
+        
+        console.log("✅ AdSense loaded manually");
       }
 
-      // Charger AdSense après premier scroll, clic, ou après 2 secondes
-      document.addEventListener("scroll", loadAdsense, { once: true });
-      document.addEventListener("click", loadAdsense, { once: true });
-      document.addEventListener("touchstart", loadAdsense, { once: true }); // Pour mobile
-      setTimeout(loadAdsense, 2000); // Fallback après 2 secondes (réduit à 2s)
+      // Chargement différé AdSense - seulement si TarteAuCitron ne s'en charge pas
+      setTimeout(() => {
+        if (!window.tarteaucitron) {
+          ["scroll", "click", "touchstart"].forEach((event) => {
+            document.addEventListener(event, loadAdsenseManual, { once: true });
+          });
+          setTimeout(loadAdsenseManual, 3000);
+        }
+      }, 1000);
+      */
     </script>
   </body>
 </html>
