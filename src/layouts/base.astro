@@ -56,30 +56,10 @@ const isProduction = import.meta.env.PROD;
     {isProduction && <SpeedInsights />}
     {isProduction && <Analytics />}
 
+    <!-- 🍪 TarteAuCitron pour la gestion des cookies et AdSense -->
+    <TarteAuCitron />
+
+    <!-- ♿ Widget d'accessibilité -->
     <AccessibilityWidget />
-
-    <!-- 🎯 ADSENSE SEULEMENT - GTM géré par TarteAuCitron -->
-    <script>
-      let adsenseLoaded = false;
-
-      function loadAdsense() {
-        if (!adsenseLoaded) {
-          const script = document.createElement("script");
-          script.async = true;
-          script.src =
-            "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
-          script.crossOrigin = "anonymous";
-          document.head.appendChild(script);
-          adsenseLoaded = true;
-          console.log("AdSense chargé"); // Pour debug
-        }
-      }
-
-      // Charger AdSense après premier scroll, clic, ou après 2 secondes
-      document.addEventListener("scroll", loadAdsense, { once: true });
-      document.addEventListener("click", loadAdsense, { once: true });
-      document.addEventListener("touchstart", loadAdsense, { once: true }); // Pour mobile
-      setTimeout(loadAdsense, 2000); // Fallback après 2 secondes
-    </script>
   </body>
 </html>
