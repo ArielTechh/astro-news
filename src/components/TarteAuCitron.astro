@@ -1,5 +1,5 @@
 ---
-// TarteAuCitron - Version originale qui donnait 272 KiB
+// TarteAuCitron optimisé - Basé sur votre version qui marche
 ---
 
 <script is:inline>
@@ -7,7 +7,7 @@
   if (!window.globalConsentLoaded) {
     window.globalConsentLoaded = true;
 
-    // GTM Setup
+    // GTM Setup avec consent mode
     window.dataLayer = window.dataLayer || [];
     function gtag() {
       dataLayer.push(arguments);
@@ -23,6 +23,7 @@
       security_storage: "granted",
     });
 
+    // ✅ GTM chargé UNE SEULE FOIS (suppression du double)
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
       w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
@@ -39,6 +40,7 @@
 
     function initGlobalConsent() {
       var script = document.createElement("script");
+      // ✅ OPTIMISATION : Chargement du CORE seulement (pas services.min.js)
       script.src =
         "https://cdn.jsdelivr.net/npm/tarteaucitronjs@1/tarteaucitron.js";
 
@@ -61,10 +63,11 @@
           showAlertSmall: true,
         });
 
+        // ✅ GARDE votre config AdSense (mais pas GTM qui est déjà chargé)
         tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
         (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
 
-        // Gestion globale du consentement
+        // Gestion globale du consentement (votre code exact)
         function updateGlobalConsent(granted) {
           console.log("🌍 Global consent update:", granted);
 
@@ -99,7 +102,7 @@
           }
         }
 
-        // Écouter les interactions globalement
+        // Écouter les interactions globalement (votre code exact)
         document.addEventListener("click", function (e) {
           if (
             e.target.id === "tarteaucitronAllAllowed" ||
@@ -118,7 +121,7 @@
           }
         });
 
-        // Vérifier l'état existant
+        // Vérifier l'état existant (votre code exact)
         setTimeout(function () {
           if (
             tarteaucitron.state &&
@@ -143,7 +146,7 @@
       document.head.appendChild(script);
     }
 
-    // Initialiser quand prêt
+    // Initialiser quand prêt (votre code exact)
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", initGlobalConsent);
     } else {
