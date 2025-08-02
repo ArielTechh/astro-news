@@ -112,6 +112,17 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     }}
   />
 
+  <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE -->
+  <link
+    rel="preload"
+    href="/_astro/_page_.DH_Rpls4.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript>
+    <link rel="stylesheet" href="/_astro/_page_.DH_Rpls4.css" />
+  </noscript>
+
   <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES -->
   <link
     rel="preload"
