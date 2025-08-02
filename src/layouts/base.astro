@@ -5,7 +5,6 @@ import Header from "@/components/shared/header.astro";
 import Footer from "@/components/shared/footer.astro";
 import type { Entry } from "@/lib/types";
 import { getMeta } from "@/lib/utils/getMetaSanity";
-import TarteAuCitron from "../components/TarteAuCitron.astro";
 import SpeedInsights from "@vercel/speed-insights/astro";
 import Analytics from "@vercel/analytics/astro";
 import AccessibilityWidget from "../components/AccessibilityWidget.astro";
@@ -21,10 +20,7 @@ const { entry, article, readingTime, canonical } = Astro.props;
 
 const meta = await getMeta(entry);
 
-// Seulement pour le noscript GTM
 const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
-
-// Chargement conditionnel des analytics Vercel (seulement en production)
 const isProduction = import.meta.env.PROD;
 ---
 
@@ -38,7 +34,7 @@ const isProduction = import.meta.env.PROD;
   />
 
   <body class="flex flex-col">
-    <!-- GTM noscript - seulement pour les utilisateurs sans JS -->
+    <!-- GTM noscript -->
     <noscript>
       <iframe
         src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
@@ -55,50 +51,34 @@ const isProduction = import.meta.env.PROD;
     </main>
     <Footer />
 
-    <!-- 🍪 Gestion globale du consentement + GTM + AdSense -->
-    <TarteAuCitron />
-
-    <!-- 📊 Analytics Vercel - seulement en production -->
+    <!-- Analytics Vercel - seulement en production -->
     {isProduction && <SpeedInsights />}
     {isProduction && <Analytics />}
 
-    <!-- ♿ Widget d'accessibilité -->
     <AccessibilityWidget />
 
-    <!-- 🚀 ADSENSE avec AUTO ADS forcé -->
+    <!-- 🎯 ADSENSE SEULEMENT - GTM géré par TarteAuCitron -->
     <script>
-      // Force AdSense après 2 secondes
-      setTimeout(() => {
-        if (!document.querySelector('script[src*="adsbygoogle"]')) {
+      let adsenseLoaded = false;
+
+      function loadAdsense() {
+        if (!adsenseLoaded) {
           const script = document.createElement("script");
           script.async = true;
           script.src =
             "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
           script.crossOrigin = "anonymous";
           document.head.appendChild(script);
-
-          // FORCER Auto Ads après chargement
-          script.onload = function () {
-            // Attendre un peu que le script soit prêt
-            setTimeout(() => {
-              try {
-                // Méthode alternative pour activer Auto Ads
-                window.adsbygoogle = window.adsbygoogle || [];
-                window.adsbygoogle.push({
-                  google_ad_client: "ca-pub-1113800966089168",
-                  enable_page_level_ads: true,
-                  overlays: { bottom: true },
-                });
-                console.log("✅ AdSense Auto Ads forcé");
-              } catch (e) {
-                console.log("⚠️ Auto Ads déjà configuré:", e.message);
-              }
-            }, 1000);
-          };
-
-          console.log("✅ AdSense script loaded");
+          adsenseLoaded = true;
+          console.log("AdSense chargé"); // Pour debug
         }
-      }, 2000);
+      }
+
+      // Charger AdSense après premier scroll, clic, ou après 2 secondes
+      document.addEventListener("scroll", loadAdsense, { once: true });
+      document.addEventListener("click", loadAdsense, { once: true });
+      document.addEventListener("touchstart", loadAdsense, { once: true }); // Pour mobile
+      setTimeout(loadAdsense, 2000); // Fallback après 2 secondes
     </script>
   </body>
 </html>
