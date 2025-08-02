@@ -65,37 +65,37 @@ const isProduction = import.meta.env.PROD;
     <!-- ♿ Widget d'accessibilité -->
     <AccessibilityWidget />
 
-    <!-- 🚀 SCRIPT OPTIMISÉ : Chargement différé AdSense seulement si pas géré par TarteAuCitron -->
+    <!-- 🚀 ADSENSE FORCE LOADING - Version simplifiée qui marche -->
     <script>
-      // Vérification si AdSense doit être chargé manuellement
-      // (si TarteAuCitron ne gère pas AdSense, décommentez le bloc ci-dessous)
-
-      /*
-      let adsenseLoaded = false;
-      
-      function loadAdsenseManual() {
-        if (adsenseLoaded || window.tarteaucitron) return; // Éviter conflit avec TarteAuCitron
-        adsenseLoaded = true;
-
-        const script = document.createElement("script");
-        script.async = true;
-        script.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
-        script.crossOrigin = "anonymous";
-        document.head.appendChild(script);
-        
-        console.log("✅ AdSense loaded manually");
-      }
-
-      // Chargement différé AdSense - seulement si TarteAuCitron ne s'en charge pas
+      // Force AdSense après 2 secondes, point final
       setTimeout(() => {
-        if (!window.tarteaucitron) {
-          ["scroll", "click", "touchstart"].forEach((event) => {
-            document.addEventListener(event, loadAdsenseManual, { once: true });
-          });
-          setTimeout(loadAdsenseManual, 3000);
+        if (!document.querySelector('script[src*="adsbygoogle"]')) {
+          const script = document.createElement("script");
+          script.async = true;
+          script.src =
+            "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
+          script.crossOrigin = "anonymous";
+          document.head.appendChild(script);
+
+          console.log("🚀 AdSense FORCED - Should work now!");
+
+          // Configuration auto ads
+          script.onload = function () {
+            try {
+              (adsbygoogle = window.adsbygoogle || []).push({
+                google_ad_client: "ca-pub-1113800966089168",
+                enable_page_level_ads: true,
+              });
+              console.log("✅ AdSense auto ads configured");
+            } catch (e) {
+              console.log(
+                "⚠️ AdSense config error (normal if no ad slots):",
+                e,
+              );
+            }
+          };
         }
-      }, 1000);
-      */
+      }, 2000);
     </script>
   </body>
 </html>
