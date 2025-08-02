@@ -1,5 +1,5 @@
 ---
-// TarteAuCitron optimisé - Basé sur votre version qui marche
+// TarteAuCitron - Version originale qui donnait 272 KiB
 ---
 
 <script is:inline>
@@ -7,7 +7,7 @@
   if (!window.globalConsentLoaded) {
     window.globalConsentLoaded = true;
 
-    // GTM Setup avec consent mode
+    // GTM Setup
     window.dataLayer = window.dataLayer || [];
     function gtag() {
       dataLayer.push(arguments);
@@ -23,7 +23,6 @@
       security_storage: "granted",
     });
 
-    // ✅ GTM chargé UNE SEULE FOIS (suppression du double)
     (function (w, d, s, l, i) {
       w[l] = w[l] || [];
       w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
@@ -40,7 +39,6 @@
 
     function initGlobalConsent() {
       var script = document.createElement("script");
-      // ✅ OPTIMISATION : Chargement du CORE seulement (pas services.min.js)
       script.src =
         "https://cdn.jsdelivr.net/npm/tarteaucitronjs@1/tarteaucitron.js";
 
@@ -61,13 +59,13 @@
           showIcon: true,
           iconPosition: "BottomRight",
           showAlertSmall: true,
+          loadAllDependencies: false, // ✅ EMPÊCHE le chargement automatique de services.min.js
         });
 
-        // ✅ GARDE votre config AdSense (mais pas GTM qui est déjà chargé)
         tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
         (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
 
-        // Gestion globale du consentement (votre code exact)
+        // Gestion globale du consentement
         function updateGlobalConsent(granted) {
           console.log("🌍 Global consent update:", granted);
 
@@ -102,7 +100,7 @@
           }
         }
 
-        // Écouter les interactions globalement (votre code exact)
+        // Écouter les interactions globalement
         document.addEventListener("click", function (e) {
           if (
             e.target.id === "tarteaucitronAllAllowed" ||
@@ -121,7 +119,7 @@
           }
         });
 
-        // Vérifier l'état existant (votre code exact)
+        // Vérifier l'état existant
         setTimeout(function () {
           if (
             tarteaucitron.state &&
@@ -146,7 +144,7 @@
       document.head.appendChild(script);
     }
 
-    // Initialiser quand prêt (votre code exact)
+    // Initialiser quand prêt
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", initGlobalConsent);
     } else {
