@@ -1,7 +1,7 @@
 import type { Link } from "../types";
 
 export const SITE = {
-  title: "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025",
+  title: "TechHorizons",
   description: "התעדכנו בחדשות הטכנולוגיה האחרונות עם TechHorizons – סקירות סמארטפונים, גאדג'טים, משחקים, מדע וחדשנות בישראל לשנת 2025. כל מה שחדש, במקום אחד.",
   author: "TechHorizons",
   url: "https://techhorizons.co.il", // ← AJOUTEZ www

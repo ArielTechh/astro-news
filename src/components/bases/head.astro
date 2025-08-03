@@ -23,7 +23,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 ---
 
 <head>
-  <!-- ✅ CHARSET EN PREMIER - OBLIGATOIRE -->
+  <!-- ✅ META DE BASE TOUJOURS PRÉSENTS -->
   <meta charset={SITE.charset} />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="generator" content={Astro.generator} />
@@ -32,85 +32,97 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
   />
 
-  <!-- ✨ astro-seo pour toutes les balises SEO -->
-  <SEO
-    title={meta.title}
-    titleTemplate={`%s | ${SITE.title}`}
-    description={meta.description}
-    canonical={canonicalURL}
-    openGraph={{
-      basic: {
-        title: meta.metaTitle,
-        type: meta.type === "article" ? "article" : "website",
-        image: OGImage,
-        url: canonicalURL,
-      },
-      optional: {
-        description: meta.description,
-        siteName: SITE.title,
-        locale: "he_IL",
-      },
-      ...(isArticleMeta(meta) && {
-        article: {
-          publishedTime: new Date(meta.publishedTime).toISOString(),
-          modifiedTime: new Date(meta.lastModified).toISOString(),
-          authors: meta.authors.map(
-            (author) => `${Astro.site}authors/${author.link}`,
-          ),
-        },
-      }),
-    }}
-    twitter={{
-      card: "summary_large_image",
-      site: SITE.title,
-      title: meta.metaTitle,
-      description: meta.description,
-      image: OGImage,
-      imageAlt: meta.ogImageAlt,
-    }}
-    extend={{
-      meta: [
-        {
-          name: "google-site-verification",
-          content: "7ukDuvGs_biEzOc41_DLPmQotzKzJkrVvpQCKqLoGBM",
-        },
-        {
-          name: "impact-site-verification",
-          content: "4698de27-0b12-448d-84b6-e8b7f98bc746",
-        },
-        { name: "apple-mobile-web-app-title", content: "Astro News" },
-        ...(isArticleMeta(meta)
-          ? meta.authors.map((author) => ({
-              name: "author",
-              content: author.name,
-            }))
-          : []),
-      ],
-      link: [
-        {
-          rel: "icon",
-          type: "image/png",
-          href: "/tech_favicon.png",
-          sizes: "96x96",
-        },
-        { rel: "icon", type: "image/svg+xml", href: "/fav.svg" },
-        { rel: "shortcut icon", href: "/fav.ico" },
-        {
-          rel: "apple-touch-icon",
-          sizes: "180x180",
-          href: "/apple-touch-icon.png",
-        },
-        { rel: "manifest", href: "/site.webmanifest" },
-        { rel: "sitemap", href: "/sitemap-index.xml" },
-        {
-          rel: "alternate",
-          type: "application/rss+xml",
-          title: SITE.title,
-          href: new URL("rss.xml", Astro.site).href,
-        },
-      ],
-    }}
+  <!-- ✅ TITRE DE BASE (au cas où SEO échoue) -->
+  <title>{meta?.title || "Tech Horizons"} | {SITE.title}</title>
+  <meta
+    name="description"
+    content={meta?.description || "Tech news and reviews"}
   />
+  <link rel="canonical" href={canonicalURL} />
+
+  <!-- ✅ astro-seo AVEC PROTECTION -->
+  {
+    meta && meta.title && meta.description ? (
+      <SEO
+        title={meta.title}
+        titleTemplate={`%s | ${SITE.title}`}
+        description={meta.description}
+        canonical={canonicalURL}
+        openGraph={{
+          basic: {
+            title: meta.metaTitle || meta.title,
+            type: meta.type === "article" ? "article" : "website",
+            image: OGImage,
+            url: canonicalURL,
+          },
+          optional: {
+            description: meta.description,
+            siteName: SITE.title,
+            locale: "he_IL",
+          },
+          ...(isArticleMeta(meta) && {
+            article: {
+              publishedTime: new Date(meta.publishedTime).toISOString(),
+              modifiedTime: new Date(meta.lastModified).toISOString(),
+              authors: meta.authors.map(
+                (author) => `${Astro.site}authors/${author.link}`,
+              ),
+            },
+          }),
+        }}
+        twitter={{
+          card: "summary_large_image",
+          site: SITE.title,
+          title: meta.metaTitle || meta.title,
+          description: meta.description,
+          image: OGImage,
+          imageAlt: meta.ogImageAlt,
+        }}
+        extend={{
+          meta: [
+            {
+              name: "google-site-verification",
+              content: "7ukDuvGs_biEzOc41_DLPmQotzKzJkrVvpQCKqLoGBM",
+            },
+            {
+              name: "impact-site-verification",
+              content: "4698de27-0b12-448d-84b6-e8b7f98bc746",
+            },
+            { name: "apple-mobile-web-app-title", content: "Astro News" },
+            ...(isArticleMeta(meta) && meta.authors
+              ? meta.authors.map((author) => ({
+                  name: "author",
+                  content: author.name,
+                }))
+              : []),
+          ],
+          link: [
+            {
+              rel: "icon",
+              type: "image/png",
+              href: "/tech_favicon.png",
+              sizes: "96x96",
+            },
+            { rel: "icon", type: "image/svg+xml", href: "/fav.svg" },
+            { rel: "shortcut icon", href: "/fav.ico" },
+            {
+              rel: "apple-touch-icon",
+              sizes: "180x180",
+              href: "/apple-touch-icon.png",
+            },
+            { rel: "manifest", href: "/site.webmanifest" },
+            { rel: "sitemap", href: "/sitemap-index.xml" },
+            {
+              rel: "alternate",
+              type: "application/rss+xml",
+              title: SITE.title,
+              href: new URL("rss.xml", Astro.site).href,
+            },
+          ],
+        }}
+      />
+    ) : null
+  }
 
   <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE -->
   <link

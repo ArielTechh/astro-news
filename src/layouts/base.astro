@@ -19,32 +19,7 @@ type Props = {
 
 const { entry, article, readingTime, canonical } = Astro.props;
 
-// ✅ AJOUT : Gestion d'erreur pour getMeta
-let meta;
-try {
-  meta = await getMeta(entry);
-} catch (error) {
-  console.error("Erreur getMeta:", error);
-  // Fallback meta si getMeta échoue
-  meta = {
-    title: "Tech Horizons",
-    description: "Tech news and reviews",
-    type: "website",
-    ogImage: "/og-default.jpg",
-    ogImageAlt: "Tech Horizons",
-  };
-}
-
-// ✅ AJOUT : Vérification que meta existe
-if (!meta) {
-  meta = {
-    title: "Tech Horizons",
-    description: "Tech news and reviews",
-    type: "website",
-    ogImage: "/og-default.jpg",
-    ogImageAlt: "Tech Horizons",
-  };
-}
+const meta = await getMeta(entry);
 
 const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
 const isProduction = import.meta.env.PROD;
@@ -52,25 +27,12 @@ const isProduction = import.meta.env.PROD;
 
 <!doctype html>
 <html lang="he" dir="rtl">
-  <!-- ✅ AJOUT : Fallback head si le composant Head échoue -->
-  {
-    meta ? (
-      <Head
-        meta={meta}
-        article={article}
-        readingTime={readingTime}
-        canonical={canonical}
-      />
-    ) : (
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Tech Horizons</title>
-        <meta name="description" content="Tech news and reviews" />
-        {canonical && <link rel="canonical" href={canonical} />}
-      </head>
-    )
-  }
+  <Head
+    meta={meta}
+    article={article}
+    readingTime={readingTime}
+    canonical={canonical}
+  />
 
   <body class="flex flex-col">
     <!-- GTM noscript -->
@@ -91,8 +53,8 @@ const isProduction = import.meta.env.PROD;
     <Footer />
 
     <!-- Analytics Vercel - seulement en production -->
-    <!-- {isProduction && <SpeedInsights />} -->
-    <!-- {isProduction && <Analytics />} -->
+    {isProduction && <SpeedInsights />}
+    {isProduction && <Analytics />}
     <TarteAuCitron />
 
     <AccessibilityWidget />
