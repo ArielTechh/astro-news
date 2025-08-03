@@ -177,10 +177,6 @@ export default defineConfig({
   site: SITE.url,
   base: SITE.basePath,
   trailingSlash: 'never',
-  redirects: {
-    // ✅ AJOUTEZ CETTE LIGNE POUR ÉVITER LA REDIRECTION AUTO
-    '/categories/[category]': '/categories/[category]'
-  },
   markdown: {
     remarkPlugins: [readingTime, modifiedTime],
   },
