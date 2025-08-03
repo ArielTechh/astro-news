@@ -190,10 +190,7 @@ const formatJerusalemDate = (dateString) => {
           {
             authors.map((author) => (
               <div class="flex items-center gap-2">
-                <a
-                  href={`/authors/${author.slug.current}`}
-                  class="flex items-center gap-2"
-                >
+                <span class="flex items-center gap-2">
                   <div class="avatar">
                     <div class="w-8 rounded-full">
                       {author.avatar ? (
@@ -221,7 +218,7 @@ const formatJerusalemDate = (dateString) => {
                     </div>
                   </div>
                   <span class="font-bold capitalize">{author.name}</span>
-                </a>
+                </span>
               </div>
             ))
           }
