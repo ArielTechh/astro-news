@@ -9,14 +9,17 @@ import WideCard from "@/components/cards/wideCard.astro";
 import { getEntry } from "astro:content";
 
 export const getStaticPaths = (async ({ paginate }) => {
+  // Récupérer toutes les catégories depuis Sanity
   const allCategories = await getAllCategories();
+
   const allPaths = [];
 
   for (const category of allCategories) {
+    // Récupérer les articles de cette catégorie
     const categoryArticles = await getArticlesByCategory(category.slug.current);
 
     if (categoryArticles.length > 0) {
-      // ✅ SEULEMENT les pages 2, 3, 4... (PAS la page 1)
+      // Créer les pages paginées pour cette catégorie
       const paginatedPaths = paginate(categoryArticles, {
         params: { category: category.slug.current },
         props: {
@@ -26,11 +29,7 @@ export const getStaticPaths = (async ({ paginate }) => {
         pageSize: SITE.postsPerPage,
       });
 
-      // Garder seulement les pages 2+
-      const pages2Plus = paginatedPaths.filter(
-        (path) => path.params.page !== "1",
-      );
-      allPaths.push(...pages2Plus);
+      allPaths.push(...paginatedPaths);
     }
   }
 
