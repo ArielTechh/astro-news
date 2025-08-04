@@ -1,119 +1,107 @@
 ---
-type BreadcrumbItem = {
-  label: string;
-  url: string;
-  isActive?: boolean;
-};
+import ArrowLeftDouble from "@/assets/svgs/arrow-left-double.astro";
+import ArrowRightDouble from "@/assets/svgs/arrow-right-double.astro";
+import ArrowLeft01 from "@/assets/svgs/arrow-left-01.astro";
+import ArrowRight01 from "@/assets/svgs/arrow-right-01.astro";
 
 type Props = {
-  currentPage: {
-    title: string;
-    url: string;
-  };
-  categories?: Array<{
-    name: string;
-    slug: string;
-    parent?: {
-      name: string;
-      slug: string;
-      parent?: {
-        name: string;
-        slug: string;
-      };
-    };
-  }>;
-  homeLabel?: string;
-  homeUrl?: string;
+  length: number;
+  currentUrl: string;
+  currentPage: number;
+  baseUrl: string;
+  prevUrl: string | undefined;
+  nextUrl: string | undefined;
+  lastUrl: string;
 };
 
-const {
-  currentPage,
-  categories = [],
-  homeLabel = "Accueil",
-  homeUrl = "/",
-} = Astro.props;
+const { length, currentUrl, currentPage, baseUrl, prevUrl, nextUrl, lastUrl } =
+  Astro.props;
 
-// Fonction pour construire la hiérarchie des catégories
-function buildCategoryHierarchy(categories: any[]): BreadcrumbItem[] {
-  const hierarchy: BreadcrumbItem[] = [];
+// Define the maximum number of visible buttons
+const maxVisibleButtons = 4;
 
-  for (const category of categories) {
-    // Ajouter les parents d'abord (récursivement)
-    if (category.parent) {
-      const parentHierarchy = buildCategoryHierarchy([category.parent]);
-      hierarchy.push(...parentHierarchy);
-    }
+// Calculate the range of visible page numbers
+const startPage = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
+const endPage = Math.min(length, startPage + maxVisibleButtons - 1);
 
-    // Ajouter la catégorie actuelle
-    hierarchy.push({
-      label: category.name,
-      url: `/categories/${category.slug}/1`,
-    });
-  }
+// Adjust the startPage if we're at the end of the pagination
+const adjustedStartPage = Math.max(1, endPage - maxVisibleButtons + 1);
 
-  return hierarchy;
-}
-
-// Construire le breadcrumb complet
-const breadcrumbItems: BreadcrumbItem[] = [
-  // Homepage
-  {
-    label: homeLabel,
-    url: `${homeUrl}1`,
-  },
-  // Catégories parentes
-  ...buildCategoryHierarchy(categories),
-  // Page actuelle
-  {
-    label: currentPage.title,
-    url: `${currentPage.url}/1`,
-    isActive: true,
-  },
-];
+// Generate the pagination list based on the range
+const paginationList = Array.from(
+  { length: endPage - adjustedStartPage + 1 },
+  (_, i) => adjustedStartPage + i,
+);
 ---
 
-<nav aria-label="Breadcrumb" class="mb-6">
-  <div class="text-sm breadcrumbs">
-    <ul>
-      {
-        breadcrumbItems.map((item, index) => (
-          <li>
-            {item.isActive ? (
-              <span
-                class="text-base-content/70 font-medium"
-                aria-current="page"
-              >
-                {item.label}
-              </span>
-            ) : (
-              <a
-                href={item.url}
-                class="link link-hover text-primary"
-                {...(index === 0 ? { "aria-label": "Retour à l'accueil" } : {})}
-              >
-                {item.label}
-              </a>
-            )}
-          </li>
-        ))
-      }
-    </ul>
-  </div>
-</nav>
+<section
+  class:list={[
+    "flex items-center mx-auto mt-8",
+    !prevUrl && !nextUrl ? "hidden" : "",
+  ]}
+>
+  <nav class="join">
+    {
+      `${baseUrl}/1` == `${currentUrl}` ? (
+        <span class="join-item btn btn-sm btn-disabled" aria-label="First page">
+          <ArrowLeftDouble />
+        </span>
+      ) : (
+        <a
+          href={`${baseUrl}/1`}
+          class="join-item btn btn-sm"
+          aria-label="First page"
+        >
+          <ArrowLeftDouble />
+        </a>
+      )
+    }
 
-<style>
-  .breadcrumb {
-    margin-bottom: 1.5rem;
-  }
+    {
+      prevUrl ? (
+        <a href={prevUrl} class="join-item btn btn-sm">
+          <ArrowLeft01 /> <span class="hidden lg:block">Previous</span>
+        </a>
+      ) : (
+        <span class="join-item btn btn-sm btn-disabled">
+          <ArrowLeft01 /> <span class="hidden lg:block">Previous</span>
+        </span>
+      )
+    }
 
-  .breadcrumbs ul li:not(:last-child)::after {
-    content: "›";
-    margin-left: 0.5rem;
-    margin-right: 0.5rem;
-    opacity: 0.5;
-  }
+    {
+      paginationList.map((num) => (
+        <a
+          href={`${baseUrl}/${num}`}
+          class={`join-item btn btn-sm ${currentPage == num ? "btn-active pointer-events-none" : ""}`}
+        >
+          {num}
+        </a>
+      ))
+    }
 
-  .breadcrumbs ul li:last-child {
-    font-weight: 500;
-  }
-</style>
+    {
+      !nextUrl ? (
+        <span class="join-item btn btn-sm btn-disabled">
+          <span class="hidden lg:block">Next</span> <ArrowRight01 />
+        </span>
+      ) : (
+        <a href={nextUrl} class="join-item btn btn-sm">
+          <span class="hidden lg:block">Next</span> <ArrowRight01 />
+        </a>
+      )
+    }
+
+    {
+      lastUrl == currentUrl ? (
+        <span class="join-item btn btn-sm btn-disabled" aria-label="Last page">
+          <ArrowRightDouble />
+        </span>
+      ) : (
+        <a href={lastUrl} class="join-item btn btn-sm" aria-label="Last page">
+          <ArrowRightDouble />
+        </a>
+      )
+    }
+  </nav>
+</section>

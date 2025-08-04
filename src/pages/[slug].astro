@@ -1,5 +1,5 @@
 ---
-// src/pages/[slug].astro
+// src/pages/[slug].astro - Version hybride complète
 import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "@/pages/articles/_components/article-header.astro";
@@ -19,14 +19,11 @@ export const getStaticPaths = async () => {
 };
 
 const { article } = Astro.props;
-
-// Récupérer l'article complet avec le contenu
 const fullArticle = await getArticleBySlug(article.slug.current);
 
-// Calcul approximatif du temps de lecture
+// ✅ FONCTIONS UTILITAIRES
 const calculateReadingTime = (content) => {
   if (!content) return 1;
-
   let wordCount = 0;
   content.forEach((block) => {
     if (block._type === "block" && block.children) {
@@ -37,28 +34,66 @@ const calculateReadingTime = (content) => {
       });
     }
   });
-
   const wordsPerMinute = 200;
   return Math.ceil(wordCount / wordsPerMinute) || 1;
 };
 
-const readingTime = calculateReadingTime(fullArticle.content);
-// ✅ Articles sans slash
-const canonicalUrl = `${SITE.url}/${article.slug.current}`;
+const getYouTubeId = (url) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null;
+};
 
-// Fonction pour parser un tableau Markdown
+// ✅ DÉTECTEURS AUTOMATIQUES
+const detectEmbeds = (text) => {
+  // Twitter/X
+  if (text.includes('<blockquote class="twitter-tweet">')) {
+    return { type: "twitter", content: text };
+  }
+
+  // YouTube dans le texte (URL simple)
+  const youtubeMatch = text.match(
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+  );
+  if (youtubeMatch) {
+    return {
+      type: "youtube-auto",
+      videoId: youtubeMatch[1],
+      url: youtubeMatch[0],
+    };
+  }
+
+  // Instagram
+  if (text.includes("instagram.com/p/") && text.includes("<blockquote")) {
+    return { type: "instagram", content: text };
+  }
+
+  // TikTok
+  if (text.includes("tiktok.com") && text.includes("<blockquote")) {
+    return { type: "tiktok", content: text };
+  }
+
+  // Autres iframes génériques
+  const iframeMatch = text.match(
+    /<iframe[^>]*src="([^"]*)"[^>]*>.*?<\/iframe>/is,
+  );
+  if (iframeMatch) {
+    return { type: "iframe", content: text, src: iframeMatch[1] };
+  }
+
+  return null;
+};
+
 const parseTable = (text) => {
   if (!text.includes("|") || !text.includes("---")) return null;
-
   const lines = text.split("\n").filter((line) => line.trim());
   const tableLines = lines.filter((line) => line.includes("|"));
-
   if (tableLines.length < 3) return null;
 
   const headerLine = tableLines[0];
   const separatorLine = tableLines[1];
   const dataLines = tableLines.slice(2);
-
   if (!separatorLine.includes("---")) return null;
 
   const headers = headerLine
@@ -75,12 +110,11 @@ const parseTable = (text) => {
   return { headers, rows };
 };
 
-// Créer les breadcrumbs pour l'article
-const breadcrumbItems = [
-  { name: "בית", url: "/" }, // "Accueil" en hébreu
-];
+const readingTime = calculateReadingTime(fullArticle.content);
+const canonicalUrl = `${SITE.url}/${article.slug.current}`;
 
-// Ajouter la catégorie si elle existe
+const breadcrumbItems = [{ name: "בית", url: "/" }];
+
 if (fullArticle.categories && fullArticle.categories.length > 0) {
   const category = fullArticle.categories[0];
   breadcrumbItems.push({
@@ -89,7 +123,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
   });
 }
 
-// Ajouter "מאמרים" (Articles) - pointer vers la racine
 breadcrumbItems.push({ name: "מאמרים", url: "/" });
 ---
 
@@ -99,7 +132,6 @@ breadcrumbItems.push({ name: "מאמרים", url: "/" });
   readingTime={readingTime}
   canonical={canonicalUrl}
 >
-  <!-- Breadcrumbs alignés avec le container max-w-5xl -->
   <div class="container mx-auto px-4 max-w-5xl">
     <Breadcrumbs items={breadcrumbItems} current={fullArticle.title} />
   </div>
@@ -111,11 +143,68 @@ breadcrumbItems.push({ name: "מאמרים", url: "/" });
         fullArticle.content &&
           fullArticle.content.map((block, index) => {
             if (block._type === "block") {
-              // Récupérer le texte complet du bloc
               const fullText =
                 block.children?.map((child) => child.text).join("") || "";
 
-              // Vérifier si c'est un tableau
+              // ✅ DÉTECTION AUTOMATIQUE D'EMBEDS
+              const embedDetection = detectEmbeds(fullText);
+
+              if (embedDetection) {
+                switch (embedDetection.type) {
+                  case "twitter":
+                    return (
+                      <div key={index} class="my-8">
+                        <div
+                          class="twitter-embed-container flex justify-center"
+                          set:html={embedDetection.content}
+                        />
+                      </div>
+                    );
+
+                  case "youtube-auto":
+                    return (
+                      <div key={index} class="my-8">
+                        <div class="relative w-full pb-[56.25%] h-0 overflow-hidden rounded-lg shadow-lg">
+                          <iframe
+                            class="absolute top-0 left-0 w-full h-full"
+                            src={`https://www.youtube.com/embed/${embedDetection.videoId}?rel=0&modestbranding=1`}
+                            title="Vidéo YouTube"
+                            frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen
+                            loading="lazy"
+                          />
+                        </div>
+                        <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
+                          Vidéo détectée automatiquement
+                        </p>
+                      </div>
+                    );
+
+                  case "instagram":
+                  case "tiktok":
+                    return (
+                      <div key={index} class="my-8">
+                        <div
+                          class="social-embed-container flex justify-center"
+                          set:html={embedDetection.content}
+                        />
+                      </div>
+                    );
+
+                  case "iframe":
+                    return (
+                      <div key={index} class="my-8">
+                        <div
+                          class="iframe-container"
+                          set:html={embedDetection.content}
+                        />
+                      </div>
+                    );
+                }
+              }
+
+              // ✅ TABLEAUX
               const tableData = parseTable(fullText);
               if (tableData) {
                 return (
@@ -158,12 +247,10 @@ breadcrumbItems.push({ name: "מאמרים", url: "/" });
                 );
               }
 
-              // Récupérer le contenu texte avec formatage
+              // ✅ TEXTE FORMATÉ
               const textContent =
                 block.children?.map((child) => {
                   let text = child.text || "";
-
-                  // Appliquer le formatage simple
                   if (child.marks?.includes("strong")) {
                     return <strong>{text}</strong>;
                   } else if (child.marks?.includes("em")) {
@@ -173,7 +260,7 @@ breadcrumbItems.push({ name: "מאמרים", url: "/" });
                   }
                 }) || [];
 
-              // Rendu basé sur le style
+              // ✅ STYLES DE BLOCS
               if (block.style === "h1") {
                 return (
                   <h1
@@ -201,33 +288,6 @@ breadcrumbItems.push({ name: "מאמרים", url: "/" });
                     {textContent}
                   </h3>
                 );
-              } else if (block.style === "h4") {
-                return (
-                  <h4
-                    key={index}
-                    class="text-lg font-medium mt-5 mb-2 text-gray-900 dark:text-gray-100"
-                  >
-                    {textContent}
-                  </h4>
-                );
-              } else if (block.style === "h5") {
-                return (
-                  <h5
-                    key={index}
-                    class="text-base font-medium mt-4 mb-2 text-gray-900 dark:text-gray-100"
-                  >
-                    {textContent}
-                  </h5>
-                );
-              } else if (block.style === "h6") {
-                return (
-                  <h6
-                    key={index}
-                    class="text-sm font-medium mt-3 mb-2 text-gray-900 dark:text-gray-100"
-                  >
-                    {textContent}
-                  </h6>
-                );
               } else if (block.style === "blockquote") {
                 return (
                   <blockquote
@@ -238,7 +298,6 @@ breadcrumbItems.push({ name: "מאמרים", url: "/" });
                   </blockquote>
                 );
               } else {
-                // Paragraphe normal
                 return (
                   <p
                     key={index}
@@ -250,19 +309,53 @@ breadcrumbItems.push({ name: "מאמרים", url: "/" });
               }
             }
 
-            // ✅ OPTIMISATION IMAGES - ÉTAPE 1
+            // ✅ YOUTUBE avec SCHÉMA (plus d'options)
+            if (block._type === "youtube") {
+              const videoId = getYouTubeId(block.url);
+
+              if (!videoId) {
+                console.warn("URL YouTube invalide:", block.url);
+                return null;
+              }
+
+              // Construire l'URL avec options
+              let embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
+              if (block.startTime) {
+                embedUrl += `&start=${block.startTime}`;
+              }
+
+              return (
+                <div key={index} class="my-8">
+                  <div class="relative w-full pb-[56.25%] h-0 overflow-hidden rounded-lg shadow-lg">
+                    <iframe
+                      class="absolute top-0 left-0 w-full h-full"
+                      src={embedUrl}
+                      title={block.title || "Vidéo YouTube"}
+                      frameborder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowfullscreen
+                      loading="lazy"
+                    />
+                  </div>
+                  {block.title && (
+                    <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-2 font-medium">
+                      {block.title}
+                    </p>
+                  )}
+                </div>
+              );
+            }
+
+            // ✅ IMAGES
             if (block._type === "image") {
               try {
-                // Vérifier que l'image a un asset valide avant de générer l'URL
                 if (block.asset || block._ref) {
-                  // Générer plusieurs tailles pour images responsives
                   const imageSrcSet = [
                     `${urlFor(block).width(400).quality(85).format("webp").url()} 400w`,
                     `${urlFor(block).width(800).quality(85).format("webp").url()} 800w`,
                     `${urlFor(block).width(1200).quality(85).format("webp").url()} 1200w`,
                   ].join(", ");
 
-                  // Image par défaut (800px)
                   const imageUrl = urlFor(block)
                     .width(800)
                     .quality(85)
@@ -284,14 +377,9 @@ breadcrumbItems.push({ name: "מאמרים", url: "/" });
                       />
                     </div>
                   );
-                } else {
-                  // Image sans asset valide - ne pas la rendre
-                  console.warn("Image sans asset trouvée, ignorée:", block);
-                  return null;
                 }
               } catch (error) {
-                // Si erreur dans la génération de l'URL, ne pas rendre l'image
-                console.warn("Erreur lors du rendu de l'image:", error, block);
+                console.warn("Erreur image:", error);
                 return null;
               }
             }
