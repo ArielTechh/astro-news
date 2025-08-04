@@ -538,7 +538,7 @@ export async function getNavigation() {
           href = item.internalLink || '/';
           break;
         case 'category':
-          href = item.categoryLink?.slug?.current ? `/categories/${item.categoryLink.slug.current}/1` : '#';
+          href = item.categoryLink?.slug?.current ? `/categories/${item.categoryLink.slug.current}` : '#';
           break;
         case 'article':
           href = item.articleLink?.slug?.current ? `/articles/${item.articleLink.slug.current}` : '#';

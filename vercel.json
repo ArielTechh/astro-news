@@ -11,37 +11,12 @@
       "permanent": true
     },
     {
-      "source": "/categories/gaming/1/1",
-      "destination": "/",
-      "permanent": true
-    },
-    {
       "source": "/privacy-policy",
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/categories/smartphones/1/1",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/categories/news/1/1",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/categories/technology/1/1",
-      "destination": "/",
-      "permanent": true
-    },
-    {
       "source": "/articles/",
-      "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "/categories/streaming/1/1",
       "destination": "/",
       "permanent": true
     },
@@ -154,6 +129,36 @@
       "source": "/categories/streaming",
       "destination": "/",
       "permanent": true
-    }
+    },
+    {
+      "source": "/categories/productivity",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/health",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/buying-guide",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wellness",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/test",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/categories/finance",
+      "destination": "/",
+      "permanent": true
+    },
   ]
 }
