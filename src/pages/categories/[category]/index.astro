@@ -18,13 +18,8 @@ const title = categoryData?.data?.title || category;
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>מאמרים בקטגוריה {title} | Tech Horizons</title>
   <meta name="description" content={`מאמרים בקטגוריה ${title} - Tech Horizons`} />
-  <meta http-equiv="refresh" content={`0; url=/categories/${category}/1`} />
   <link rel="canonical" href={`https://techhorizons.co.il/categories/${category}/1`} />
 </head>
-<body>
-  <p>מעביר אותך לעמוד הראשון של הקטגוריה {title}...</p>
-  <script>
-    window.location.href = `/categories/${category}/1`;
-  </script>
+<body style="display:none;">
 </body>
 </html>
