@@ -159,6 +159,6 @@
       "source": "/categories/finance",
       "destination": "/",
       "permanent": true
-    },
+    }
   ]
 }
