@@ -188,8 +188,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       // Ahrefs Analytics seulement
       const ahrefsScript = document.createElement("script");
       ahrefsScript.src = "https://analytics.ahrefs.com/analytics.js";
-      // ahrefsScript.setAttribute("data-key", "fNbl74Cz0zyN4NtzpNBdKg");
-      ahrefsScript.setAttribute("data-key", "bff1610057d2b4cd96674cfea1bfd0da405e5c6052739fd4c5722aa3f311620f");
+      ahrefsScript.setAttribute("data-key", "fNbl74Cz0zyN4NtzpNBdKg");
       ahrefsScript.async = true;
       document.head.appendChild(ahrefsScript);
 
