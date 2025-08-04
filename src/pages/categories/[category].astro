@@ -13,5 +13,5 @@ export const getStaticPaths = (async () => {
 const { category } = Astro.params;
 
 // Redirection vers la page 1
-// return Astro.redirect(`/categories/${category}/1`, 301);
+return Astro.redirect(`/categories/${category}/1`, 301);
 ---
