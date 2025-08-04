@@ -30,7 +30,6 @@ export const getStaticPaths = (async ({ paginate }) => {
       });
 
       allPaths.push(...paginatedPaths);
-      
     }
   }
 
@@ -54,7 +53,6 @@ if (!entry) {
 // Titre de la catégorie en hébreu ou utiliser le titre Sanity
 const categoryTitle = categoryInfo?.title || params.category;
 
-
 // ✅ AJOUT : URL canonique SANS slash final
 const canonicalUrl = `${SITE.url}/categories/${params.category}/${page.currentPage}`;
 ---
@@ -70,7 +68,7 @@ const canonicalUrl = `${SITE.url}/categories/${params.category}/${page.currentPa
           </a>
           <span class="mx-2">←</span>
           <a
-            href={`/categories/${categoryInfo.parent.slug.current}/1`}
+            href={`/categories/${categoryInfo.parent.slug.current}`}
             class="text-blue-600 hover:underline"
           >
             {categoryInfo.parent.title}
