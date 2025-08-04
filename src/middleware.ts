@@ -80,6 +80,23 @@ function getPageType(pathname: string): keyof typeof robotsConfig {
 }
 
 export const onRequest = defineMiddleware(async (context, next) => {
+  const { pathname } = context.url;
+
+  // ✨ REDIRECTIONS 301 : /articles/* vers /*
+  if (pathname.startsWith('/articles/') && pathname !== '/articles/') {
+    // Extraire le slug après /articles/
+    const slug = pathname.replace('/articles/', '');
+    
+    // Redirection 301 vers la racine
+    return new Response(null, {
+      status: 301,
+      headers: {
+        'Location': `/${slug}`,
+        'Cache-Control': 'public, max-age=31536000', // 1 an de cache
+      }
+    });
+  }
+
   // Traiter la requête
   const response = await next();
 
