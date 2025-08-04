@@ -1,7 +1,3 @@
----
-// TarteAuCitron - Version originale qui donnait 272 KiB
----
-
 <script is:inline>
   // Éviter les doubles chargements sur les navigations côté client
   if (!window.globalConsentLoaded) {
@@ -62,8 +58,22 @@
           loadAllDependencies: false, // ✅ EMPÊCHE le chargement automatique de services.min.js
         });
 
-        tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
-        (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
+        // ❌ SUPPRIMÉ : Chargement immédiat d'AdSense
+        // tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
+        // (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
+
+        // Fonction pour charger AdSense avec délai
+        function loadAdSenseDelayed() {
+          if (!window.adSenseLoaded) {
+            console.log("⏰ Loading AdSense after 3 seconds delay...");
+            setTimeout(() => {
+              tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
+              (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
+              window.adSenseLoaded = true;
+              console.log("✅ AdSense loaded with delay");
+            }, 3000); // Délai de 3 secondes
+          }
+        }
 
         // Gestion globale du consentement
         function updateGlobalConsent(granted) {
@@ -83,6 +93,9 @@
               event: "global_consent_granted",
               page_path: window.location.pathname,
             });
+
+            // 🆕 Charger AdSense avec délai après consentement
+            loadAdSenseDelayed();
           } else {
             gtag("consent", "update", {
               analytics_storage: "denied",
