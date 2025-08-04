@@ -7,8 +7,8 @@ export function getStaticPaths() {
 }
 
 const { category } = Astro.params;
-const categoryData = categoriesHandler.getCategoryById(category);
-const title = categoryData?.name || category;
+const categoryData = categoriesHandler.oneCategory(category);
+const title = categoryData?.data?.title || category;
 ---
 
 <!DOCTYPE html>
