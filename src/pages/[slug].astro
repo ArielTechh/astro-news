@@ -1,8 +1,9 @@
 ---
-// src/pages/[slug].astro - Version hybride complète
+// src/pages/[slug].astro - Version optimisée PageSpeed
 import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "@/pages/articles/_components/article-header.astro";
+import YouTubeLazy from "@/components/media/YouTubeLazy.astro";
 import { getAllArticles, getArticleBySlug, urlFor } from "@/lib/sanity";
 import StructuredData from "@/components/seo/StructuredData.astro";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs.astro";
@@ -11,7 +12,6 @@ import RelatedArticles from "@/components/articles/RelatedArticles.astro";
 
 export const getStaticPaths = async () => {
   const articles = await getAllArticles();
-
   return articles.map((article) => ({
     params: { slug: article.slug.current },
     props: { article },
@@ -21,7 +21,7 @@ export const getStaticPaths = async () => {
 const { article } = Astro.props;
 const fullArticle = await getArticleBySlug(article.slug.current);
 
-// ✅ FONCTIONS UTILITAIRES
+// ✅ FONCTIONS UTILITAIRES (optimisées)
 const calculateReadingTime = (content) => {
   if (!content) return 1;
   let wordCount = 0;
@@ -29,7 +29,7 @@ const calculateReadingTime = (content) => {
     if (block._type === "block" && block.children) {
       block.children.forEach((child) => {
         if (child.text) {
-          wordCount += child.text.split(" ").length;
+          wordCount += child.text.split(/\s+/).length; // Regex plus efficace
         }
       });
     }
@@ -45,14 +45,14 @@ const getYouTubeId = (url) => {
   return match && match[2].length === 11 ? match[2] : null;
 };
 
-// ✅ DÉTECTEURS AUTOMATIQUES
+// ✅ DÉTECTEURS AUTOMATIQUES (optimisés)
 const detectEmbeds = (text) => {
-  // Twitter/X
+  // Vérification plus rapide avec early returns
   if (text.includes('<blockquote class="twitter-tweet">')) {
     return { type: "twitter", content: text };
   }
 
-  // YouTube dans le texte (URL simple)
+  // YouTube - détection optimisée
   const youtubeMatch = text.match(
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
   );
@@ -64,17 +64,17 @@ const detectEmbeds = (text) => {
     };
   }
 
-  // Instagram
+  // Instagram (lazy load aussi)
   if (text.includes("instagram.com/p/") && text.includes("<blockquote")) {
     return { type: "instagram", content: text };
   }
 
-  // TikTok
+  // TikTok (lazy load aussi)
   if (text.includes("tiktok.com") && text.includes("<blockquote")) {
     return { type: "tiktok", content: text };
   }
 
-  // Autres iframes génériques
+  // Autres iframes
   const iframeMatch = text.match(
     /<iframe[^>]*src="([^"]*)"[^>]*>.*?<\/iframe>/is,
   );
@@ -83,6 +83,26 @@ const detectEmbeds = (text) => {
   }
 
   return null;
+};
+
+// ✅ Fonction pour optimiser les images
+const getOptimizedImageProps = (block) => {
+  const baseUrl = urlFor(block);
+
+  // Générer différentes tailles
+  const sizes = [400, 800, 1200, 1600];
+  const srcSet = sizes
+    .map(
+      (size) =>
+        `${baseUrl.width(size).quality(85).format("webp").url()} ${size}w`,
+    )
+    .join(", ");
+
+  return {
+    src: baseUrl.width(800).quality(85).format("webp").url(),
+    srcSet,
+    sizes: "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px",
+  };
 };
 
 const parseTable = (text) => {
@@ -122,8 +142,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
     url: `/categories/${category.slug.current}`,
   });
 }
-
-// breadcrumbItems.push({ name: "מאמרים", url: "/" });
 ---
 
 <BaseLayout
@@ -146,7 +164,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               const fullText =
                 block.children?.map((child) => child.text).join("") || "";
 
-              // ✅ DÉTECTION AUTOMATIQUE D'EMBEDS
+              // ✅ DÉTECTION AUTOMATIQUE D'EMBEDS (optimisée)
               const embedDetection = detectEmbeds(fullText);
 
               if (embedDetection) {
@@ -155,7 +173,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                     return (
                       <div key={index} class="my-8">
                         <div
-                          class="twitter-embed-container flex justify-center"
+                          class="twitter-embed-container flex justify-center [&>blockquote]:max-w-full"
                           set:html={embedDetection.content}
                         />
                       </div>
@@ -163,22 +181,10 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
 
                   case "youtube-auto":
                     return (
-                      <div key={index} class="my-8">
-                        <div class="relative w-full pb-[56.25%] h-0 overflow-hidden rounded-lg shadow-lg">
-                          <iframe
-                            class="absolute top-0 left-0 w-full h-full"
-                            src={`https://www.youtube.com/embed/${embedDetection.videoId}?rel=0&modestbranding=1`}
-                            title="Vidéo YouTube"
-                            frameborder="0"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen
-                            loading="lazy"
-                          />
-                        </div>
-                        <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
-                          Vidéo détectée automatiquement
-                        </p>
-                      </div>
+                      <YouTubeLazy
+                        key={index}
+                        videoId={embedDetection.videoId}
+                      />
                     );
 
                   case "instagram":
@@ -186,25 +192,39 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                     return (
                       <div key={index} class="my-8">
                         <div
-                          class="social-embed-container flex justify-center"
+                          class="social-embed-container flex justify-center [&>blockquote]:max-w-full"
                           set:html={embedDetection.content}
                         />
                       </div>
                     );
 
                   case "iframe":
+                    // Lazy load les iframes aussi
                     return (
                       <div key={index} class="my-8">
                         <div
-                          class="iframe-container"
-                          set:html={embedDetection.content}
-                        />
+                          class="iframe-lazy-container bg-gray-100 dark:bg-gray-800 rounded-lg p-8 text-center cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                          data-iframe-src={embedDetection.src}
+                        >
+                          <div class="text-gray-600 dark:text-gray-400">
+                            <svg
+                              class="w-16 h-16 mx-auto mb-4"
+                              fill="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
+                            </svg>
+                            <p class="font-medium">
+                              Cliquez pour charger le contenu intégré
+                            </p>
+                          </div>
+                        </div>
                       </div>
                     );
                 }
               }
 
-              // ✅ TABLEAUX
+              // ✅ TABLEAUX (inchangés)
               const tableData = parseTable(fullText);
               if (tableData) {
                 return (
@@ -247,7 +267,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 );
               }
 
-              // ✅ TEXTE FORMATÉ
+              // ✅ TEXTE FORMATÉ (inchangé)
               const textContent =
                 block.children?.map((child) => {
                   let text = child.text || "";
@@ -260,7 +280,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                   }
                 }) || [];
 
-              // ✅ STYLES DE BLOCS
+              // ✅ STYLES DE BLOCS (inchangés)
               if (block.style === "h1") {
                 return (
                   <h1
@@ -309,7 +329,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               }
             }
 
-            // ✅ YOUTUBE avec SCHÉMA (plus d'options)
+            // ✅ YOUTUBE avec COMPOSANT LAZY
             if (block._type === "youtube") {
               const videoId = getYouTubeId(block.url);
 
@@ -318,62 +338,35 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 return null;
               }
 
-              // Construire l'URL avec options
-              let embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`;
-              if (block.startTime) {
-                embedUrl += `&start=${block.startTime}`;
-              }
-
               return (
-                <div key={index} class="my-8">
-                  <div class="relative w-full pb-[56.25%] h-0 overflow-hidden rounded-lg shadow-lg">
-                    <iframe
-                      class="absolute top-0 left-0 w-full h-full"
-                      src={embedUrl}
-                      title={block.title || "Vidéo YouTube"}
-                      frameborder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowfullscreen
-                      loading="lazy"
-                    />
-                  </div>
-                  {block.title && (
-                    <p class="text-center text-sm text-gray-600 dark:text-gray-400 mt-2 font-medium">
-                      {block.title}
-                    </p>
-                  )}
-                </div>
+                <YouTubeLazy
+                  key={index}
+                  videoId={videoId}
+                  title={block.title || "Vidéo YouTube"}
+                  startTime={block.startTime}
+                  class="my-8"
+                />
               );
             }
 
-            // ✅ IMAGES
+            // ✅ IMAGES OPTIMISÉES
             if (block._type === "image") {
               try {
                 if (block.asset || block._ref) {
-                  const imageSrcSet = [
-                    `${urlFor(block).width(400).quality(85).format("webp").url()} 400w`,
-                    `${urlFor(block).width(800).quality(85).format("webp").url()} 800w`,
-                    `${urlFor(block).width(1200).quality(85).format("webp").url()} 1200w`,
-                  ].join(", ");
-
-                  const imageUrl = urlFor(block)
-                    .width(800)
-                    .quality(85)
-                    .format("webp")
-                    .url();
+                  const imageProps = getOptimizedImageProps(block);
 
                   return (
                     <div key={index} class="my-8">
                       <img
-                        src={imageUrl}
-                        srcset={imageSrcSet}
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px"
+                        src={imageProps.src}
+                        srcset={imageProps.srcSet}
+                        sizes={imageProps.sizes}
                         alt={block.alt || "Image de l'article"}
                         class="w-full rounded-lg shadow-md"
                         loading="lazy"
+                        decoding="async"
                         width="800"
                         height="400"
-                        decoding="async"
                       />
                     </div>
                   );
@@ -392,3 +385,32 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
 
   <RelatedArticles currentArticle={fullArticle} />
 </BaseLayout>
+
+<!-- Script pour les iframes lazy -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const iframeLazyContainers = document.querySelectorAll(
+      ".iframe-lazy-container",
+    );
+
+    iframeLazyContainers.forEach((container) => {
+      container.addEventListener("click", function () {
+        const iframeSrc = this.dataset.iframeSrc;
+        if (iframeSrc) {
+          const iframe = document.createElement("iframe");
+          iframe.src = iframeSrc;
+          iframe.className = "w-full h-64 rounded-lg";
+          iframe.loading = "lazy";
+
+          this.innerHTML = "";
+          this.appendChild(iframe);
+          this.classList.remove(
+            "cursor-pointer",
+            "hover:bg-gray-200",
+            "dark:hover:bg-gray-700",
+          );
+        }
+      });
+    });
+  });
+</script>

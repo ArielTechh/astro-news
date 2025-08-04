@@ -1,0 +1,202 @@
+---
+// components/media/YouTubeLazy.astro - Version simple compatible
+export interface Props {
+  videoId: string;
+  title?: string;
+  startTime?: number;
+  class?: string;
+}
+
+const { videoId, title, startTime, class: className } = Astro.props;
+
+const thumbnailUrl = `https://img.youtube.com/vi/${videoId}/0.jpg`;
+---
+
+<div
+  class="youtube-lazy-container not-prose"
+  data-video-id={videoId}
+  data-start-time={startTime || ""}
+  style="margin: 2rem 0;"
+>
+  <!-- Thumbnail avec aspect ratio fixe -->
+  <div
+    class="youtube-thumbnail relative cursor-pointer rounded-lg overflow-hidden"
+    style="width: 100%; position: relative;"
+  >
+    <!-- Container avec aspect ratio -->
+    <div
+      style="width: 100%; height: 0; padding-bottom: 56.25%; position: relative;"
+    >
+      <!-- Image thumbnail -->
+      <img
+        src={thumbnailUrl}
+        alt={title || "Vidéo YouTube"}
+        class="absolute w-full h-full object-cover"
+        style="top: 0; left: 0; transition: opacity 0.3s ease;"
+        loading="lazy"
+        decoding="async"
+      />
+
+      <!-- Overlay sombre -->
+      <div
+        class="youtube-overlay absolute w-full h-full"
+        style="top: 0; left: 0; background-color: rgba(0,0,0,0.3); transition: background-color 0.3s ease;"
+      >
+      </div>
+
+      <!-- Bouton Play -->
+      <div
+        class="absolute w-full h-full flex items-center justify-center"
+        style="top: 0; left: 0;"
+      >
+        <div
+          class="play-button bg-red-600 rounded-full flex items-center justify-center"
+          style="width: 80px; height: 80px; background-color: #dc2626; transition: all 0.3s ease;"
+        >
+          <svg
+            width="32"
+            height="32"
+            fill="white"
+            viewBox="0 0 24 24"
+            style="margin-left: 4px;"
+          >
+            <path d="M8 5v14l11-7z"></path>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Loading (caché par défaut) -->
+      <div
+        class="youtube-loading absolute w-full h-full rounded-lg items-center justify-center"
+        style="top: 0; left: 0; background-color: rgba(0,0,0,0.8); display: none;"
+      >
+        <div class="text-center">
+          <div class="spinner" style="margin: 0 auto 1rem auto;"></div>
+          <p class="text-white text-sm">Chargement...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Titre -->
+  {
+    title && (
+      <p
+        class="text-center text-sm text-gray-600 font-medium"
+        style="margin-top: 0.75rem;"
+      >
+        {title}
+      </p>
+    )
+  }
+
+  <!-- Container pour iframe (caché par défaut) -->
+  <div
+    class="youtube-iframe-container relative rounded-lg overflow-hidden"
+    style="width: 100%; height: 0; padding-bottom: 56.25%; display: none;"
+  >
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const containers = document.querySelectorAll(".youtube-lazy-container");
+
+    containers.forEach((container) => {
+      const thumbnail = container.querySelector(".youtube-thumbnail");
+      const loading = container.querySelector(".youtube-loading");
+      const iframeContainer = container.querySelector(
+        ".youtube-iframe-container",
+      );
+      const img = thumbnail.querySelector("img");
+      const overlay = thumbnail.querySelector(".youtube-overlay");
+      const playButton = thumbnail.querySelector(".play-button");
+
+      // Effets hover
+      thumbnail.addEventListener("mouseenter", function () {
+        img.style.opacity = "0.8";
+        img.style.transform = "scale(1.05)";
+        overlay.style.backgroundColor = "rgba(0,0,0,0.5)";
+        playButton.style.transform = "scale(1.1)";
+        playButton.style.backgroundColor = "#ef4444";
+      });
+
+      thumbnail.addEventListener("mouseleave", function () {
+        img.style.opacity = "1";
+        img.style.transform = "scale(1)";
+        overlay.style.backgroundColor = "rgba(0,0,0,0.3)";
+        playButton.style.transform = "scale(1)";
+        playButton.style.backgroundColor = "#dc2626";
+      });
+
+      // Click pour charger la vidéo
+      thumbnail.addEventListener("click", function () {
+        const videoId = container.dataset.videoId;
+        const startTime = container.dataset.startTime;
+
+        if (!videoId) return;
+
+        // Afficher loading
+        loading.style.display = "flex";
+
+        // Construire URL embed
+        let embedUrl = `https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1`;
+        if (startTime) embedUrl += `&start=${startTime}`;
+
+        // Créer iframe
+        const iframe = document.createElement("iframe");
+        iframe.src = embedUrl;
+        iframe.style.cssText =
+          "position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;";
+        iframe.allow =
+          "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
+        iframe.allowFullscreen = true;
+        iframe.title = img.alt || "Vidéo YouTube";
+
+        // Quand iframe chargée
+        iframe.onload = function () {
+          thumbnail.style.display = "none";
+          loading.style.display = "none";
+          iframeContainer.style.display = "block";
+        };
+
+        // Ajouter iframe
+        iframeContainer.appendChild(iframe);
+      });
+    });
+  });
+</script>
+
+<style>
+  .youtube-lazy-container {
+    margin: 2rem 0;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+  }
+
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .youtube-lazy-container .play-button {
+      width: 60px !important;
+      height: 60px !important;
+    }
+
+    .youtube-lazy-container .play-button svg {
+      width: 24px !important;
+      height: 24px !important;
+    }
+  }
+</style>
