@@ -149,6 +149,11 @@
       "source": "/categories/technology",
       "destination": "/",
       "permanent": true
-    }
+    },
+    {
+      "source": "/categories/streaming",
+      "destination": "/",
+      "permanent": true
+    },
   ]
 }
