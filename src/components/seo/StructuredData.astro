@@ -10,6 +10,7 @@ type Props = {
     slug: { current: string };
     cover?: any;
     publishedTime: string;
+    content?: any[]; // ✅ AJOUT : Pour analyser le contenu
     categories?: Array<{
       title: string;
       slug: { current: string };
@@ -31,17 +32,112 @@ type Props = {
 
 const { article, readingTime, articleType } = Astro.props;
 
+// ✅ FONCTIONS UTILITAIRES POUR ANALYSER LE CONTENU
+const getYouTubeId = (url) => {
+  if (!url) return null;
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : null;
+};
+
+const extractYouTubeFromText = (text) => {
+  const match = text.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  return match ? match[1] : null;
+};
+
+const extractTweetId = (text) => {
+  const match = text.match(/twitter\.com\/\w+\/status\/(\d+)/);
+  return match ? match[1] : null;
+};
+
+// ✅ ANALYSER LE CONTENU POUR EXTRAIRE LES MÉDIAS
+const analyzeContent = () => {
+  if (!article.content) return { videos: [], socialPosts: [], hasVideo: false };
+  
+  const videos = [];
+  const socialPosts = [];
+  
+  article.content.forEach((block, index) => {
+    // Vidéos YouTube avec schéma
+    if (block._type === "youtube" && block.url) {
+      const videoId = getYouTubeId(block.url);
+      if (videoId) {
+        videos.push({
+          "@type": "VideoObject",
+          name: block.title || article.title,
+          description: block.title || article.description || article.title,
+          thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+          embedUrl: `https://www.youtube.com/embed/${videoId}`,
+          uploadDate: article.publishedTime,
+          duration: "PT0M", // Durée inconnue, à ajuster si nécessaire
+          publisher: {
+            "@type": "Organization",
+            name: "YouTube",
+            url: "https://www.youtube.com"
+          }
+        });
+      }
+    }
+    
+    // Analyser les blocs texte pour YouTube et Twitter
+    if (block._type === "block" && block.children) {
+      const fullText = block.children.map(child => child.text).join("");
+      
+      // YouTube dans le texte
+      const youtubeId = extractYouTubeFromText(fullText);
+      if (youtubeId) {
+        videos.push({
+          "@type": "VideoObject",
+          name: article.title,
+          description: article.description || article.title,
+          thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`,
+          embedUrl: `https://www.youtube.com/embed/${youtubeId}`,
+          uploadDate: article.publishedTime,
+          duration: "PT0M",
+          publisher: {
+            "@type": "Organization",
+            name: "YouTube",
+            url: "https://www.youtube.com"
+          }
+        });
+      }
+      
+      // Twitter dans le texte
+      const tweetId = extractTweetId(fullText);
+      if (tweetId) {
+        socialPosts.push({
+          "@type": "SocialMediaPosting",
+          url: `https://twitter.com/i/status/${tweetId}`,
+          headline: "Tweet intégré",
+          datePublished: article.publishedTime,
+          author: {
+            "@type": "Organization",
+            name: "Twitter",
+            url: "https://twitter.com"
+          }
+        });
+      }
+    }
+  });
+  
+  return { 
+    videos: videos.slice(0, 5), // Limiter à 5 vidéos max
+    socialPosts: socialPosts.slice(0, 3), // Limiter à 3 posts sociaux max
+    hasVideo: videos.length > 0 
+  };
+};
+
+const contentAnalysis = analyzeContent();
+
 // Logique de détection automatique du type d'article
 const detectArticleType = () => {
-  if (articleType) return articleType; // Si explicitement défini
+  if (articleType) return articleType;
 
-  // Vérifier si l'article appartient à la catégorie spéciale (guides/tutoriels)
   const hasSpecialCategory = article.categories?.some(
     (category) => category._id === "c4bbd56e-97cb-46d6-8192-9884289e8872",
   );
 
   if (hasSpecialCategory) {
-    // Détecter si c'est un tutoriel (HowTo) par des mots-clés dans le titre
     const howToKeywords = ["איך", "כיצד", "מדריך", "שלבים", "הסבר", "לעשות"];
     const isHowTo = howToKeywords.some((keyword) =>
       article.title.toLowerCase().includes(keyword),
@@ -50,13 +146,13 @@ const detectArticleType = () => {
     return isHowTo ? "HowTo" : "TechArticle";
   }
 
-  return "NewsArticle"; // Par défaut
+  return "NewsArticle";
 };
 
 const detectedType = detectArticleType();
 
 const siteUrl = "https://techhorizons.co.il";
-const currentUrl = `${siteUrl}/articles/${article.slug.current}`;
+const currentUrl = `${siteUrl}/${article.slug.current}`; // ✅ CORRIGÉ : pas /articles/
 
 // Image de couverture
 const coverImageUrl = article.cover
@@ -90,7 +186,7 @@ const organization = {
   },
 };
 
-// Schema de base
+// ✅ SCHEMA DE BASE AMÉLIORÉ
 const baseSchema = {
   "@context": "https://schema.org",
   "@type": detectedType,
@@ -111,6 +207,14 @@ const baseSchema = {
     "@type": "WebPage",
     "@id": currentUrl,
   },
+  // ✅ AJOUTER LES VIDÉOS SI PRÉSENTES
+  ...(contentAnalysis.hasVideo && {
+    video: contentAnalysis.videos
+  }),
+  // ✅ AJOUTER LES POSTS SOCIAUX SI PRÉSENTS
+  ...(contentAnalysis.socialPosts.length > 0 && {
+    mentions: contentAnalysis.socialPosts
+  })
 };
 
 // Ajouts spécifiques selon le type d'article
@@ -131,6 +235,11 @@ if (detectedType === "HowTo") {
   schema["@type"] = "HowTo";
   schema.name = article.title;
   delete schema.headline;
+  
+  // ✅ AJOUT : Structure spéciale pour les tutoriels avec vidéos
+  if (contentAnalysis.hasVideo) {
+    schema.video = contentAnalysis.videos;
+  }
 }
 
 if (detectedType === "TechArticle") {
@@ -144,6 +253,92 @@ if (detectedType === "TechArticle") {
     }),
   };
 }
+
+// ✅ SCHÉMAS ADDITIONNELS POUR LES VIDÉOS (si présentes)
+const additionalSchemas = [];
+
+// Schema spécifique pour chaque vidéo YouTube
+if (contentAnalysis.videos.length > 0) {
+  contentAnalysis.videos.forEach((video, index) => {
+    additionalSchemas.push({
+      "@context": "https://schema.org",
+      "@type": "VideoObject",
+      ...video,
+      isPartOf: {
+        "@type": "Article",
+        "@id": currentUrl
+      }
+    });
+  });
+}
+
+// ✅ SCHEMA POUR LA PAGE WEB ELLE-MÊME
+const webPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "@id": currentUrl,
+  url: currentUrl,
+  name: article.title,
+  description: article.description || article.title,
+  inLanguage: "he-IL",
+  isPartOf: {
+    "@type": "WebSite",
+    "@id": siteUrl,
+    name: "TechHorizons",
+    url: siteUrl
+  },
+  primaryImageOfPage: {
+    "@type": "ImageObject",
+    url: coverImageUrl
+  },
+  datePublished: article.publishedTime,
+  dateModified: article.publishedTime,
+  ...(contentAnalysis.hasVideo && {
+    video: contentAnalysis.videos
+  })
+};
+
+// ✅ SCHEMA FINAL COMBINÉ
+const allSchemas = [
+  schema, // Article principal
+  webPageSchema, // Page web
+  ...additionalSchemas // Vidéos individuelles
+];
 ---
 
+<!-- ✅ SCHEMA PRINCIPAL -->
 <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+
+<!-- ✅ SCHEMA DE LA PAGE WEB -->
+<script type="application/ld+json" set:html={JSON.stringify(webPageSchema)} />
+
+<!-- ✅ SCHÉMAS DES VIDÉOS INDIVIDUELLES -->
+{additionalSchemas.map((videoSchema, index) => (
+  <script key={index} type="application/ld+json" set:html={JSON.stringify(videoSchema)} />
+))}
+
+<!-- ✅ META TAGS ADDITIONNELS POUR LES VIDÉOS -->
+{contentAnalysis.hasVideo && (
+  <>
+    <meta property="og:video" content={contentAnalysis.videos[0].embedUrl} />
+    <meta property="og:video:type" content="text/html" />
+    <meta property="og:video:width" content="1280" />
+    <meta property="og:video:height" content="720" />
+    <meta name="twitter:player" content={contentAnalysis.videos[0].embedUrl} />
+    <meta name="twitter:player:width" content="1280" />
+    <meta name="twitter:player:height" content="720" />
+  </>
+)}
+
+<!-- ✅ DEBUG INFO (à retirer en production) -->
+{import.meta.env.DEV && (
+  <script>
+    console.log('📊 Structured Data Debug:', {
+      articleType: detectedType,
+      hasVideos: contentAnalysis.hasVideo,
+      videosCount: contentAnalysis.videos.length,
+      socialPostsCount: contentAnalysis.socialPosts.length,
+      schemas: allSchemas.length
+    });
+  </script>
+)}
