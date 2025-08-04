@@ -9,6 +9,9 @@ export function getStaticPaths() {
 const { category } = Astro.params;
 const categoryData = categoriesHandler.oneCategory(category);
 const title = categoryData?.data?.title || category;
+
+// Server-side redirect to page 1
+return Astro.redirect(`/categories/${category}/1`, 301);
 ---
 
 <!DOCTYPE html>
@@ -19,7 +22,7 @@ const title = categoryData?.data?.title || category;
   <title>מאמרים בקטגוריה {title} | Tech Horizons</title>
   <meta name="description" content={`מאמרים בקטגוריה ${title} - Tech Horizons`} />
   <meta http-equiv="refresh" content={`0; url=/categories/${category}/1`} />
-  <link rel="canonical" href={`https://techhorizons.co.il/categories/${category}/1`} />
+  <link rel="canonical" href={`https://techhorizons.co.il/categories/${category}`} />
 </head>
 <body>
   <p>מעביר אותך לעמוד הראשון של הקטגוריה {title}...</p>

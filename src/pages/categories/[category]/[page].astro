@@ -53,10 +53,7 @@ if (!entry) {
 const categoryTitle = categoryInfo?.title || params.category;
 
 // ✅ AJOUT : URL canonique SANS slash final
-const canonicalUrl =
-  page.currentPage === 1
-    ? `${SITE.url}/categories/${params.category}`
-    : `${SITE.url}/categories/${params.category}/${page.currentPage}`;
+const canonicalUrl = `${SITE.url}/categories/${params.category}/${page.currentPage}`;
 ---
 
 <ListLayout header={categoryTitle} entry={entry} canonical={canonicalUrl}>
