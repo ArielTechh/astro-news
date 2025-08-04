@@ -97,6 +97,18 @@ export const onRequest = defineMiddleware(async (context, next) => {
     });
   }
 
+  // ✨ REDIRECTIONS 301 : /categories/{category} vers /categories/{category}/1
+  if (pathname.match(/^\/categories\/[^\/]+$/) && !pathname.endsWith('/')) {
+    // Redirection 301 vers la page 1
+    return new Response(null, {
+      status: 301,
+      headers: {
+        'Location': `${pathname}/1`,
+        'Cache-Control': 'public, max-age=31536000', // 1 an de cache
+      }
+    });
+  }
+
   // Traiter la requête
   const response = await next();
 
