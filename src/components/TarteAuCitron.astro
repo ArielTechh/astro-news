@@ -1,7 +1,61 @@
+<!-- Bannière de consentement ultra-légère -->
+<div
+  id="consent-banner"
+  style="
+  position: fixed; 
+  bottom: 0; 
+  left: 0; 
+  right: 0; 
+  background: #1a1a1a; 
+  color: white; 
+  padding: 1rem; 
+  z-index: 10000;
+  display: none;
+"
+>
+  <div
+    style="max-width: 1200px; margin: 0 auto; display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;"
+  >
+    <p style="margin: 0; flex: 1; min-width: 200px;">
+      We use cookies to improve your experience.
+      <a href="/privacy-policy" style="color: #60a5fa;">Privacy Policy</a>
+    </p>
+    <div style="display: flex; gap: 0.5rem;">
+      <button
+        id="consent-accept"
+        style="
+        background: #16a34a; 
+        color: white; 
+        border: none; 
+        padding: 0.5rem 1rem; 
+        border-radius: 4px; 
+        cursor: pointer;
+      "
+        >Accept All</button
+      >
+      <button
+        id="consent-reject"
+        style="
+        background: #dc2626; 
+        color: white; 
+        border: none; 
+        padding: 0.5rem 1rem; 
+        border-radius: 4px; 
+        cursor: pointer;
+      "
+        >Reject All</button
+      >
+    </div>
+  </div>
+</div>
+
 <script is:inline>
-  // Éviter les doubles chargements sur les navigations côté client
-  if (!window.globalConsentLoaded) {
-    window.globalConsentLoaded = true;
+  (function () {
+    "use strict";
+
+    // Configuration
+    const COOKIE_NAME = "user-consent";
+    const COOKIE_DURATION = 365; // jours
 
     // GTM Setup
     window.dataLayer = window.dataLayer || [];
@@ -9,6 +63,7 @@
       dataLayer.push(arguments);
     }
 
+    // Consentement par défaut (refusé)
     gtag("consent", "default", {
       analytics_storage: "denied",
       ad_storage: "denied",
@@ -19,151 +74,155 @@
       security_storage: "granted",
     });
 
-    (function (w, d, s, l, i) {
-      w[l] = w[l] || [];
-      w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
-      var f = d.getElementsByTagName(s)[0],
-        j = d.createElement(s),
-        dl = l != "dataLayer" ? "&l=" + l : "";
-      j.async = true;
-      j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
-      f.parentNode.insertBefore(j, f);
-    })(window, document, "script", "dataLayer", "GTM-PQC6K9BZ");
+    // Fonctions utilitaires
+    function setCookie(name, value, days) {
+      const expires = new Date(Date.now() + days * 864e5).toUTCString();
+      document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Lax`;
+    }
 
-    // TarteAuCitron Setup
-    var tarteaucitronForceLanguage = "en";
+    function getCookie(name) {
+      return document.cookie
+        .split("; ")
+        .find((row) => row.startsWith(name + "="))
+        ?.split("=")[1];
+    }
 
-    function initGlobalConsent() {
-      var script = document.createElement("script");
-      script.src =
-        "https://cdn.jsdelivr.net/npm/tarteaucitronjs@1/tarteaucitron.js";
+    function hideBanner() {
+      const banner = document.getElementById("consent-banner");
+      if (banner) {
+        banner.style.display = "none";
+      }
+    }
 
-      script.onload = function () {
-        console.log("🌐 Global consent loaded on:", window.location.pathname);
+    function showBanner() {
+      const banner = document.getElementById("consent-banner");
+      if (banner) {
+        banner.style.display = "block";
+      }
+    }
 
-        tarteaucitron.init({
-          privacyUrl: "/privacy-policy",
-          bodyPosition: "bottom",
-          hashtag: "#tarteaucitron",
-          cookieName: "tarteaucitron",
-          orientation: "middle",
-          showDetailsOnClick: true,
-          serviceDefaultState: "wait",
-          DenyAllCta: true,
-          AcceptAllCta: true,
-          highPrivacy: true,
-          showIcon: true,
-          iconPosition: "BottomRight",
-          showAlertSmall: true,
-          loadAllDependencies: false, // ✅ EMPÊCHE le chargement automatique de services.min.js
-        });
+    // Chargement des services après consentement
+    function loadServices() {
+      console.log("🚀 Loading analytics and ads...");
 
-        // ❌ SUPPRIMÉ : Chargement immédiat d'AdSense
-        // tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
-        // (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
+      // GTM
+      if (!window.gtmLoaded) {
+        (function (w, d, s, l, i) {
+          w[l] = w[l] || [];
+          w[l].push({ "gtm.start": new Date().getTime(), event: "gtm.js" });
+          var f = d.getElementsByTagName(s)[0],
+            j = d.createElement(s),
+            dl = l != "dataLayer" ? "&l=" + l : "";
+          j.async = true;
+          j.src = "https://www.googletagmanager.com/gtm.js?id=" + i + dl;
+          f.parentNode.insertBefore(j, f);
+        })(window, document, "script", "dataLayer", "GTM-PQC6K9BZ");
+        window.gtmLoaded = true;
+      }
 
-        // Fonction pour charger AdSense avec délai
-        function loadAdSenseDelayed() {
-          if (!window.adSenseLoaded) {
-            console.log("⏰ Loading AdSense after 3 seconds delay...");
-            setTimeout(() => {
-              tarteaucitron.user.adsensecapub = "ca-pub-1113800966089168";
-              (tarteaucitron.job = tarteaucitron.job || []).push("adsenseauto");
-              window.adSenseLoaded = true;
-              console.log("✅ AdSense loaded with delay");
-            }, 3000); // Délai de 3 secondes
-          }
-        }
+      // AdSense (avec délai pour les performances)
+      setTimeout(() => {
+        if (!window.adSenseLoaded) {
+          const adScript = document.createElement("script");
+          adScript.src =
+            "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
+          adScript.async = true;
+          adScript.crossOrigin = "anonymous";
 
-        // Gestion globale du consentement
-        function updateGlobalConsent(granted) {
-          console.log("🌍 Global consent update:", granted);
-
-          if (granted) {
-            gtag("consent", "update", {
-              analytics_storage: "granted",
-              ad_storage: "granted",
-              functionality_storage: "granted",
-              personalization_storage: "granted",
-              ad_user_data: "granted",
-              ad_personalization: "granted",
-            });
-
-            window.dataLayer.push({
-              event: "global_consent_granted",
-              page_path: window.location.pathname,
-            });
-
-            // 🆕 Charger AdSense avec délai après consentement
-            loadAdSenseDelayed();
-          } else {
-            gtag("consent", "update", {
-              analytics_storage: "denied",
-              ad_storage: "denied",
-              functionality_storage: "denied",
-              personalization_storage: "denied",
-              ad_user_data: "denied",
-              ad_personalization: "denied",
-            });
-
-            window.dataLayer.push({
-              event: "global_consent_denied",
-              page_path: window.location.pathname,
-            });
-          }
-        }
-
-        // Écouter les interactions globalement
-        document.addEventListener("click", function (e) {
-          if (
-            e.target.id === "tarteaucitronAllAllowed" ||
-            e.target.classList.contains("tarteaucitronAllow") ||
-            e.target.closest("#tarteaucitronAllAllowed")
-          ) {
-            setTimeout(() => updateGlobalConsent(true), 300);
-          }
-
-          if (
-            e.target.id === "tarteaucitronAllDenied" ||
-            e.target.classList.contains("tarteaucitronDeny") ||
-            e.target.closest("#tarteaucitronAllDenied")
-          ) {
-            setTimeout(() => updateGlobalConsent(false), 300);
-          }
-        });
-
-        // Vérifier l'état existant
-        setTimeout(function () {
-          if (
-            tarteaucitron.state &&
-            Object.keys(tarteaucitron.state).length > 0
-          ) {
-            const hasAccepted = Object.values(tarteaucitron.state).some(
-              (s) => s === true,
-            );
-            if (hasAccepted) {
-              updateGlobalConsent(true);
+          adScript.onload = function () {
+            // Initialiser AdSense une fois le script chargé
+            try {
+              (window.adsbygoogle = window.adsbygoogle || []).push({
+                google_ad_client: "ca-pub-1113800966089168",
+                enable_page_level_ads: true,
+              });
+              console.log("✅ AdSense initialized with auto ads");
+            } catch (e) {
+              console.error("❌ AdSense initialization error:", e);
             }
-          }
-        }, 1000);
+          };
 
-        console.log("✅ Global consent system ready");
-      };
-
-      script.onerror = function () {
-        console.error("❌ Failed to load global consent system");
-      };
-
-      document.head.appendChild(script);
+          document.head.appendChild(adScript);
+          window.adSenseLoaded = true;
+          console.log("✅ AdSense script loaded");
+        }
+      }, 2000);
     }
 
-    // Initialiser quand prêt
+    // Gestion du consentement
+    function handleConsent(accepted) {
+      setCookie(
+        COOKIE_NAME,
+        accepted ? "accepted" : "rejected",
+        COOKIE_DURATION,
+      );
+      hideBanner();
+
+      if (accepted) {
+        // Mise à jour du consentement GTM
+        gtag("consent", "update", {
+          analytics_storage: "granted",
+          ad_storage: "granted",
+          functionality_storage: "granted",
+          personalization_storage: "granted",
+          ad_user_data: "granted",
+          ad_personalization: "granted",
+        });
+
+        // Chargement des services
+        loadServices();
+
+        // Event pour le tracking
+        dataLayer.push({
+          event: "consent_granted",
+          page_path: window.location.pathname,
+        });
+
+        console.log("✅ Consent accepted - services loading");
+      } else {
+        dataLayer.push({
+          event: "consent_rejected",
+          page_path: window.location.pathname,
+        });
+        console.log("❌ Consent rejected - no tracking");
+      }
+    }
+
+    // Initialisation au chargement de la page
+    function init() {
+      const consent = getCookie(COOKIE_NAME);
+
+      if (consent === "accepted") {
+        // Consentement déjà donné
+        handleConsent(true);
+      } else if (consent === "rejected") {
+        // Consentement déjà refusé
+        console.log("ℹ️ Consent previously rejected");
+      } else {
+        // Première visite - afficher la bannière
+        showBanner();
+      }
+
+      // Event listeners pour les boutons
+      const acceptBtn = document.getElementById("consent-accept");
+      const rejectBtn = document.getElementById("consent-reject");
+
+      if (acceptBtn) {
+        acceptBtn.addEventListener("click", () => handleConsent(true));
+      }
+
+      if (rejectBtn) {
+        rejectBtn.addEventListener("click", () => handleConsent(false));
+      }
+    }
+
+    // Démarrage quand le DOM est prêt
     if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", initGlobalConsent);
+      document.addEventListener("DOMContentLoaded", init);
     } else {
-      initGlobalConsent();
+      init();
     }
-  }
+  })();
 </script>
 
 <!-- GTM noscript fallback -->
