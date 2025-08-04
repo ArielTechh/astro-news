@@ -32,12 +32,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
   />
 
-  <!-- ✅ TITRE DE BASE (au cas où SEO échoue) -->
-  <title>{meta?.title || "Tech Horizons"} | {SITE.title}</title>
-  <meta
-    name="description"
-    content={meta?.description || "Tech news and reviews"}
-  />
+  <!-- ✅ META DE BASE -->
   <link rel="canonical" href={canonicalURL} />
 
   <!-- ✅ astro-seo AVEC PROTECTION -->
@@ -121,7 +116,11 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
           ],
         }}
       />
-    ) : null
+    ) : (
+      <!-- Fallback si astro-seo échoue -->
+      <title>{meta?.title || "Tech Horizons"} | {SITE.title}</title>
+      <meta name="description" content={meta?.description || "Tech news and reviews"} />
+    )
   }
 
   <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE -->
