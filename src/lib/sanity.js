@@ -538,7 +538,7 @@ export async function getNavigation() {
           href = item.internalLink || '/';
           break;
         case 'category':
-          href = item.categoryLink?.slug?.current ? `/categories/${item.categoryLink.slug.current}` : '#';
+          href = item.categoryLink?.slug?.current ? `/categories/${item.categoryLink.slug.current}/1` : '#';
           break;
         case 'article':
           href = item.articleLink?.slug?.current ? `/articles/${item.articleLink.slug.current}` : '#';
@@ -564,7 +564,7 @@ export async function getNavigation() {
               subHref = subItem.internalLink || '/';
               break;
             case 'category':
-              subHref = subItem.categoryLink?.slug?.current ? `/categories/${subItem.categoryLink.slug.current}` : '#';
+              subHref = subItem.categoryLink?.slug?.current ? `/categories/${subItem.categoryLink.slug.current}/1` : '#';
               break;
             case 'article':
               subHref = subItem.articleLink?.slug?.current ? `/articles/${subItem.articleLink.slug.current}` : '#';
