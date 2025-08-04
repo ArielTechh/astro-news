@@ -1,0 +1,17 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getAllCategories } from "@/lib/sanity";
+
+export const getStaticPaths = (async () => {
+  const allCategories = await getAllCategories();
+  
+  return allCategories.map((category) => ({
+    params: { category: category.slug.current }
+  }));
+}) satisfies GetStaticPaths;
+
+const { category } = Astro.params;
+
+// Redirection vers la page 1
+return Astro.redirect(`/categories/${category}/1`, 301);
+---
