@@ -154,6 +154,6 @@
       "source": "/categories/streaming",
       "destination": "/",
       "permanent": true
-    },
+    }
   ]
 }
