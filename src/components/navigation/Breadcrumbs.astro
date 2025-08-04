@@ -12,11 +12,26 @@ export interface Props {
 
 const { items, current } = Astro.props;
 
+// Fonction pour traiter les URLs et ajouter /1 aux catégories
+function processUrl(url: string): string {
+  // Si l'URL commence par /categories/ et ne finit pas déjà par un nombre
+  if (url.startsWith("/categories/") && !/\/\d+$/.test(url)) {
+    return `${url}/1`;
+  }
+  return url;
+}
+
+// Traiter les items pour ajouter /1 aux catégories
+const processedItems = items.map((item) => ({
+  ...item,
+  url: processUrl(item.url),
+}));
+
 // Créer les données structurées JSON-LD pour Google
 const structuredData = {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
-  itemListElement: items.map((item, index) => ({
+  itemListElement: processedItems.map((item, index) => ({
     "@type": "ListItem",
     position: index + 1,
     name: item.name,
@@ -28,7 +43,7 @@ const structuredData = {
 if (current) {
   structuredData.itemListElement.push({
     "@type": "ListItem",
-    position: items.length + 1,
+    position: processedItems.length + 1,
     name: current,
     item: Astro.url.href,
   });
@@ -44,7 +59,7 @@ if (current) {
     class="flex items-center space-x-2 space-x-reverse text-sm text-gray-600 dark:text-gray-400"
   >
     {
-      items.map((item, index) => (
+      processedItems.map((item, index) => (
         <li class="flex items-center">
           <a
             href={item.url}
@@ -53,7 +68,7 @@ if (current) {
           >
             {item.name}
           </a>
-          {(index < items.length - 1 || current) && (
+          {(index < processedItems.length - 1 || current) && (
             <svg
               class="w-4 h-4 mx-2 text-gray-400"
               fill="currentColor"
