@@ -1,5 +1,5 @@
 # robots.txt pour TechHorizons - Site de News Tech Israël
-# CORRIGÉ pour la nouvelle structure: articles à la racine (techhorizons.co.il/nom-article)
+# Structure corrigée: articles à la racine (techhorizons.co.il/nom-article)
 
 User-agent: *
 Allow: /
@@ -12,33 +12,24 @@ Disallow: /preview/
 Disallow: /404
 Disallow: /500
 
-# Allow critical content for news sites - STRUCTURE CORRIGÉE
-# Plus de /articles/ car articles maintenant à la racine
+# Allow critical content for news sites
 Allow: /categories/
-
-# Main sitemap location  
-Sitemap: https://techhorizons.co.il/sitemap-index.xml
-
-# Crawl-delay respectueux (1 seconde entre requêtes)
-Crawl-delay: 1
 
 # Configuration spéciale pour Google News Bot
 User-agent: Googlebot-News
-# Plus de /articles/ - les articles sont à la racine maintenant
 Allow: /
 Crawl-delay: 0
 
 # Configuration pour les moteurs de recherche principaux
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 0.5
+Crawl-delay: 0
 
 User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
 
 # ===== ACCÈS AUTORISÉ POUR LES IA/LLMs =====
-
 # OpenAI (GPT, ChatGPT) - AUTORISÉ
 User-agent: GPTBot
 Allow: /
@@ -81,8 +72,6 @@ User-agent: CommonCrawl
 Allow: /
 Crawl-delay: 5
 
-# ===== BÉNÉFICES POUR TON SITE =====
-# ✅ Plus de visibilité via les réponses IA
-# ✅ Citations et références dans les LLMs  
-# ✅ Trafic indirect quand les users veulent la source
-# ✅ Authority building dans le domaine tech israélien
+# Main sitemap location  
+Sitemap: https://techhorizons.co.il/sitemap-index.xml
+
