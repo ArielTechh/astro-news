@@ -1,9 +1,22 @@
 ---
-// src/pages/404.astro
-// VRAIE redirection 301 côté serveur
+import { getEntry } from "astro:content";
+import BaseLayout from "../layouts/base.astro";
 
-// Marquer cette page comme SSR dans le mode hybride
-export const prerender = false;
+const entry = await getEntry("views", "error404");
 
-return Astro.redirect("/", 301);
+if (!entry) {
+  throw new Error("404 page not found");
+}
+
+const [HERO] = entry.data.blocks;
 ---
+
+<BaseLayout entry={entry}>
+  <div class="container flex flex-col items-center justify-center py-20">
+    <h1 class="text-4xl">{HERO.title}</h1>
+    <p class="mt-2">{HERO.description}</p>
+    <a href={HERO.link_url} class="btn mt-6" aria-label="Return to Homepage"
+      >{HERO.link_text}</a
+    >
+  </div>
+</BaseLayout>
