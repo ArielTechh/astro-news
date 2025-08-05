@@ -1,4 +1,4 @@
-<!-- Bannière de consentement ultra-légère avec AdSense lazy -->
+<!-- Bannière de consentement avec AdSense retardé au scroll -->
 <div
   id="consent-banner"
   style="
@@ -55,7 +55,7 @@
 
     // Configuration
     const COOKIE_NAME = "user-consent";
-    const COOKIE_DURATION = 365; // jours
+    const COOKIE_DURATION = 365;
 
     // GTM Setup
     window.dataLayer = window.dataLayer || [];
@@ -89,282 +89,82 @@
 
     function hideBanner() {
       const banner = document.getElementById("consent-banner");
-      if (banner) {
-        banner.style.display = "none";
-      }
+      if (banner) banner.style.display = "none";
     }
 
     function showBanner() {
       const banner = document.getElementById("consent-banner");
-      if (banner) {
-        banner.style.display = "block";
-      }
+      if (banner) banner.style.display = "block";
     }
 
-    // ✅ CLASSE POUR ADSENSE LAZY LOADING
-    class AdSenseLazy {
-      static loaded = false;
-      static placeholders = new Set();
-      static observer = null;
+    // ✅ SOLUTION RADICALE : AdSense seulement au premier scroll
+    let adSenseActivated = false;
+    let consentGiven = false;
 
-      // Créer un placeholder pour les pubs
-      static createAdPlaceholder(container) {
-        // Ajouter les styles une seule fois
-        this.ensureStyles();
+    function activateAdSenseOnScroll() {
+      if (adSenseActivated || !consentGiven) return;
 
-        const placeholder = document.createElement("div");
-        placeholder.className = "adsense-lazy-placeholder";
+      const scrollHandler = () => {
+        if (window.scrollY > 100) {
+          // Après 100px de scroll
+          adSenseActivated = true;
+          window.removeEventListener("scroll", scrollHandler);
 
-        placeholder.innerHTML = `
-          <div class="adsense-lazy-content">
-            <div class="adsense-lazy-icon">
-              <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-              </svg>
-            </div>
-            <h3 class="adsense-lazy-title">Publicité</h3>
-            <p class="adsense-lazy-subtitle">Chargement automatique...</p>
-          </div>
-          <div class="adsense-lazy-shimmer"></div>
-        `;
-
-        return placeholder;
-      }
-
-      // Ajouter les styles CSS isolés une seule fois
-      static ensureStyles() {
-        if (document.getElementById("adsense-lazy-styles")) return;
-
-        const style = document.createElement("style");
-        style.id = "adsense-lazy-styles";
-        style.textContent = `
-          .adsense-lazy-placeholder {
-            background: linear-gradient(135deg, #f3f4f6, #e5e7eb) !important;
-            border: 2px dashed #d1d5db !important;
-            border-radius: 8px !important;
-            padding: 2rem !important;
-            text-align: center !important;
-            color: #6b7280 !important;
-            font-family: system-ui, -apple-system, sans-serif !important;
-            margin: 1rem 0 !important;
-            position: relative !important;
-            overflow: hidden !important;
-            cursor: pointer !important;
-            transition: all 0.3s ease !important;
-            box-sizing: border-box !important;
-          }
-          
-          .adsense-lazy-placeholder:hover {
-            border-color: #9ca3af !important;
-            background: linear-gradient(135deg, #e5e7eb, #d1d5db) !important;
-          }
-          
-          .adsense-lazy-content {
-            position: relative !important;
-            z-index: 1 !important;
-          }
-          
-          .adsense-lazy-icon {
-            width: 48px !important;
-            height: 48px !important;
-            margin: 0 auto 1rem !important;
-            background: #d1d5db !important;
-            border-radius: 50% !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-          }
-          
-          .adsense-lazy-title {
-            margin: 0 0 0.5rem 0 !important;
-            font-size: 1.1rem !important;
-            font-weight: 600 !important;
-            color: inherit !important;
-          }
-          
-          .adsense-lazy-subtitle {
-            margin: 0 !important;
-            font-size: 0.9rem !important;
-            opacity: 0.8 !important;
-            color: inherit !important;
-          }
-          
-          .adsense-lazy-shimmer {
-            position: absolute !important;
-            top: 0 !important;
-            left: -100% !important;
-            height: 100% !important;
-            width: 100% !important;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent) !important;
-            animation: adsense-shimmer 2s infinite !important;
-          }
-          
-          @keyframes adsense-shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-          }
-          
-          /* Isolation pour éviter les conflits */
-          .adsense-lazy-placeholder * {
-            box-sizing: border-box !important;
-          }
-        `;
-        document.head.appendChild(style);
-      }
-
-      // Initialiser l'Intersection Observer pour AdSense
-      static initObserver() {
-        if (this.observer || !("IntersectionObserver" in window)) return;
-
-        this.observer = new IntersectionObserver(
-          (entries) => {
-            entries.forEach(async (entry) => {
-              if (entry.isIntersecting) {
-                const placeholder = entry.target;
-                this.observer.unobserve(placeholder);
-                await this.loadAdSense();
-                this.replaceWithAd(placeholder);
-              }
-            });
-          },
-          {
-            rootMargin: "200px 0px", // Charger 200px avant d'être visible
-            threshold: 0.1,
-          },
-        );
-      }
-
-      // Charger le script AdSense une seule fois
-      static async loadAdSense() {
-        if (this.loaded) return;
-
-        return new Promise((resolve, reject) => {
-          const adScript = document.createElement("script");
-          adScript.src =
-            "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
-          adScript.async = true;
-          adScript.crossOrigin = "anonymous";
-
-          adScript.onload = () => {
-            this.loaded = true;
-            console.log("✅ AdSense script loaded on demand");
-            resolve();
-          };
-
-          adScript.onerror = () => {
-            console.error("❌ Failed to load AdSense");
-            reject();
-          };
-
-          document.head.appendChild(adScript);
-        });
-      }
-
-      // Remplacer le placeholder par une vraie pub
-      static replaceWithAd(placeholder) {
-        try {
-          // Créer l'élément pub AdSense avec les attributs originaux
-          const adElement = document.createElement("ins");
-          adElement.className = "adsbygoogle";
-          adElement.style.cssText = "display: block !important;";
-
-          // Utiliser les attributs stockés sur le placeholder
-          adElement.setAttribute(
-            "data-ad-client",
-            placeholder.dataset.adClient || "ca-pub-1113800966089168",
-          );
-          adElement.setAttribute(
-            "data-ad-slot",
-            placeholder.dataset.adSlot || "auto",
-          );
-          adElement.setAttribute(
-            "data-ad-format",
-            placeholder.dataset.adFormat || "auto",
-          );
-          adElement.setAttribute(
-            "data-full-width-responsive",
-            placeholder.dataset.adResponsive || "true",
-          );
-
-          // Remplacer le placeholder
-          placeholder.parentNode.replaceChild(adElement, placeholder);
-
-          // Initialiser la pub
-          if (window.adsbygoogle) {
-            (window.adsbygoogle || []).push({});
-          }
-
-          console.log("✅ AdSense ad initialized with original attributes");
-        } catch (error) {
-          console.error("❌ Error initializing AdSense ad:", error);
-
-          // En cas d'erreur, créer un message d'erreur isolé
-          const errorDiv = document.createElement("div");
-          errorDiv.style.cssText = `
-            color: #ef4444 !important;
-            padding: 1rem !important;
-            text-align: center !important;
-            background: #fef2f2 !important;
-            border: 1px solid #fecaca !important;
-            border-radius: 4px !important;
-            margin: 1rem 0 !important;
-            font-family: system-ui, -apple-system, sans-serif !important;
-          `;
-          errorDiv.innerHTML =
-            '<p style="margin: 0 !important;">Impossible de charger la publicité</p>';
-
-          placeholder.parentNode.replaceChild(errorDiv, placeholder);
+          console.log("🚀 User scrolled - loading AdSense now...");
+          loadAdSense();
         }
-      }
+      };
 
-      // Activer le lazy loading pour toutes les pubs existantes
-      static activateAll() {
-        this.initObserver();
+      // Écouter le scroll
+      window.addEventListener("scroll", scrollHandler, { passive: true });
 
-        // ✅ SEULEMENT remplacer les pubs AdSense existantes (ins.adsbygoogle)
-        const existingAds = document.querySelectorAll("ins.adsbygoogle");
-        existingAds.forEach((ad) => {
-          // Créer un placeholder qui remplace la pub
-          const placeholder = this.createAdPlaceholder();
-
-          // Copier les attributs data-* de l'ancienne pub
-          const attributes = {
-            client:
-              ad.getAttribute("data-ad-client") || "ca-pub-1113800966089168",
-            slot: ad.getAttribute("data-ad-slot") || "auto",
-            format: ad.getAttribute("data-ad-format") || "auto",
-            responsive: ad.getAttribute("data-full-width-responsive") || "true",
-          };
-
-          // Stocker les attributs sur le placeholder pour plus tard
-          placeholder.dataset.adClient = attributes.client;
-          placeholder.dataset.adSlot = attributes.slot;
-          placeholder.dataset.adFormat = attributes.format;
-          placeholder.dataset.adResponsive = attributes.responsive;
-
-          // Remplacer la pub par le placeholder
-          ad.parentNode.replaceChild(placeholder, ad);
-
-          // Observer le placeholder
-          if (this.observer) {
-            this.observer.observe(placeholder);
-          }
-        });
-
-        console.log(
-          `✅ Converted ${existingAds.length} existing AdSense ads to lazy loading`,
-        );
-      }
-
-      // ❌ SUPPRIMER l'auto-détection qui ajoutait des pubs partout
-      // static autoDetectAdSlots() { ... } <- SUPPRIMÉ
+      // Backup : charger après 5 secondes même sans scroll
+      setTimeout(() => {
+        if (!adSenseActivated && consentGiven) {
+          console.log("🚀 Timeout - loading AdSense...");
+          scrollHandler();
+        }
+      }, 5000);
     }
 
-    // Chargement des services après consentement (OPTIMISÉ)
-    function loadServices() {
-      console.log("🚀 Loading analytics...");
+    function loadAdSense() {
+      if (window.adSenseLoaded) return;
 
-      // GTM (gardé immédiat car plus léger)
+      console.log("📥 Loading AdSense script...");
+
+      const script = document.createElement("script");
+      script.src =
+        "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
+      script.async = true;
+      script.crossOrigin = "anonymous";
+
+      script.onload = () => {
+        window.adSenseLoaded = true;
+        console.log("✅ AdSense loaded - initializing ads...");
+
+        // Initialiser toutes les pubs existantes
+        const ads = document.querySelectorAll("ins.adsbygoogle");
+        ads.forEach(() => {
+          try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+          } catch (e) {
+            console.error("AdSense push error:", e);
+          }
+        });
+      };
+
+      script.onerror = () => {
+        console.error("❌ AdSense failed to load");
+      };
+
+      document.head.appendChild(script);
+    }
+
+    // Chargement des services (ULTRA-SIMPLIFIÉ)
+    function loadServices() {
+      console.log("🚀 Loading GTM...");
+
+      // GTM uniquement (immédiat)
       if (!window.gtmLoaded) {
         (function (w, d, s, l, i) {
           w[l] = w[l] || [];
@@ -379,14 +179,12 @@
         window.gtmLoaded = true;
       }
 
-      // ✅ AdSense maintenant en lazy loading au lieu de chargement immédiat
-      setTimeout(() => {
-        AdSenseLazy.activateAll();
-        console.log("✅ AdSense lazy loading activated");
-      }, 1000); // Petit délai pour ne pas bloquer la page
+      // AdSense : SEULEMENT au scroll (pas maintenant)
+      console.log("📋 AdSense will load on user scroll...");
+      activateAdSenseOnScroll();
     }
 
-    // Gestion du consentement (inchangée)
+    // Gestion du consentement
     function handleConsent(accepted) {
       setCookie(
         COOKIE_NAME,
@@ -396,7 +194,8 @@
       hideBanner();
 
       if (accepted) {
-        // Mise à jour du consentement GTM
+        consentGiven = true;
+
         gtag("consent", "update", {
           analytics_storage: "granted",
           ad_storage: "granted",
@@ -406,41 +205,37 @@
           ad_personalization: "granted",
         });
 
-        // Chargement des services (maintenant optimisé)
         loadServices();
 
-        // Event pour le tracking
         dataLayer.push({
           event: "consent_granted",
           page_path: window.location.pathname,
         });
 
-        console.log("✅ Consent accepted - lazy services activated");
+        console.log("✅ Consent accepted - services will load on scroll");
       } else {
         dataLayer.push({
           event: "consent_rejected",
           page_path: window.location.pathname,
         });
-        console.log("❌ Consent rejected - no tracking");
+        console.log("❌ Consent rejected");
       }
     }
 
-    // Initialisation au chargement de la page
+    // Initialisation
     function init() {
       const consent = getCookie(COOKIE_NAME);
 
       if (consent === "accepted") {
-        // Consentement déjà donné
+        consentGiven = true;
         handleConsent(true);
       } else if (consent === "rejected") {
-        // Consentement déjà refusé
         console.log("ℹ️ Consent previously rejected");
       } else {
-        // Première visite - afficher la bannière
         showBanner();
       }
 
-      // Event listeners pour les boutons
+      // Event listeners
       const acceptBtn = document.getElementById("consent-accept");
       const rejectBtn = document.getElementById("consent-reject");
 
@@ -453,7 +248,7 @@
       }
     }
 
-    // Démarrage quand le DOM est prêt
+    // Démarrage
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", init);
     } else {
