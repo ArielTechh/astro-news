@@ -1,4 +1,4 @@
-// src/middleware.ts
+// src/middleware.ts - Version modifiée avec gestion 404
 import { defineMiddleware } from "astro:middleware";
 
 // ✨ Configuration des directives robots par type de page
@@ -20,6 +20,9 @@ const robotsConfig = {
 
   // Admin et privé : pas d'indexation
   private: "noindex, nofollow",
+
+  // 404 : pas d'indexation
+  notfound: "noindex, nofollow",
 
   // Défaut : sécurisé
   default: "index, follow, max-image-preview:standard"
@@ -86,7 +89,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
   if (pathname.startsWith('/articles/') && pathname !== '/articles/') {
     // Extraire le slug après /articles/
     const slug = pathname.replace('/articles/', '');
-    
+
     // Redirection 301 vers la racine
     return new Response(null, {
       status: 301,
@@ -125,29 +128,32 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Traiter la requête
   const response = await next();
 
-  // Déterminer le type de page
+  // ✨ NOUVELLE GESTION DES 404
+  if (response.status === 404) {
+    // Option 1: Redirection 301 vers l'accueil (SEO friendly)
+    return new Response(null, {
+      status: 301,
+      headers: {
+        'Location': '/',
+        'Cache-Control': 'no-cache', // Pas de cache pour les 404
+      }
+    });
+
+    // Option 2: Garder le 404 mais avec les bons headers (décommentez si préféré)
+    /*
+    const pageType = 'notfound';
+    const robotsDirective = robotsConfig[pageType];
+    response.headers.set('X-Robots-Tag', robotsDirective);
+    return response;
+    */
+  }
+
+  // Déterminer le type de page pour les réponses valides
   const pageType = getPageType(context.url.pathname);
   const robotsDirective = robotsConfig[pageType];
 
-  // ✨ Ajouter l'en-tête X-Robots-Tag
-  response.headers.set('X-Robots-Tag', robotsDirective);
-
-  // ✨ Ajouter d'autres en-têtes SEO utiles
-  if (!response.headers.has('X-Content-Type-Options')) {
-    response.headers.set('X-Content-Type-Options', 'nosniff');
-  }
-
-  if (!response.headers.has('X-Frame-Options')) {
-    response.headers.set('X-Frame-Options', 'DENY');
-  }
-
   if (!response.headers.has('Referrer-Policy')) {
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-  }
-
-  // ✨ Log pour debug (enlevez en production)
-  if (process.env.NODE_ENV === 'development') {
-    console.log(`🤖 ${context.url.pathname} → ${pageType} → ${robotsDirective}`);
   }
 
   return response;

@@ -182,5 +182,43 @@
       "destination": "/",
       "permanent": true
     }
+  ],
+  "headers": [
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        }
+      ]
+    },
+    {
+      "source": "/categories/:category",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "index, follow, max-image-preview:standard, max-snippet:300"
+        }
+      ]
+    },
+    {
+      "source": "/categories/:category/:page",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "index, follow, max-image-preview:none, max-snippet:150"
+        }
+      ]
+    },
+    {
+      "source": "/:slug*",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
+        }
+      ]
+    }
   ]
 }
