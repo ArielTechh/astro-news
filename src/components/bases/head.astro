@@ -35,42 +35,6 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <!-- ✅ META DE BASE -->
   <link rel="canonical" href={canonicalURL} />
 
-  <!-- 🚀 PRÉCONNEXIONS OPTIMISÉES -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://cdn.sanity.io" />
-  <link rel="dns-prefetch" href="https://analytics.ahrefs.com" />
-
-  <!-- 🚀 CSS PRINCIPAL AVEC PRELOAD (solution intermédiaire) -->
-  <link
-    rel="preload"
-    href="/_astro/_page_.DH_Rpls4.css"
-    as="style"
-    onload="this.onload=null;this.rel='stylesheet'"
-  />
-  <noscript>
-    <link rel="stylesheet" href="/_astro/_page_.DH_Rpls4.css" />
-  </noscript>
-  
-  <!-- 🚀 FALLBACK : CSS normal pour garantir le chargement -->
-  <link rel="stylesheet" href="/_astro/_page_.DH_Rpls4.css" />
-
-  <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES -->
-  <link
-    rel="preload"
-    href="/_astro/source-sa….tpsLXCSJ.woff2"
-    as="font"
-    type="font/woff2"
-    crossorigin
-  />
-  <link
-    rel="preload"
-    href="/_astro/source-sa….BM2CBz6W.woff2"
-    as="font"
-    type="font/woff2"
-    crossorigin
-  />
-
   <!-- ✅ astro-seo AVEC PROTECTION -->
   {
     meta && meta.title && meta.description ? (
@@ -159,22 +123,61 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     )
   }
 
-  <!-- ✅ STRUCTURED DATA POUR ARTICLES -->
+  <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE -->
+  <link
+    rel="preload"
+    href="/_astro/_page_.DH_Rpls4.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript>
+    <link rel="stylesheet" href="/_astro/_page_.DH_Rpls4.css" />
+  </noscript>
+
+  <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES -->
+  <link
+    rel="preload"
+    href="/_astro/source-sa….tpsLXCSJ.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
+  <link
+    rel="preload"
+    href="/_astro/source-sa….BM2CBz6W.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
+
+  <!-- 🚀 PRÉCONNEXION OPTIMISÉE -->
+  <link rel="preconnect" href="https://cdn.sanity.io" />
+  <link rel="dns-prefetch" href="https://cdn.sanity.io" />
+  <link rel="preconnect" href="https://analytics.ahrefs.com" />
+
   {
     isArticleMeta(meta) && article ? (
       <StructuredData article={article} readingTime={readingTime} />
     ) : null
   }
 
-  <!-- 🚀 FONTS GOOGLE OPTIMISÉES -->
+  <!-- 🚀 CHARGEMENT FONTS NON-BLOQUANT -->
   <link
     rel="stylesheet"
     href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
+    media="print"
+    onload="this.media='all'"
   />
+  <noscript>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
+    />
+  </noscript>
 
   <ClientRouter />
 
-  <!-- 🚀 ANALYTICS DIFFÉRÉS -->
+  <!-- 🚀 AHREFS ANALYTICS SEULEMENT - Chargement différé -->
   <script>
     let ahrefsLoaded = false;
 
@@ -182,6 +185,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       if (ahrefsLoaded) return;
       ahrefsLoaded = true;
 
+      // Ahrefs Analytics seulement
       const ahrefsScript = document.createElement("script");
       ahrefsScript.src = "https://analytics.ahrefs.com/analytics.js";
       ahrefsScript.setAttribute("data-key", "fNbl74Cz0zyN4NtzpNBdKg");
@@ -191,9 +195,9 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       console.log("✅ Ahrefs Analytics loaded");
     }
 
-    // Charger après interaction ou 2 secondes
+    // Charger après interaction ou fallback 2 secondes
     ["scroll", "click", "touchstart", "keydown"].forEach((event) => {
-      document.addEventListener(event, loadAhrefs, { once: true, passive: true });
+      document.addEventListener(event, loadAhrefs, { once: true });
     });
     setTimeout(loadAhrefs, 2000);
   </script>
