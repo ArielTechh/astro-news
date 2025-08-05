@@ -319,14 +319,61 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 );
               }
 
-              // ✅ TEXTE FORMATÉ (inchangé)
+              // ✅ TEXTE FORMATÉ (avec liens) - Remplacez cette partie dans votre [slug].astro
               const textContent =
-                block.children?.map((child) => {
+                block.children?.map((child, childIndex) => {
                   let text = child.text || "";
+
+                  // Gestion des liens
+                  if (child.marks && child.marks.length > 0) {
+                    // Chercher une marque de lien dans markDefs
+                    const linkMarkKey = child.marks.find((mark) => {
+                      if (typeof mark === "string" && block.markDefs) {
+                        const markDef = block.markDefs.find(
+                          (def) => def._key === mark,
+                        );
+                        return markDef && markDef._type === "link";
+                      }
+                      return false;
+                    });
+
+                    if (linkMarkKey && block.markDefs) {
+                      const markDef = block.markDefs.find(
+                        (def) => def._key === linkMarkKey,
+                      );
+                      if (markDef && markDef.href) {
+                        const href = markDef.href;
+                        const isExternal = href.startsWith("http");
+
+                        // Combiner lien avec autres formatages
+                        let content = text;
+                        if (child.marks.includes("strong")) {
+                          content = <strong>{content}</strong>;
+                        }
+                        if (child.marks.includes("em")) {
+                          content = <em>{content}</em>;
+                        }
+
+                        return (
+                          <a
+                            key={childIndex}
+                            href={href}
+                            target={isExternal ? "_blank" : "_self"}
+                            rel={isExternal ? "noopener noreferrer" : ""}
+                            class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 transition-colors"
+                          >
+                            {content}
+                          </a>
+                        );
+                      }
+                    }
+                  }
+
+                  // Formatage sans lien
                   if (child.marks?.includes("strong")) {
-                    return <strong>{text}</strong>;
+                    return <strong key={childIndex}>{text}</strong>;
                   } else if (child.marks?.includes("em")) {
-                    return <em>{text}</em>;
+                    return <em key={childIndex}>{text}</em>;
                   } else {
                     return text;
                   }
