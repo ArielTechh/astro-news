@@ -1,0 +1,223 @@
+---
+// src/components/media/TwitterLazy.astro
+interface Props {
+  tweetId?: string;
+  embedHtml?: string;
+  class?: string;
+}
+
+const { tweetId, embedHtml, class: className = "" } = Astro.props;
+
+// Extract tweet ID from embed HTML if not provided directly
+const extractTweetId = (html: string) => {
+  const match = html.match(/status\/(\d+)/);
+  return match ? match[1] : null;
+};
+
+const finalTweetId = tweetId || (embedHtml ? extractTweetId(embedHtml) : null);
+---
+
+<div class={`twitter-lazy-container ${className}`} data-tweet-id={finalTweetId}>
+  <div
+    class="twitter-placeholder bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-6 min-h-[200px] flex flex-col justify-center items-center"
+  >
+    <!-- Twitter Icon -->
+    <svg
+      class="w-12 h-12 text-blue-400 mb-4"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"
+      ></path>
+    </svg>
+
+    <!-- Loading Text -->
+    <div class="text-center">
+      <h3 class="font-semibold text-gray-900 dark:text-gray-100 mb-2">
+        Tweet Twitter
+      </h3>
+      <p class="text-sm text-gray-600 dark:text-gray-400">
+        Chargement du tweet...
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading state (removed, handled inline now) -->
+</div>
+
+<script>
+  class TwitterLazy {
+    private static scriptLoaded = false;
+    private static loadingPromise: Promise<void> | null = null;
+
+    static async loadTwitterScript(): Promise<void> {
+      if (this.scriptLoaded) return;
+
+      if (this.loadingPromise) {
+        return this.loadingPromise;
+      }
+
+      this.loadingPromise = new Promise((resolve, reject) => {
+        // Remove existing script if any
+        const existingScript = document.getElementById("twitter-wjs");
+        if (existingScript) {
+          existingScript.remove();
+        }
+
+        const script = document.createElement("script");
+        script.id = "twitter-wjs";
+        script.src = "https://platform.twitter.com/widgets.js";
+        script.async = true;
+        script.defer = true;
+
+        script.onload = () => {
+          this.scriptLoaded = true;
+          resolve();
+        };
+
+        script.onerror = () => {
+          this.loadingPromise = null;
+          reject(new Error("Failed to load Twitter script"));
+        };
+
+        document.head.appendChild(script);
+      });
+
+      return this.loadingPromise;
+    }
+
+    static async renderTweet(
+      container: HTMLElement,
+      tweetId: string,
+    ): Promise<void> {
+      try {
+        // Show loading state immediately
+        const placeholder = container.querySelector(".twitter-placeholder");
+        if (placeholder) {
+          placeholder.innerHTML = `
+            <div class="flex items-center justify-center space-x-3">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <span class="text-gray-600 dark:text-gray-400">Chargement du tweet...</span>
+            </div>
+          `;
+        }
+
+        await this.loadTwitterScript();
+
+        // Wait for twttr to be available
+        await new Promise<void>((resolve) => {
+          const checkTwitter = () => {
+            if (window.twttr && window.twttr.widgets) {
+              resolve();
+            } else {
+              setTimeout(checkTwitter, 100);
+            }
+          };
+          checkTwitter();
+        });
+
+        // Clear container and create tweet container
+        container.innerHTML = "";
+        const tweetContainer = document.createElement("div");
+        container.appendChild(tweetContainer);
+
+        // Render tweet
+        await window.twttr.widgets.createTweet(tweetId, tweetContainer, {
+          theme: document.documentElement.classList.contains("dark")
+            ? "dark"
+            : "light",
+          dnt: true, // Do not track
+          width: "auto",
+        });
+      } catch (error) {
+        console.error("Error loading tweet:", error);
+        container.innerHTML = `
+          <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl p-6 text-center">
+            <p class="text-red-600 dark:text-red-400">Erreur lors du chargement du tweet</p>
+            <button onclick="location.reload()" class="mt-2 text-sm text-red-500 hover:text-red-700 underline">
+              Réessayer
+            </button>
+          </div>
+        `;
+      }
+    }
+  }
+
+  // Initialize lazy loading with Intersection Observer
+  document.addEventListener("DOMContentLoaded", () => {
+    const twitterContainers = document.querySelectorAll(
+      ".twitter-lazy-container",
+    );
+
+    // Check if Intersection Observer is supported
+    if (!("IntersectionObserver" in window)) {
+      // Fallback: load all tweets immediately for older browsers
+      twitterContainers.forEach(async (container) => {
+        const tweetId = container.getAttribute("data-tweet-id");
+        if (tweetId) {
+          await TwitterLazy.renderTweet(container as HTMLElement, tweetId);
+        }
+      });
+      return;
+    }
+
+    // Create intersection observer
+    const observer = new IntersectionObserver(
+      (entries, observer) => {
+        entries.forEach(async (entry) => {
+          if (entry.isIntersecting) {
+            const container = entry.target as HTMLElement;
+            const tweetId = container.getAttribute("data-tweet-id");
+
+            if (tweetId) {
+              // Stop observing this container
+              observer.unobserve(container);
+
+              // Load and render tweet
+              await TwitterLazy.renderTweet(container, tweetId);
+            }
+          }
+        });
+      },
+      {
+        // Load when tweet is 100px away from viewport
+        rootMargin: "100px 0px",
+        threshold: 0.1,
+      },
+    );
+
+    // Start observing all twitter containers
+    twitterContainers.forEach((container) => {
+      const tweetId = container.getAttribute("data-tweet-id");
+      if (tweetId) {
+        observer.observe(container);
+      }
+    });
+  });
+
+  // Extend window interface for TypeScript
+  declare global {
+    interface Window {
+      twttr: {
+        widgets: {
+          createTweet: (
+            tweetId: string,
+            container: HTMLElement,
+            options?: any,
+          ) => Promise<any>;
+        };
+      };
+    }
+  }
+</script>
+
+<style>
+  .twitter-placeholder {
+    transition: all 0.3s ease;
+  }
+
+  .twitter-lazy-container {
+    margin: 2rem 0;
+  }
+</style>

@@ -1,9 +1,10 @@
 ---
-// src/pages/[slug].astro - Version optimisée PageSpeed
+// src/pages/[slug].astro - Version optimisée PageSpeed avec Twitter Lazy
 import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "@/pages/articles/_components/article-header.astro";
 import YouTubeLazy from "@/components/media/YouTubeLazy.astro";
+import TwitterLazy from "@/components/media/TwitterLazy.astro";
 import { getAllArticles, getArticleBySlug, urlFor } from "@/lib/sanity";
 import StructuredData from "@/components/seo/StructuredData.astro";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs.astro";
@@ -29,7 +30,7 @@ const calculateReadingTime = (content) => {
     if (block._type === "block" && block.children) {
       block.children.forEach((child) => {
         if (child.text) {
-          wordCount += child.text.split(/\s+/).length; // Regex plus efficace
+          wordCount += child.text.split(/\s+/).length;
         }
       });
     }
@@ -45,11 +46,45 @@ const getYouTubeId = (url) => {
   return match && match[2].length === 11 ? match[2] : null;
 };
 
-// ✅ DÉTECTEURS AUTOMATIQUES (optimisés)
+// ✅ FONCTION POUR EXTRAIRE L'ID TWITTER
+const extractTweetId = (html) => {
+  if (!html) return null;
+
+  // Plusieurs patterns pour capturer l'ID du tweet
+  const patterns = [
+    /status\/(\d+)/,
+    /twitter\.com\/\w+\/status\/(\d+)/,
+    /data-tweet-id="(\d+)"/,
+    /"tweet-id":"(\d+)"/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+
+  return null;
+};
+
+// ✅ DÉTECTEURS AUTOMATIQUES (optimisés avec Twitter lazy)
 const detectEmbeds = (text) => {
-  // Vérification plus rapide avec early returns
-  if (text.includes('<blockquote class="twitter-tweet">')) {
-    return { type: "twitter", content: text };
+  // Twitter - détection améliorée pour lazy loading
+  if (
+    text.includes('<blockquote class="twitter-tweet">') ||
+    text.includes("twitter.com/")
+  ) {
+    const tweetId = extractTweetId(text);
+    if (tweetId) {
+      return {
+        type: "twitter-lazy",
+        tweetId,
+        embedHtml: text,
+      };
+    }
+    // Fallback pour les anciens embeds
+    return { type: "twitter-fallback", content: text };
   }
 
   // YouTube - détection optimisée
@@ -89,7 +124,6 @@ const detectEmbeds = (text) => {
 const getOptimizedImageProps = (block) => {
   const baseUrl = urlFor(block);
 
-  // Générer différentes tailles
   const sizes = [400, 800, 1200, 1600];
   const srcSet = sizes
     .map(
@@ -164,18 +198,37 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               const fullText =
                 block.children?.map((child) => child.text).join("") || "";
 
-              // ✅ DÉTECTION AUTOMATIQUE D'EMBEDS (optimisée)
+              // ✅ DÉTECTION AUTOMATIQUE D'EMBEDS (avec Twitter lazy)
               const embedDetection = detectEmbeds(fullText);
 
               if (embedDetection) {
                 switch (embedDetection.type) {
-                  case "twitter":
+                  case "twitter-lazy":
+                    return (
+                      <TwitterLazy
+                        key={index}
+                        tweetId={embedDetection.tweetId}
+                        embedHtml={embedDetection.embedHtml}
+                      />
+                    );
+
+                  case "twitter-fallback":
+                    // Pour les anciens embeds sans ID détectable
                     return (
                       <div key={index} class="my-8">
-                        <div
-                          class="twitter-embed-container flex justify-center [&>blockquote]:max-w-full"
-                          set:html={embedDetection.content}
-                        />
+                        <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 text-center">
+                          <p class="text-yellow-800 dark:text-yellow-200 mb-4">
+                            Embed Twitter détecté mais ID non trouvé
+                          </p>
+                          <details class="text-left">
+                            <summary class="cursor-pointer text-sm text-yellow-600 dark:text-yellow-400 mb-2">
+                              Voir le code embed original
+                            </summary>
+                            <pre class="bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs overflow-x-auto">
+                              {embedDetection.content}
+                            </pre>
+                          </details>
+                        </div>
                       </div>
                     );
 
@@ -199,7 +252,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                     );
 
                   case "iframe":
-                    // Lazy load les iframes aussi
                     return (
                       <div key={index} class="my-8">
                         <div
@@ -349,6 +401,17 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               );
             }
 
+            // ✅ TWITTER avec COMPOSANT LAZY
+            if (block._type === "twitter") {
+              return (
+                <TwitterLazy
+                  key={index}
+                  tweetId={block.tweetId}
+                  embedHtml={block.embedHtml}
+                />
+              );
+            }
+
             // ✅ IMAGES OPTIMISÉES
             if (block._type === "image") {
               try {
@@ -386,7 +449,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
   <RelatedArticles currentArticle={fullArticle} />
 </BaseLayout>
 
-<!-- Script pour les iframes lazy -->
+<!-- Script pour les iframes lazy (inchangé) -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const iframeLazyContainers = document.querySelectorAll(
