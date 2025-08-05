@@ -6,28 +6,6 @@
       "permanent": true
     },
     {
-      "source": "/articles/:slug*/",
-      "destination": "/:slug*",
-      "permanent": true
-    },
-    {
-      "source": "/([a-z0-9][a-z0-9\\-]*[a-z0-9])/",
-      "destination": "/$1",
-      "statusCode": 301,
-      "has": [
-        {
-          "type": "header",
-          "key": "host"
-        }
-      ],
-      "missing": [
-        {
-          "type": "query",
-          "key": "page"
-        }
-      ]
-    },
-    {
       "source": "/_astro/_page_.DH_Rpls4.css",
       "destination": "/",
       "permanent": true
