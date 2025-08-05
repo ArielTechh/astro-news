@@ -1,5 +1,5 @@
 ---
-// src/pages/[slug].astro - Version optimisée PageSpeed avec Twitter Lazy
+// src/pages/[slug].astro - Version optimisée PageSpeed avec Twitter Lazy + Mobile
 import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "@/pages/articles/_components/article-header.astro";
@@ -184,13 +184,13 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
   readingTime={readingTime}
   canonical={canonicalUrl}
 >
-  <div class="container mx-auto px-4 max-w-5xl">
+  <div class="container mx-auto px-3 sm:px-4 max-w-5xl">
     <Breadcrumbs items={breadcrumbItems} current={fullArticle.title} />
   </div>
 
   <ArticleHeader article={fullArticle} readingTime={readingTime} />
   <ContentLayout>
-    <div class="prose prose-lg lg:prose-2xl max-w-none">
+    <div class="prose prose-lg lg:prose-2xl max-w-none px-3 sm:px-0">
       {
         fullArticle.content &&
           fullArticle.content.map((block, index) => {
@@ -319,7 +319,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 );
               }
 
-              // ✅ TEXTE FORMATÉ (avec liens) - Remplacez cette partie dans votre [slug].astro
+              // ✅ TEXTE FORMATÉ avec LIENS + MOBILE
               const textContent =
                 block.children?.map((child, childIndex) => {
                   let text = child.text || "";
@@ -360,7 +360,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                             href={href}
                             target={isExternal ? "_blank" : "_self"}
                             rel={isExternal ? "noopener noreferrer" : ""}
-                            class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 transition-colors"
+                            class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 transition-colors text-lg"
                           >
                             {content}
                           </a>
@@ -379,12 +379,12 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                   }
                 }) || [];
 
-              // ✅ STYLES DE BLOCS (inchangés)
+              // ✅ STYLES DE BLOCS (avec mobile)
               if (block.style === "h1") {
                 return (
                   <h1
                     key={index}
-                    class="text-3xl font-bold mt-10 mb-5 text-gray-900 dark:text-gray-100"
+                    class="text-2xl sm:text-3xl font-bold mt-10 mb-5 text-gray-900 dark:text-gray-100"
                   >
                     {textContent}
                   </h1>
@@ -393,7 +393,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 return (
                   <h2
                     key={index}
-                    class="text-2xl font-semibold mt-8 mb-4 text-gray-900 dark:text-gray-100"
+                    class="text-xl sm:text-2xl font-semibold mt-8 mb-4 text-gray-900 dark:text-gray-100"
                   >
                     {textContent}
                   </h2>
@@ -402,7 +402,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 return (
                   <h3
                     key={index}
-                    class="text-xl font-medium mt-6 mb-3 text-gray-900 dark:text-gray-100"
+                    class="text-lg sm:text-xl font-medium mt-6 mb-3 text-gray-900 dark:text-gray-100"
                   >
                     {textContent}
                   </h3>
@@ -411,7 +411,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 return (
                   <blockquote
                     key={index}
-                    class="border-l-4 border-blue-500 pl-6 my-6 italic text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 py-4 rounded-r"
+                    class="border-l-4 border-blue-500 pl-4 sm:pl-6 my-6 italic text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 py-4 rounded-r text-lg"
                   >
                     {textContent}
                   </blockquote>
@@ -420,7 +420,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 return (
                   <p
                     key={index}
-                    class="mb-4 leading-relaxed text-gray-800 dark:text-gray-200"
+                    class="mb-4 leading-relaxed text-gray-800 dark:text-gray-200 text-lg"
                   >
                     {textContent}
                   </p>
