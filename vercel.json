@@ -181,7 +181,7 @@
       "source": "/categories/finance",
       "destination": "/",
       "permanent": true
-    }
+    },
     {
       "source": "/robots.txt",
       "has": [
@@ -203,6 +203,12 @@
       ],
       "destination": "/404",
       "statusCode": 404
+    }
+  ],
+  "routes": [
+    {
+      "src": "/robots.txt",
+      "dest": "/robots.txt"
     }
   ],
   "headers": [
