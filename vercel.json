@@ -220,37 +220,5 @@
         }
       ]
     }
-  ],
-  "routes": [
-    {
-      "src": "/robots.txt",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.techhorizons.co.il"
-        }
-      ],
-      "status": 404
-    },
-    {
-      "src": "/robots.txt",
-      "has": [
-        {
-          "type": "host",
-          "value": "mail.techhorizons.co.il"
-        }
-      ],
-      "status": 404
-    },
-    {
-      "src": "/robots.txt",
-      "has": [
-        {
-          "type": "host",
-          "value": "techhorizons.co.il"
-        }
-      ],
-      "dest": "/robots.txt"
-    }
   ]
 }
