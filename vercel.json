@@ -181,6 +181,21 @@
       "source": "/categories/finance",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "http://www.techhorizons.co.il/:path*",
+      "destination": "https://techhorizons.co.il/:path*",
+      "permanent": true
+    },
+    {
+      "source": "http://techhorizons.co.il/:path*",
+      "destination": "https://techhorizons.co.il/:path*",
+      "permanent": true
+    },
+    {
+      "source": "https://www.techhorizons.co.il/:path*",
+      "destination": "https://techhorizons.co.il/:path*",
+      "permanent": true
     }
   ],
   "headers": [
