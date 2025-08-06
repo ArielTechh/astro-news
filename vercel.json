@@ -29,40 +29,36 @@
     },
     {
       "source": "/(.*)",
+      "destination": "https://techhorizons.co.il/:1",
+      "permanent": true,
       "has": [
         {
           "type": "host",
           "value": "www.techhorizons.co.il"
         }
-      ],
-      "destination": "https://techhorizons.co.il/:1",
-      "permanent": true
+      ]
     },
     {
       "source": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "techhorizons.co.il"
-        },
-        {
-          "type": "protocol",
-          "value": "http"
-        }
-      ],
       "destination": "https://techhorizons.co.il/:1",
-      "permanent": true
-    },
-    {
-      "source": "/(.*)",
+      "permanent": true,
       "has": [
         {
           "type": "host",
           "value": "mail.techhorizons.co.il"
         }
-      ],
+      ]
+    },
+    {
+      "source": "/(.*)",
       "destination": "https://techhorizons.co.il/:1",
-      "permanent": true
+      "permanent": true,
+      "has": [
+        {
+          "type": "host",
+          "value": "techhorizons.co.il"
+        }
+      ]
     },
     {
       "source": "/_astro/_page_.DH_Rpls4.css",
