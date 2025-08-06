@@ -205,12 +205,6 @@
       "statusCode": 404
     }
   ],
-  "routes": [
-    {
-      "src": "/robots.txt",
-      "dest": "/robots.txt"
-    }
-  ],
   "headers": [
     {
       "source": "/",
