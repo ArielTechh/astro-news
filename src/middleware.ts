@@ -85,20 +85,6 @@ function getPageType(pathname: string): keyof typeof robotsConfig {
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
-  const hostname = context.url.hostname; // ← AJOUTEZ cette ligne
-
-  // ✨ GESTION ROBOTS.TXT PAR DOMAINE ← AJOUTEZ ce bloc ici
-  if (pathname === '/robots.txt') {
-    if (hostname === 'www.techhorizons.co.il' || hostname === 'mail.techhorizons.co.il') {
-      return new Response('Not Found', { status: 404 });
-    }
-    if (hostname === 'techhorizons.co.il') {
-      return next();
-    }
-    return new Response('Not Found', { status: 404 });
-  }
-
-
   // ✨ REDIRECTIONS 301 : /articles/* vers /*
   if (pathname.startsWith('/articles/') && pathname !== '/articles/') {
     // Extraire le slug après /articles/
