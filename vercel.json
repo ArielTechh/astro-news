@@ -181,17 +181,6 @@
       "source": "/categories/finance",
       "destination": "/",
       "permanent": true
-    },
-    {
-      "source": "/robots.txt",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.techhorizons.co.il"
-        }
-      ],
-      "destination": "https://techhorizons.co.il/robots.txt",
-      "permanent": true
     }
   ],
   "headers": [
