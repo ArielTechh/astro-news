@@ -220,5 +220,28 @@
         }
       ]
     }
+  ],
+  "routes": [
+    {
+      "src": "/robots.txt",
+      "headers": {
+        "host": "www.techhorizons.co.il"
+      },
+      "status": 404
+    },
+    {
+      "src": "/robots.txt",
+      "headers": {
+        "host": "mail.techhorizons.co.il"
+      },
+      "status": 404
+    },
+    {
+      "src": "/robots.txt",
+      "headers": {
+        "host": "techhorizons.co.il"
+      },
+      "dest": "/robots.txt"
+    }
   ]
 }
