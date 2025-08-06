@@ -243,7 +243,7 @@
       "status": 404
     },
     {
-      "src": "/robots.txts",
+      "src": "/robots.txt",
       "has": [
         {
           "type": "host",
