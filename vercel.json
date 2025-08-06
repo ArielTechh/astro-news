@@ -182,6 +182,34 @@
       "destination": "/",
       "permanent": true
     }
+    {
+      "source": "/robots.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.techhorizons.co.il"
+        }
+      ],
+      "destination": "/404",
+      "statusCode": 404
+    },
+    {
+      "source": "/robots.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "mail.techhorizons.co.il"
+        }
+      ],
+      "destination": "/404",
+      "statusCode": 404
+    }
+  ],
+  "routes": [
+    {
+      "src": "/robots.txt",
+      "dest": "/robots.txt"
+    }
   ],
   "headers": [
     {
@@ -219,29 +247,6 @@
           "value": "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
         }
       ]
-    }
-  ],
-  "routes": [
-    {
-      "src": "/robots.txt",
-      "headers": {
-        "host": "www.techhorizons.co.il"
-      },
-      "status": 404
-    },
-    {
-      "src": "/robots.txt",
-      "headers": {
-        "host": "mail.techhorizons.co.il"
-      },
-      "status": 404
-    },
-    {
-      "src": "/robots.txt",
-      "headers": {
-        "host": "techhorizons.co.il"
-      },
-      "dest": "/robots.txt"
     }
   ]
 }
