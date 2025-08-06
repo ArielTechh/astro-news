@@ -1,5 +1,5 @@
 ---
-// src/pages/[slug].astro - Version optimisée PageSpeed avec Twitter Lazy + Mobile
+// src/pages/[slug].astro - Version avec auto-linking
 import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "@/pages/articles/_components/article-header.astro";
@@ -10,6 +10,12 @@ import StructuredData from "@/components/seo/StructuredData.astro";
 import Breadcrumbs from "@/components/navigation/Breadcrumbs.astro";
 import { SITE } from "../lib/config/index.ts";
 import RelatedArticles from "@/components/articles/RelatedArticles.astro";
+
+// ✨ IMPORT DU SYSTÈME AUTO-LINKING
+import {
+  processPortableTextBlocks,
+  previewAutoLinks,
+} from "@/lib/auto-linking.ts";
 
 export const getStaticPaths = async () => {
   const articles = await getAllArticles();
@@ -22,7 +28,13 @@ export const getStaticPaths = async () => {
 const { article } = Astro.props;
 const fullArticle = await getArticleBySlug(article.slug.current);
 
-// ✅ FONCTIONS UTILITAIRES (optimisées)
+// ✨ APPLIQUER AUTO-LINKING AU CONTENU
+const processedContent = await processPortableTextBlocks(
+  fullArticle.content,
+  article.slug.current,
+);
+
+// ✅ FONCTIONS UTILITAIRES (inchangées)
 const calculateReadingTime = (content) => {
   if (!content) return 1;
   let wordCount = 0;
@@ -46,11 +58,8 @@ const getYouTubeId = (url) => {
   return match && match[2].length === 11 ? match[2] : null;
 };
 
-// ✅ FONCTION POUR EXTRAIRE L'ID TWITTER
 const extractTweetId = (html) => {
   if (!html) return null;
-
-  // Plusieurs patterns pour capturer l'ID du tweet
   const patterns = [
     /status\/(\d+)/,
     /twitter\.com\/\w+\/status\/(\d+)/,
@@ -64,13 +73,10 @@ const extractTweetId = (html) => {
       return match[1];
     }
   }
-
   return null;
 };
 
-// ✅ DÉTECTEURS AUTOMATIQUES (optimisés avec Twitter lazy)
 const detectEmbeds = (text) => {
-  // Twitter - détection améliorée pour lazy loading
   if (
     text.includes('<blockquote class="twitter-tweet">') ||
     text.includes("twitter.com/")
@@ -83,11 +89,9 @@ const detectEmbeds = (text) => {
         embedHtml: text,
       };
     }
-    // Fallback pour les anciens embeds
     return { type: "twitter-fallback", content: text };
   }
 
-  // YouTube - détection optimisée
   const youtubeMatch = text.match(
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
   );
@@ -99,17 +103,14 @@ const detectEmbeds = (text) => {
     };
   }
 
-  // Instagram (lazy load aussi)
   if (text.includes("instagram.com/p/") && text.includes("<blockquote")) {
     return { type: "instagram", content: text };
   }
 
-  // TikTok (lazy load aussi)
   if (text.includes("tiktok.com") && text.includes("<blockquote")) {
     return { type: "tiktok", content: text };
   }
 
-  // Autres iframes
   const iframeMatch = text.match(
     /<iframe[^>]*src="([^"]*)"[^>]*>.*?<\/iframe>/is,
   );
@@ -120,10 +121,8 @@ const detectEmbeds = (text) => {
   return null;
 };
 
-// ✅ Fonction pour optimiser les images
 const getOptimizedImageProps = (block) => {
   const baseUrl = urlFor(block);
-
   const sizes = [400, 800, 1200, 1600];
   const srcSet = sizes
     .map(
@@ -191,13 +190,24 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
   <ContentLayout>
     <div class="prose prose-lg lg:prose-2xl max-w-none px-3 sm:px-0">
       {
-        fullArticle.content &&
-          fullArticle.content.map((block, index) => {
+        processedContent &&
+          processedContent.map((block, index) => {
+            // ✨ NOUVEAU : Traitement des blocs avec auto-linking
+            if (block._type === "autoLinkedBlock") {
+              return (
+                <div
+                  key={index}
+                  class="mb-4 leading-relaxed text-gray-800 dark:text-gray-200 text-lg"
+                  set:html={block.html}
+                />
+              );
+            }
+
+            // ✅ TRAITEMENT NORMAL DES BLOCS (inchangé)
             if (block._type === "block") {
               const fullText =
                 block.children?.map((child) => child.text).join("") || "";
 
-              // ✅ DÉTECTION AUTOMATIQUE D'EMBEDS (avec Twitter lazy)
               const embedDetection = detectEmbeds(fullText);
 
               if (embedDetection) {
@@ -212,7 +222,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                     );
 
                   case "twitter-fallback":
-                    // Pour les anciens embeds sans ID détectable
                     return (
                       <div key={index} class="my-8">
                         <div class="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6 text-center">
@@ -275,7 +284,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 }
               }
 
-              // ✅ TABLEAUX (inchangés)
               const tableData = parseTable(fullText);
               if (tableData) {
                 return (
@@ -318,14 +326,11 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 );
               }
 
-              // ✅ TEXTE FORMATÉ avec LIENS + MOBILE
               const textContent =
                 block.children?.map((child, childIndex) => {
                   let text = child.text || "";
 
-                  // Gestion des liens
                   if (child.marks && child.marks.length > 0) {
-                    // Chercher une marque de lien dans markDefs
                     const linkMarkKey = child.marks.find((mark) => {
                       if (typeof mark === "string" && block.markDefs) {
                         const markDef = block.markDefs.find(
@@ -344,7 +349,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                         const href = markDef.href;
                         const isExternal = href.startsWith("http");
 
-                        // Combiner lien avec autres formatages
                         let content = text;
                         if (child.marks.includes("strong")) {
                           content = <strong>{content}</strong>;
@@ -368,7 +372,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                     }
                   }
 
-                  // Formatage sans lien
                   if (child.marks?.includes("strong")) {
                     return <strong key={childIndex}>{text}</strong>;
                   } else if (child.marks?.includes("em")) {
@@ -378,7 +381,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                   }
                 }) || [];
 
-              // ✅ STYLES DE BLOCS (avec mobile)
               if (block.style === "h1") {
                 return (
                   <h1
@@ -427,10 +429,8 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               }
             }
 
-            // ✅ YOUTUBE avec COMPOSANT LAZY
             if (block._type === "youtube") {
               const videoId = getYouTubeId(block.url);
-
               if (!videoId) {
                 console.warn("URL YouTube invalide:", block.url);
                 return null;
@@ -447,7 +447,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               );
             }
 
-            // ✅ TWITTER avec COMPOSANT LAZY
             if (block._type === "twitter") {
               return (
                 <TwitterLazy
@@ -458,7 +457,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               );
             }
 
-            // ✅ IMAGES OPTIMISÉES
             if (block._type === "image") {
               try {
                 if (block.asset || block._ref) {
@@ -495,7 +493,50 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
   <RelatedArticles currentArticle={fullArticle} />
 </BaseLayout>
 
-<!-- Script pour les iframes lazy (inchangé) -->
+<!-- ✨ STYLES POUR LES LIENS AUTOMATIQUES -->
+<style>
+  /* Styles pour les liens automatiques avec CSS natif */
+  :global(.auto-link) {
+    color: #2563eb; /* blue-600 */
+    font-weight: 500;
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    text-decoration-color: #93c5fd; /* blue-300 */
+    text-underline-offset: 2px;
+    transition: all 0.2s ease;
+  }
+
+  /* Dark mode */
+  :global(.dark .auto-link) {
+    color: #60a5fa; /* blue-400 */
+    text-decoration-color: #3b82f6; /* blue-500 */
+  }
+
+  :global(.auto-link:hover) {
+    color: #1e40af; /* blue-800 */
+    text-decoration-style: solid;
+    text-decoration-thickness: 2px;
+  }
+
+  :global(.dark .auto-link:hover) {
+    color: #93c5fd; /* blue-300 */
+  }
+
+  /* Effet subtil pour distinguer les liens auto */
+  :global(.auto-link::after) {
+    content: "🔗";
+    font-size: 0.6em;
+    margin-left: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  :global(.auto-link:hover::after) {
+    opacity: 0.7;
+  }
+</style>
+
+<!-- Script iframe lazy (inchangé) -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const iframeLazyContainers = document.querySelectorAll(
