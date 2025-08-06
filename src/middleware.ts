@@ -76,7 +76,7 @@ function getPageType(pathname: string): keyof typeof robotsConfig {
     pathname.includes('/cookie') ||
     pathname.includes('/privacy') ||
     pathname.includes('/search')) {
-    return 'static';
+    return 'staticc';
   }
 
   return 'default';
