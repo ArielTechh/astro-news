@@ -76,6 +76,26 @@ const extractTweetId = (html) => {
   return null;
 };
 
+// ✨ NOUVEAU : Fonction pour convertir **texte** en <strong>texte</strong>
+const convertMarkdownToHtml = (text) => {
+  if (!text || typeof text !== "string") {
+    return text;
+  }
+
+  let convertedText = text;
+
+  // ✨ CONVERSION: **texte** → <strong>texte</strong>
+  convertedText = convertedText.replace(
+    /\*\*(.*?)\*\*/g,
+    "<strong>$1</strong>",
+  );
+
+  // ✨ BONUS: *texte* → <em>texte</em> (italique)
+  convertedText = convertedText.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+
+  return convertedText;
+};
+
 const detectEmbeds = (text) => {
   if (
     text.includes('<blockquote class="twitter-tweet">') ||
@@ -203,7 +223,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               );
             }
 
-            // ✅ TRAITEMENT NORMAL DES BLOCS (inchangé)
+            // ✅ TRAITEMENT NORMAL DES BLOCS (avec conversion Markdown)
             if (block._type === "block") {
               const fullText =
                 block.children?.map((child) => child.text).join("") || "";
@@ -330,6 +350,9 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                 block.children?.map((child, childIndex) => {
                   let text = child.text || "";
 
+                  // ✨ APPLIQUER CONVERSION MARKDOWN sur le texte
+                  text = convertMarkdownToHtml(text);
+
                   if (child.marks && child.marks.length > 0) {
                     const linkMarkKey = child.marks.find((mark) => {
                       if (typeof mark === "string" && block.markDefs) {
@@ -373,11 +396,11 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                   }
 
                   if (child.marks?.includes("strong")) {
-                    return <strong key={childIndex}>{text}</strong>;
+                    return <strong key={childIndex} set:html={text} />;
                   } else if (child.marks?.includes("em")) {
-                    return <em key={childIndex}>{text}</em>;
+                    return <em key={childIndex} set:html={text} />;
                   } else {
-                    return text;
+                    return <span key={childIndex} set:html={text} />;
                   }
                 }) || [];
 
