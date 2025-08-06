@@ -28,6 +28,43 @@
       ]
     },
     {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.techhorizons.co.il"
+        }
+      ],
+      "destination": "https://techhorizons.co.il/:1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "techhorizons.co.il"
+        },
+        {
+          "type": "protocol",
+          "value": "http"
+        }
+      ],
+      "destination": "https://techhorizons.co.il/:1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "mail.techhorizons.co.il"
+        }
+      ],
+      "destination": "https://techhorizons.co.il/:1",
+      "permanent": true
+    },
+    {
       "source": "/_astro/_page_.DH_Rpls4.css",
       "destination": "/",
       "permanent": true
@@ -180,21 +217,6 @@
     {
       "source": "/categories/finance",
       "destination": "/",
-      "permanent": true
-    },
-    {
-      "source": "http://www.techhorizons.co.il/:path*",
-      "destination": "https://techhorizons.co.il/:path*",
-      "permanent": true
-    },
-    {
-      "source": "http://techhorizons.co.il/:path*",
-      "destination": "https://techhorizons.co.il/:path*",
-      "permanent": true
-    },
-    {
-      "source": "https://www.techhorizons.co.il/:path*",
-      "destination": "https://techhorizons.co.il/:path*",
       "permanent": true
     }
   ],
