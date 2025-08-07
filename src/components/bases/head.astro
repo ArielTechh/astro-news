@@ -23,16 +23,10 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 
 <head>
   <!-- 🚀 PRÉCONNEXIONS CRITIQUES EN PREMIER -->
-  <link rel="preconnect" href="https://www.googletagmanager.com">
-  <link rel="preconnect" href="https://pagead2.googlesyndication.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.sanity.io">
-  <link rel="preconnect" href="https://analytics.ahrefs.com">
-  
-  <!-- DNS Prefetch pour optimiser encore plus -->
-  <link rel="dns-prefetch" href="https://www.google-analytics.com">
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
 
   <!-- ✅ META DE BASE TOUJOURS PRÉSENTS -->
   <meta charset={SITE.charset} />

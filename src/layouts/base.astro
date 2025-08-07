@@ -35,16 +35,21 @@ const isProduction = import.meta.env.PROD;
   />
 
   <body class="flex flex-col">
-    <!-- GTM noscript -->
-    <noscript>
-      <iframe
-        src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-        height="0"
-        width="0"
-        style="display:none;visibility:hidden"
-      >
-      </iframe>
-    </noscript>
+    <script>
+      let gtmLoaded = false;
+      function loadGTM() {
+        if (gtmLoaded) return;
+        gtmLoaded = true;
+        const script = document.createElement("script");
+        script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
+        script.async = true;
+        document.head.appendChild(script);
+      }
+      ["scroll", "click", "touchstart"].forEach((event) =>
+        document.addEventListener(event, loadGTM, { once: true }),
+      );
+      setTimeout(loadGTM, 4000);
+    </script>
 
     <Header />
     <main class="flex-1">
@@ -80,7 +85,7 @@ const isProduction = import.meta.env.PROD;
       document.addEventListener("scroll", loadAdsense, { once: true });
       document.addEventListener("click", loadAdsense, { once: true });
       document.addEventListener("touchstart", loadAdsense, { once: true }); // Pour mobile
-      setTimeout(loadAdsense, 2000); // Fallback après 2 secondes
+      setTimeout(loadAdsense, 4000); // Fallback après 2 secondes
     </script>
   </body>
 </html>

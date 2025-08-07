@@ -187,5 +187,8 @@ export default defineConfig({
   integrations,
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      minify: 'esbuild', // Minification agressive
+    },
   },
 });
