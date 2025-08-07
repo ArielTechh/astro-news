@@ -57,7 +57,14 @@ const isProduction = import.meta.env.PROD;
     {isProduction && <Analytics />}
     <TarteAuCitron />
 
-    <AccessibilityWidget />
+    <script>
+      setTimeout(() => {
+        const script = document.createElement("script");
+        script.src = "/_astro/Accessibi….astro_ast….fs_c6eCZ.js";
+        script.async = true;
+        document.head.appendChild(script);
+      }, 2000);
+    </script>
 
     <!-- 🎯 ADSENSE SEULEMENT - GTM géré par TarteAuCitron -->
     <script>

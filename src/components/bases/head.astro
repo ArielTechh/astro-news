@@ -63,12 +63,12 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE OPTIMISÉ -->
   <link
     rel="preload"
-    href="/_astro/_page_.Ce1h15xc.css"
+    href="/_astro/_page_.DxV5UTaJ.css"
     as="style"
     onload="this.onload=null;this.rel='stylesheet'"
   />
   <noscript>
-    <link rel="stylesheet" href="/_astro/_page_.Ce1h15xc.css" />
+    <link rel="stylesheet" href="/_astro/_page_.DxV5UTaJ.css" />
   </noscript>
 
   <!-- 🚀 PRÉCHARGEMENT WOFF2 CRITIQUE -->
@@ -181,18 +181,6 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     ) : null
   }
 
-  <!-- 🚀 CHARGEMENT DIFFÉRÉ ET OPTIMAL DU CLIENT ROUTER -->
-  <script>
-    // ClientRouter chargé de manière asynchrone
-    document.addEventListener('DOMContentLoaded', () => {
-      import('astro:transitions').then(({ ClientRouter }) => {
-        // Initialiser le ClientRouter après que la page soit prête
-        if (ClientRouter) {
-          console.log('✅ ClientRouter loaded asynchronously');
-        }
-      });
-    });
-  </script>
 
   <!-- 🚀 AHREFS ANALYTICS SEULEMENT - Chargement ultra-différé -->
   <script>
