@@ -1,5 +1,5 @@
 ---
-// src/components/seo/StructuredData.astro
+// src/components/seo/StructuredData.astro - Version avec SEO images
 import { urlFor } from "@/lib/sanity";
 
 type Props = {
@@ -32,6 +32,21 @@ type Props = {
 
 const { article, readingTime, articleType } = Astro.props;
 
+// ✨ NOUVEAU : Fonctions helpers pour SEO images
+const getImageAlt = (image, articleTitle) => {
+  if (image?.alt && image.alt.trim()) {
+    return image.alt;
+  }
+  return articleTitle || 'Image de l\'article';
+};
+
+const getImageCaption = (image, articleTitle) => {
+  if (image?.caption && image.caption.trim()) {
+    return image.caption;
+  }
+  return articleTitle || '';
+};
+
 // ✅ FONCTIONS UTILITAIRES POUR ANALYSER LE CONTENU
 const getYouTubeId = (url) => {
   if (!url) return null;
@@ -50,12 +65,75 @@ const extractTweetId = (text) => {
   return match ? match[1] : null;
 };
 
-// ✅ ANALYSER LE CONTENU POUR EXTRAIRE LES MÉDIAS
+// ✨ NOUVEAU : Analyser toutes les images du contenu
+const analyzeImages = () => {
+  if (!article.content) return [];
+  
+  const images = [];
+  
+  // Image de couverture
+  if (article.cover) {
+    const coverAlt = getImageAlt(article.cover, article.title);
+    const coverCaption = getImageCaption(article.cover, article.title);
+    
+    images.push({
+      "@type": "ImageObject",
+      url: urlFor(article.cover).width(1200).height(630).url(),
+      width: 1200,
+      height: 630,
+      caption: coverCaption,
+      contentUrl: urlFor(article.cover).url(),
+      name: coverAlt,
+      alternateName: article.title,
+      description: coverCaption,
+      // ✨ Informations SEO supplémentaires
+      encodingFormat: "image/webp",
+      thumbnail: {
+        "@type": "ImageObject",
+        url: urlFor(article.cover).width(400).height(300).url()
+      }
+    });
+  }
+  
+  // Images dans le contenu
+  article.content.forEach((block, index) => {
+    if (block._type === "image" && (block.asset || block._ref)) {
+      try {
+        const imageAlt = getImageAlt(block, article.title);
+        const imageCaption = getImageCaption(block, article.title);
+        const imageUrl = urlFor(block).url();
+        const largeImageUrl = urlFor(block).width(1200).url();
+        
+        images.push({
+          "@type": "ImageObject",
+          url: largeImageUrl,
+          contentUrl: imageUrl,
+          name: imageAlt,
+          alternateName: article.title,
+          caption: imageCaption,
+          description: imageCaption,
+          encodingFormat: "image/webp",
+          thumbnail: {
+            "@type": "ImageObject",
+            url: urlFor(block).width(400).height(300).url()
+          }
+        });
+      } catch (error) {
+        console.warn("Erreur lors du traitement de l'image:", error);
+      }
+    }
+  });
+  
+  return images.slice(0, 10); // Limiter à 10 images max pour les performances
+};
+
+// ✅ ANALYSER LE CONTENU POUR EXTRAIRE LES MÉDIAS (version améliorée)
 const analyzeContent = () => {
-  if (!article.content) return { videos: [], socialPosts: [], hasVideo: false };
+  if (!article.content) return { videos: [], socialPosts: [], images: [], hasVideo: false, hasImages: false };
   
   const videos = [];
   const socialPosts = [];
+  const images = analyzeImages(); // ✨ NOUVEAU
   
   article.content.forEach((block, index) => {
     // Vidéos YouTube avec schéma
@@ -69,7 +147,6 @@ const analyzeContent = () => {
           thumbnailUrl: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
           embedUrl: `https://www.youtube.com/embed/${videoId}`,
           uploadDate: article.publishedTime,
-          // duration: "PT0M", 
           publisher: {
             "@type": "Organization",
             name: "YouTube",
@@ -93,7 +170,6 @@ const analyzeContent = () => {
           thumbnailUrl: `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`,
           embedUrl: `https://www.youtube.com/embed/${youtubeId}`,
           uploadDate: article.publishedTime,
-          // duration: "PT0M",
           publisher: {
             "@type": "Organization",
             name: "YouTube",
@@ -123,7 +199,9 @@ const analyzeContent = () => {
   return { 
     videos: videos.slice(0, 5), // Limiter à 5 vidéos max
     socialPosts: socialPosts.slice(0, 3), // Limiter à 3 posts sociaux max
-    hasVideo: videos.length > 0 
+    images: images, // ✨ NOUVEAU
+    hasVideo: videos.length > 0,
+    hasImages: images.length > 0 // ✨ NOUVEAU
   };
 };
 
@@ -154,10 +232,14 @@ const detectedType = detectArticleType();
 const siteUrl = "https://techhorizons.co.il";
 const currentUrl = `${siteUrl}/${article.slug.current}`; // ✅ CORRIGÉ : pas /articles/
 
-// Image de couverture
+// ✨ MODIFIÉ : Image de couverture avec alt text
 const coverImageUrl = article.cover
   ? urlFor(article.cover).width(1200).height(630).url()
   : `${siteUrl}/techh_logo.webp`;
+
+const coverImageAlt = article.cover 
+  ? getImageAlt(article.cover, article.title)
+  : "Logo TechHorizons";
 
 // Auteurs
 const authors = article.authors || [];
@@ -186,7 +268,7 @@ const organization = {
   },
 };
 
-// ✅ SCHEMA DE BASE AMÉLIORÉ
+// ✅ SCHEMA DE BASE AMÉLIORÉ avec images
 const baseSchema = {
   "@context": "https://schema.org",
   "@type": detectedType,
@@ -197,12 +279,17 @@ const baseSchema = {
   dateModified: article.publishedTime,
   author: authorsSchema.length > 0 ? authorsSchema : organization,
   publisher: organization,
-  image: {
-    "@type": "ImageObject",
-    url: coverImageUrl,
-    width: 1200,
-    height: 630,
-  },
+  // ✨ MODIFIÉ : Image principale avec plus de détails
+  image: contentAnalysis.hasImages && contentAnalysis.images.length > 0 
+    ? contentAnalysis.images // Toutes les images de l'article
+    : {
+        "@type": "ImageObject",
+        url: coverImageUrl,
+        width: 1200,
+        height: 630,
+        name: coverImageAlt,
+        alternateName: article.title
+      },
   mainEntityOfPage: {
     "@type": "WebPage",
     "@id": currentUrl,
@@ -236,9 +323,12 @@ if (detectedType === "HowTo") {
   schema.name = article.title;
   delete schema.headline;
   
-  // ✅ AJOUT : Structure spéciale pour les tutoriels avec vidéos
+  // ✅ AJOUT : Structure spéciale pour les tutoriels avec vidéos ET images
   if (contentAnalysis.hasVideo) {
     schema.video = contentAnalysis.videos;
+  }
+  if (contentAnalysis.hasImages) {
+    schema.image = contentAnalysis.images;
   }
 }
 
@@ -254,7 +344,7 @@ if (detectedType === "TechArticle") {
   };
 }
 
-// ✅ SCHÉMAS ADDITIONNELS POUR LES VIDÉOS (si présentes)
+// ✅ SCHÉMAS ADDITIONNELS POUR LES VIDÉOS ET IMAGES
 const additionalSchemas = [];
 
 // Schema spécifique pour chaque vidéo YouTube
@@ -272,7 +362,23 @@ if (contentAnalysis.videos.length > 0) {
   });
 }
 
-// ✅ SCHEMA POUR LA PAGE WEB ELLE-MÊME
+// ✨ NOUVEAU : Schéma ImageGallery si plusieurs images
+if (contentAnalysis.images.length > 3) {
+  additionalSchemas.push({
+    "@context": "https://schema.org",
+    "@type": "ImageGallery",
+    name: `Images de l'article: ${article.title}`,
+    description: `Galerie d'images de l'article "${article.title}"`,
+    url: currentUrl,
+    image: contentAnalysis.images,
+    associatedArticle: {
+      "@type": "Article",
+      "@id": currentUrl
+    }
+  });
+}
+
+// ✅ SCHEMA POUR LA PAGE WEB ELLE-MÊME (amélioré)
 const webPageSchema = {
   "@context": "https://schema.org",
   "@type": "WebPage",
@@ -287,14 +393,23 @@ const webPageSchema = {
     name: "TechHorizons",
     url: siteUrl
   },
-  primaryImageOfPage: {
-    "@type": "ImageObject",
-    url: coverImageUrl
-  },
+  // ✨ MODIFIÉ : Image principale de la page avec SEO
+  primaryImageOfPage: contentAnalysis.hasImages && contentAnalysis.images.length > 0
+    ? contentAnalysis.images[0] // Première image avec tous les détails SEO
+    : {
+        "@type": "ImageObject",
+        url: coverImageUrl,
+        name: coverImageAlt,
+        alternateName: article.title
+      },
   datePublished: article.publishedTime,
   dateModified: article.publishedTime,
   ...(contentAnalysis.hasVideo && {
     video: contentAnalysis.videos
+  }),
+  // ✨ NOUVEAU : Ajouter toutes les images à la page
+  ...(contentAnalysis.hasImages && {
+    image: contentAnalysis.images
   })
 };
 
@@ -302,7 +417,7 @@ const webPageSchema = {
 const allSchemas = [
   schema, // Article principal
   webPageSchema, // Page web
-  ...additionalSchemas // Vidéos individuelles
+  ...additionalSchemas // Vidéos et galeries individuelles
 ];
 ---
 
@@ -312,9 +427,9 @@ const allSchemas = [
 <!-- ✅ SCHEMA DE LA PAGE WEB -->
 <script type="application/ld+json" set:html={JSON.stringify(webPageSchema)} />
 
-<!-- ✅ SCHÉMAS DES VIDÉOS INDIVIDUELLES -->
-{additionalSchemas.map((videoSchema, index) => (
-  <script key={index} type="application/ld+json" set:html={JSON.stringify(videoSchema)} />
+<!-- ✅ SCHÉMAS DES VIDÉOS ET GALERIES INDIVIDUELLES -->
+{additionalSchemas.map((additionalSchema, index) => (
+  <script key={index} type="application/ld+json" set:html={JSON.stringify(additionalSchema)} />
 ))}
 
 <!-- ✅ META TAGS ADDITIONNELS POUR LES VIDÉOS -->
@@ -330,6 +445,20 @@ const allSchemas = [
   </>
 )}
 
+<!-- ✨ NOUVEAU : META TAGS ADDITIONNELS POUR LES IMAGES -->
+{contentAnalysis.hasImages && contentAnalysis.images.slice(0, 6).map((img, index) => (
+  <>
+    <meta key={`og-img-${index}`} property="og:image" content={img.url} />
+    <meta key={`og-img-alt-${index}`} property="og:image:alt" content={img.name} />
+    {index === 0 && (
+      <>
+        <meta property="twitter:image" content={img.url} />
+        <meta property="twitter:image:alt" content={img.name} />
+      </>
+    )}
+  </>
+))}
+
 <!-- ✅ DEBUG INFO (à retirer en production) -->
 {import.meta.env.DEV && (
   <script>
@@ -338,6 +467,8 @@ const allSchemas = [
       hasVideos: contentAnalysis.hasVideo,
       videosCount: contentAnalysis.videos.length,
       socialPostsCount: contentAnalysis.socialPosts.length,
+      hasImages: contentAnalysis.hasImages,
+      imagesCount: contentAnalysis.images.length,
       schemas: allSchemas.length
     });
   </script>

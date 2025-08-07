@@ -1,5 +1,5 @@
 ---
-// src/pages/[slug].astro - Version avec auto-linking
+// src/pages/[slug].astro - Version avec auto-linking + SEO images
 import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "@/pages/articles/_components/article-header.astro";
@@ -33,6 +33,25 @@ const processedContent = await processPortableTextBlocks(
   fullArticle.content,
   article.slug.current,
 );
+
+// ✨ NOUVEAU : Fonctions helpers pour SEO images
+const getImageAlt = (image, articleTitle) => {
+  // Si l'image a un alt text personnalisé, l'utiliser
+  if (image?.alt && image.alt.trim()) {
+    return image.alt;
+  }
+  // Sinon, utiliser le titre de l'article
+  return articleTitle || "Image de l'article";
+};
+
+const getImageCaption = (image, articleTitle) => {
+  // Si l'image a une légende personnalisée, l'utiliser
+  if (image?.caption && image.caption.trim()) {
+    return image.caption;
+  }
+  // Sinon, utiliser le titre de l'article
+  return articleTitle || "";
+};
 
 // ✅ FONCTIONS UTILITAIRES (inchangées)
 const calculateReadingTime = (content) => {
@@ -480,25 +499,33 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               );
             }
 
+            // ✨ MODIFIÉ : Images avec SEO et légendes
             if (block._type === "image") {
               try {
                 if (block.asset || block._ref) {
                   const imageProps = getOptimizedImageProps(block);
+                  const altText = getImageAlt(block, fullArticle.title);
+                  const captionText = getImageCaption(block, fullArticle.title);
 
                   return (
-                    <div key={index} class="my-8">
+                    <figure key={index} class="my-8">
                       <img
                         src={imageProps.src}
                         srcset={imageProps.srcSet}
                         sizes={imageProps.sizes}
-                        alt={block.alt || "Image de l'article"}
+                        alt={altText}
                         class="w-full rounded-lg shadow-md"
                         loading="lazy"
                         decoding="async"
                         width="800"
                         height="400"
                       />
-                    </div>
+                      {captionText && (
+                        <figcaption class="mt-3 text-sm text-gray-600 dark:text-gray-400 text-center italic">
+                          {captionText}
+                        </figcaption>
+                      )}
+                    </figure>
                   );
                 }
               } catch (error) {
@@ -556,6 +583,11 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
 
   :global(.auto-link:hover::after) {
     opacity: 0.7;
+  }
+
+  /* ✨ NOUVEAU : Styles pour les légendes */
+  :global(figcaption) {
+    font-family: ui-serif, Georgia, serif;
   }
 </style>
 
