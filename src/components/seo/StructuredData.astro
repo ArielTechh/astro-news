@@ -362,6 +362,7 @@ if (contentAnalysis.videos.length > 0) {
   });
 }
 
+
 // ✨ NOUVEAU : Schéma ImageGallery si plusieurs images
 if (contentAnalysis.images.length > 3) {
   additionalSchemas.push({
@@ -370,13 +371,10 @@ if (contentAnalysis.images.length > 3) {
     name: `Images de l'article: ${article.title}`,
     description: `Galerie d'images de l'article "${article.title}"`,
     url: currentUrl,
-    image: contentAnalysis.images,
-    associatedArticle: {
-      "@type": "Article",
-      "@id": currentUrl
-    }
+    image: contentAnalysis.images
+    // ✅ SUPPRIMÉ : associatedArticle (propriété invalide)
   });
-}
+} 
 
 // ✅ SCHEMA POUR LA PAGE WEB ELLE-MÊME (amélioré)
 const webPageSchema = {
