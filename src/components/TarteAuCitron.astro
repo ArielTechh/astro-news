@@ -97,67 +97,73 @@
       if (banner) banner.style.display = "block";
     }
 
-    // decommentez d ici
     // ✅ SOLUTION RADICALE : AdSense seulement au premier scroll
-    // let adSenseActivated = false;
-    // let consentGiven = false;
+    let adSenseActivated = false;
+    let consentGiven = false;
 
-    // function activateAdSenseOnScroll() {
-    //   if (adSenseActivated || !consentGiven) return;
+    function activateAdSenseOnScroll() {
+      if (adSenseActivated || !consentGiven) return;
 
-    //   const scrollHandler = () => {
-    //     if (window.scrollY > 100) {
-    //       // Après 100px de scroll
-    //       adSenseActivated = true;
-    //       window.removeEventListener("scroll", scrollHandler);
+      const scrollHandler = () => {
+        if (window.scrollY > 100) {
+          // Après 100px de scroll
+          adSenseActivated = true;
+          window.removeEventListener("scroll", scrollHandler);
 
-    //       loadAdSense();
-    //     }
-    //   };
+          console.log("🚀 User scrolled - loading AdSense now...");
+          loadAdSense();
+        }
+      };
 
-    //   // Écouter le scroll
-    //   window.addEventListener("scroll", scrollHandler, { passive: true });
+      // Écouter le scroll
+      window.addEventListener("scroll", scrollHandler, { passive: true });
 
-    //   // Backup : charger après 5 secondes même sans scroll
-    //   setTimeout(() => {
-    //     if (!adSenseActivated && consentGiven) {
-    //       scrollHandler();
-    //     }
-    //   }, 5000);
-    // }
+      // Backup : charger après 5 secondes même sans scroll
+      setTimeout(() => {
+        if (!adSenseActivated && consentGiven) {
+          console.log("🚀 Timeout - loading AdSense...");
+          scrollHandler();
+        }
+      }, 5000);
+    }
 
-    // function loadAdSense() {
-    //   if (window.adSenseLoaded) return;
+    function loadAdSense() {
+      if (window.adSenseLoaded) return;
 
-    //   const script = document.createElement("script");
-    //   script.src =
-    //     "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
-    //   script.async = true;
-    //   script.crossOrigin = "anonymous";
+      console.log("📥 Loading AdSense script...");
 
-    //   script.onload = () => {
-    //     window.adSenseLoaded = true;
+      const script = document.createElement("script");
+      script.src =
+        "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1113800966089168";
+      script.async = true;
+      script.crossOrigin = "anonymous";
 
-    //     // Initialiser toutes les pubs existantes
-    //     const ads = document.querySelectorAll("ins.adsbygoogle");
-    //     ads.forEach(() => {
-    //       try {
-    //         (window.adsbygoogle = window.adsbygoogle || []).push({});
-    //       } catch (e) {
-    //       }
-    //     });
-    //   };
+      script.onload = () => {
+        window.adSenseLoaded = true;
+        console.log("✅ AdSense loaded - initializing ads...");
 
-    //   script.onerror = () => {
-    //   };
+        // Initialiser toutes les pubs existantes
+        const ads = document.querySelectorAll("ins.adsbygoogle");
+        ads.forEach(() => {
+          try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+          } catch (e) {
+            console.error("AdSense push error:", e);
+          }
+        });
+      };
 
-    //   document.head.appendChild(script);
-    // }
+      script.onerror = () => {
+        console.error("❌ AdSense failed to load");
+      };
 
-    // decommenter
+      document.head.appendChild(script);
+    }
 
     // Chargement des services (ULTRA-SIMPLIFIÉ)
     function loadServices() {
+      console.log("🚀 Loading GTM...");
+
       // GTM uniquement (immédiat)
       if (!window.gtmLoaded) {
         (function (w, d, s, l, i) {
@@ -173,7 +179,9 @@
         window.gtmLoaded = true;
       }
 
-      // activateAdSenseOnScroll();
+      // AdSense : SEULEMENT au scroll (pas maintenant)
+      console.log("📋 AdSense will load on user scroll...");
+      activateAdSenseOnScroll();
     }
 
     // Gestion du consentement
@@ -203,11 +211,14 @@
           event: "consent_granted",
           page_path: window.location.pathname,
         });
+
+        console.log("✅ Consent accepted - services will load on scroll");
       } else {
         dataLayer.push({
           event: "consent_rejected",
           page_path: window.location.pathname,
         });
+        console.log("❌ Consent rejected");
       }
     }
 
@@ -219,6 +230,7 @@
         consentGiven = true;
         handleConsent(true);
       } else if (consent === "rejected") {
+        console.log("ℹ️ Consent previously rejected");
       } else {
         showBanner();
       }
