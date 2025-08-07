@@ -334,7 +334,7 @@
   }
 </style>
 
-<script>
+<script defer>
   // Le JavaScript reste identique - pas besoin de modifications
   function initAccessibilityWidget() {
     "use strict";
@@ -498,18 +498,18 @@
           element.checked = true;
           const className = key.replace("accessibility-", "").replace("-", "-");
           document.body.classList.add(className);
+          if (
+            key === "accessibility-dyslexia-font" &&
+            !document.querySelector('link[href*="opendyslexic"]')
+          ) {
+            const link = document.createElement("link");
+            link.href =
+              "https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/opendyslexic-regular.css";
+            link.rel = "stylesheet";
+            document.head.appendChild(link);
+          }
         }
       });
-
-      if (localStorage.getItem("accessibility-dyslexia-font") === "true") {
-        if (!document.querySelector('link[href*="opendyslexic"]')) {
-          const link = document.createElement("link");
-          link.href =
-            "https://cdn.jsdelivr.net/npm/opendyslexic@1.0.3/opendyslexic-regular.css";
-          link.rel = "stylesheet";
-          document.head.appendChild(link);
-        }
-      }
     }
 
     function cleanup() {
