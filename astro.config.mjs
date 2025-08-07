@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import { getAllArticles } from './src/lib/sanity.js';
+import { getAllArticles } from './src/lib/sanity.js'; // ← Ajoutez cette ligne en haut
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
@@ -12,17 +12,19 @@ import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
 import sanity from '@sanity/astro';
 
+
 const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
 const integrations = [
   mdx(),
-  // SITEMAP OPTIMISÉ - AVEC CACHE
+  // SITEMAP OPTIMISÉ - EXCLURE /articles/ ET GARDER SEULEMENT LA RACINE
   sitemap({
+    // Configuration de base
     changefreq: 'daily',
     priority: 0.7,
     lastmod: new Date(),
 
-    // FILTER OPTIMISÉ
+    // FILTER : Exclure les anciennes URLs /articles/ du sitemap
     filter: (page) => {
       const url = page.toLowerCase();
       return !url.includes('/authors/') &&
@@ -32,19 +34,21 @@ const integrations = [
         !url.includes('/_astro/') &&
         !url.includes('/404') &&
         !url.includes('/500') &&
-        !url.includes('/articles/');
+        !url.includes('/articles/');  // ← EXCLURE /articles/ du sitemap
     },
 
-    // SERIALIZATION OPTIMISÉE AVEC CACHE
+    // Personnalisation par type de page - SEULEMENT STRUCTURE RACINE
     serialize: async (item) => {
       const url = item.url;
+
+      // ✅ AJOUT : Enlever le slash final pour TOUT sauf l'accueil
       const cleanUrl = url.endsWith('/') && url !== 'https://techhorizons.co.il/'
         ? url.slice(0, -1)
         : url;
 
       const path = new URL(cleanUrl).pathname;
 
-      // PAGE D'ACCUEIL
+      // PAGE D'ACCUEIL - Priorité maximale (garde le slash)
       if (cleanUrl === 'https://techhorizons.co.il/') {
         return {
           url: cleanUrl,
@@ -54,7 +58,7 @@ const integrations = [
         };
       }
 
-      // ARTICLES À LA RACINE avec cache
+      // ✨ NOUVEAU : ARTICLES À LA RACINE avec dates Sanity
       if (path !== '/' &&
         !path.includes('/categories/') &&
         !path.includes('/about') &&
@@ -68,34 +72,34 @@ const integrations = [
         !path.includes('/sitemap')) {
 
         try {
+          // Extraire le slug depuis l'URL
           const slug = path.replace('/', '');
 
-          // CACHE ARTICLES pour éviter requêtes répétées
-          if (!global.articlesCache) {
-            global.articlesCache = await getAllArticles();
-          }
-
-          const article = global.articlesCache.find(a => a.slug?.current === slug);
+          // ✨ Récupérer les articles depuis Sanity
+          const articles = await getAllArticles();
+          const article = articles.find(a => a.slug?.current === slug);
 
           if (article) {
+            // ✨ Utiliser les vraies dates Sanity !
             const articleDate = new Date(
-              article._updatedAt ||
-              article.publishedTime ||
-              article._createdAt ||
-              new Date()
+              article._updatedAt ||    // Date de modification
+              article.publishedTime || // Date de publication
+              article._createdAt ||    // Date de création
+              new Date()              // Fallback
             ).toISOString();
 
             return {
               url: cleanUrl,
               changefreq: 'daily',
               priority: 0.9,
-              lastmod: articleDate
+              lastmod: articleDate // ← VOILÀ LA VRAIE DATE !
             };
           }
         } catch (error) {
           console.error(`Erreur Sanity pour ${path}:`, error);
         }
 
+        // Fallback si erreur
         return {
           url: cleanUrl,
           changefreq: 'daily',
@@ -104,13 +108,45 @@ const integrations = [
         };
       }
 
-      // CATÉGORIES PRINCIPALES
+      // CATÉGORIES PRINCIPALES - Haute priorité
       if (cleanUrl.includes('/categories/') && !cleanUrl.match(/\/\d+$/)) {
         return {
           url: cleanUrl,
           changefreq: 'daily',
           priority: 0.8,
           lastmod: new Date().toISOString()
+        };
+      }
+
+      // PAGINATION DES CATÉGORIES
+      if (cleanUrl.includes('/categories/') && cleanUrl.match(/\/\d+$/)) {
+        return {
+          url: cleanUrl,
+          changefreq: 'daily',
+          priority: 0.6,
+          lastmod: new Date().toISOString()
+        };
+      }
+
+      // PAGINATION ARTICLES À LA RACINE
+      if (cleanUrl.match(/\/\d+$/) && !cleanUrl.includes('/categories/')) {
+        return {
+          url: cleanUrl,
+          changefreq: 'daily',
+          priority: 0.5,
+          lastmod: new Date().toISOString()
+        };
+      }
+
+      // PAGES STATIQUES
+      if (cleanUrl.includes('/about') || cleanUrl.includes('/contact') ||
+        cleanUrl.includes('/accessibility') || cleanUrl.includes('/cookie') ||
+        cleanUrl.includes('/privacy') || cleanUrl.includes('/search')) {
+        return {
+          url: cleanUrl,
+          changefreq: 'monthly',
+          priority: 0.3,
+          lastmod: '2024-01-01T00:00:00.000Z'
         };
       }
 
@@ -123,23 +159,11 @@ const integrations = [
       };
     }
   }),
-
-  // PAGEFIND OPTIMISÉ
-  pagefind({
-    // Configuration pour de meilleures performances
-    forceLanguage: "he",
-    highlightParam: "highlight"
-  }),
-
-  // SANITY OPTIMISÉ
+  pagefind(),
   sanity({
     projectId: "0lbfqiht",
     dataset: "production",
     useCdn: true,
-    // NOUVELLES OPTIMISATIONS
-    apiVersion: '2024-01-01',
-    perspective: 'published',
-    stega: false, // Désactiver stega en production pour de meilleures performances
   }),
 ];
 
@@ -153,109 +177,15 @@ export default defineConfig({
   site: SITE.url,
   base: SITE.basePath,
   trailingSlash: 'never',
-
-  // 🚀 OPTIMISATIONS BUILD
-  build: {
-    // Optimisation des assets
-    assets: '_astro',
-    // Inlining des petits assets
-    inlineStylesheets: 'auto',
-    // Compression
-    split: true,
-  },
-
-  // 🚀 OPTIMISATIONS OUTPUT
-  output: 'static',
-  adapter: undefined, // Assurez-vous qu'aucun adapter n'est configuré pour du static
-
-  // 🚀 OPTIMISATIONS IMAGES
-  image: {
-    // Configuration pour de meilleures performances
-    service: {
-      entrypoint: 'astro/assets/services/sharp',
-      config: {
-        limitInputPixels: 268402689,
-      }
-    },
-    domains: ["cdn.sanity.io"],
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "cdn.sanity.io",
-        pathname: "/images/**",
-      }
-    ]
-  },
-
   markdown: {
     remarkPlugins: [readingTime, modifiedTime],
-    // Optimisation syntaxHighlighter
-    shikiConfig: {
-      theme: 'github-light',
-      langs: ['javascript', 'typescript', 'python', 'bash'],
-      wrap: true
-    }
   },
-
   experimental: {
-    // Optimisations expérimentales
-    contentCollectionCache: true,
+    // responsiveImages: true,
   },
-
+  image: {},
   integrations,
-
-  // 🚀 VITE OPTIMISÉ POUR BUILD RAPIDE
   vite: {
     plugins: [tailwindcss()],
-
-    // OPTIMISATIONS BUILD
-    build: {
-      // Optimisation des chunks
-      rollupOptions: {
-        output: {
-          // Meilleure stratégie de chunking
-          manualChunks: {
-            'vendor': ['astro'],
-            'sanity': ['@sanity/client', '@sanity/image-url'],
-            'ui': ['react', 'react-dom']
-          }
-        }
-      },
-      // Optimisation CSS
-      cssCodeSplit: true,
-      // Compression
-      minify: 'esbuild',
-      // Réduire les warnings
-      chunkSizeWarningLimit: 1000
-    },
-
-    // OPTIMISATION CSS
-    css: {
-      postcss: {
-        plugins: [
-          // Optimisations PostCSS si nécessaire
-        ]
-      }
-    },
-
-    // OPTIMISATIONS DEV (pour tester)
-    server: {
-      // Améliorer la vitesse de dev
-      fs: {
-        strict: false
-      }
-    },
-
-    // CACHE ET OPTIMISATIONS
-    optimizeDeps: {
-      include: [
-        'astro',
-        '@sanity/client',
-        '@sanity/image-url',
-        'react',
-        'react-dom'
-      ],
-      exclude: []
-    }
-  }
+  },
 });
