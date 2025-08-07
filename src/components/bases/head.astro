@@ -1,6 +1,5 @@
 ---
 import "@/styles/global.css";
-import { ClientRouter } from "astro:transitions";
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 import StructuredData from "@/components/seo/StructuredData.astro";
@@ -23,18 +22,17 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 ---
 
 <head>
-  <!-- 🚀 PRÉCONNEXIONS CRITIQUES EN TOUT PREMIER -->
+  <!-- 🚀 PRÉCONNEXIONS CRITIQUES EN PREMIER -->
   <link rel="preconnect" href="https://www.googletagmanager.com">
   <link rel="preconnect" href="https://pagead2.googlesyndication.com">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.sanity.io">
   <link rel="preconnect" href="https://analytics.ahrefs.com">
-
-  <!-- 🚀 PRÉCHARGEMENT DES RESSOURCES CRITIQUES -->
-  <link rel="modulepreload" href="/_astro/_astro_transitions.B_erwFFX.js">
-  <link rel="preload" href="/_astro/_page_.Dd72TItN.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="/_astro/_page_.Dd72TItN.css"></noscript>
+  
+  <!-- DNS Prefetch pour optimiser encore plus -->
+  <link rel="dns-prefetch" href="https://www.google-analytics.com">
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
 
   <!-- ✅ META DE BASE TOUJOURS PRÉSENTS -->
   <meta charset={SITE.charset} />
@@ -47,6 +45,17 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 
   <!-- ✅ META DE BASE -->
   <link rel="canonical" href={canonicalURL} />
+
+  <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE EN PRIORITÉ -->
+  <link
+    rel="preload"
+    href="/_astro/_page_.Cjmaqns_.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript>
+    <link rel="stylesheet" href="/_astro/_page_.Cjmaqns_.css" />
+  </noscript>
 
   <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES -->
   <link
@@ -172,17 +181,9 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     ) : null
   }
 
-  <!-- 🚀 CLIENT ROUTER ASYNCHRONE -->
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      import('astro:transitions').then(({ ClientRouter }) => {
-        console.log('✅ ClientRouter loaded async');
-      });
-    });
-  </script>
-
-  <!-- 🚀 CSS CRITIQUE ANTI-FLASH -->
+  <!-- 🚀 CSS CRITIQUE INLINE OPTIMISÉ -->
   <style>
+    /* Base critique - Compatible Tailwind */
     html { font-size: 16px; }
     @media (min-width: 1024px) { html { font-size: 17px; } }
     
@@ -192,8 +193,22 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       margin: 0;
     }
 
+    /* Styles critiques above-the-fold */
+    header { background: #fff; border-bottom: 1px solid #e5e7eb; }
+    nav { display: flex; align-items: center; justify-content: space-between; }
+    .container { max-width: 1248px; margin: 0 auto; padding: 0 1rem; }
+    
+    /* Anti-flash */
     .loading { opacity: 0; animation: fadeIn 0.2s ease forwards; }
     @keyframes fadeIn { to { opacity: 1; } }
+    
+    /* Dark mode critique */
+    @media (prefers-color-scheme: dark) {
+      header { background: #1f2937; border-bottom-color: #374151; }
+    }
+
+    /* Prévenire layout shift */
+    .font-loading { font-display: swap; }
   </style>
 
   <!-- 🚀 AHREFS ANALYTICS DIFFÉRÉ -->

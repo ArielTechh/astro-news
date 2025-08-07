@@ -8,7 +8,6 @@ import { getMeta } from "@/lib/utils/getMetaSanity";
 import SpeedInsights from "@vercel/speed-insights/astro";
 import Analytics from "@vercel/analytics/astro";
 import TarteAuCitron from "../components/TarteAuCitron.astro";
-import AccessibilityWidget from "../components/AccessibilityWidget.astro";
 
 type Props = {
   entry: Entry;
@@ -57,8 +56,31 @@ const isProduction = import.meta.env.PROD;
     {isProduction && <Analytics />}
     <TarteAuCitron />
 
-    <AccessibilityWidget />
+    <!-- 🚀 ACCESSIBILITY WIDGET DIFFÉRÉ -->
+    <script>
+      let accessibilityLoaded = false;
 
+      function loadAccessibilityWidget() {
+        if (accessibilityLoaded) return;
+        accessibilityLoaded = true;
+
+        const script = document.createElement("script");
+        script.src = "/_astro/Accessibi….astro_ast….fs_c6eCZ.js";
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+
+        console.log("✅ Accessibility widget loading...");
+      }
+
+      ["scroll", "click", "touchstart", "keydown"].forEach((event) => {
+        document.addEventListener(event, loadAccessibilityWidget, {
+          once: true,
+        });
+      });
+
+      setTimeout(loadAccessibilityWidget, 2000);
+    </script>
     <!-- 🎯 ADSENSE SEULEMENT - GTM géré par TarteAuCitron -->
     <script>
       let adsenseLoaded = false;
