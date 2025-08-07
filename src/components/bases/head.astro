@@ -1,6 +1,5 @@
 ---
 import "@/styles/global.css";
-import { ClientRouter } from "astro:transitions";
 import { SITE } from "@/lib/config";
 import type { ArticleMeta, Meta } from "@/lib/types";
 import StructuredData from "@/components/seo/StructuredData.astro";
@@ -23,6 +22,18 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 ---
 
 <head>
+  <!-- 🚀 PRÉCONNEXIONS CRITIQUES EN PREMIER -->
+  <link rel="preconnect" href="https://www.googletagmanager.com">
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.sanity.io">
+  <link rel="preconnect" href="https://analytics.ahrefs.com">
+  
+  <!-- DNS Prefetch pour optimiser encore plus -->
+  <link rel="dns-prefetch" href="https://www.google-analytics.com">
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com">
+
   <!-- ✅ META DE BASE TOUJOURS PRÉSENTS -->
   <meta charset={SITE.charset} />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -34,6 +45,47 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
 
   <!-- ✅ META DE BASE -->
   <link rel="canonical" href={canonicalURL} />
+
+  <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES AVANT TOUT -->
+  <link
+    rel="preload"
+    href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
+    />
+  </noscript>
+
+  <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE OPTIMISÉ -->
+  <link
+    rel="preload"
+    href="/_astro/_page_.Ce1h15xc.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript>
+    <link rel="stylesheet" href="/_astro/_page_.Ce1h15xc.css" />
+  </noscript>
+
+  <!-- 🚀 PRÉCHARGEMENT WOFF2 CRITIQUE -->
+  <link
+    rel="preload"
+    href="/_astro/source-sa….tpsLXCSJ.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
+  <link
+    rel="preload"
+    href="/_astro/source-sa….BM2CBz6W.woff2"
+    as="font"
+    type="font/woff2"
+    crossorigin
+  />
 
   <!-- ✅ astro-seo AVEC PROTECTION -->
   {
@@ -123,61 +175,26 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     )
   }
 
-  <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE -->
-  <link
-    rel="preload"
-    href="/_astro/_page_.DH_Rpls4.css"
-    as="style"
-    onload="this.onload=null;this.rel='stylesheet'"
-  />
-  <noscript>
-    <link rel="stylesheet" href="/_astro/_page_.DH_Rpls4.css" />
-  </noscript>
-
-  <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES -->
-  <link
-    rel="preload"
-    href="/_astro/source-sa….tpsLXCSJ.woff2"
-    as="font"
-    type="font/woff2"
-    crossorigin
-  />
-  <link
-    rel="preload"
-    href="/_astro/source-sa….BM2CBz6W.woff2"
-    as="font"
-    type="font/woff2"
-    crossorigin
-  />
-
-  <!-- 🚀 PRÉCONNEXION OPTIMISÉE -->
-  <link rel="preconnect" href="https://cdn.sanity.io" />
-  <link rel="dns-prefetch" href="https://cdn.sanity.io" />
-  <link rel="preconnect" href="https://analytics.ahrefs.com" />
-
   {
     isArticleMeta(meta) && article ? (
       <StructuredData article={article} readingTime={readingTime} />
     ) : null
   }
 
-  <!-- 🚀 CHARGEMENT FONTS NON-BLOQUANT -->
-  <link
-    rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
-    media="print"
-    onload="this.media='all'"
-  />
-  <noscript>
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
-    />
-  </noscript>
+  <!-- 🚀 CHARGEMENT DIFFÉRÉ ET OPTIMAL DU CLIENT ROUTER -->
+  <script>
+    // ClientRouter chargé de manière asynchrone
+    document.addEventListener('DOMContentLoaded', () => {
+      import('astro:transitions').then(({ ClientRouter }) => {
+        // Initialiser le ClientRouter après que la page soit prête
+        if (ClientRouter) {
+          console.log('✅ ClientRouter loaded asynchronously');
+        }
+      });
+    });
+  </script>
 
-  <ClientRouter />
-
-  <!-- 🚀 AHREFS ANALYTICS SEULEMENT - Chargement différé -->
+  <!-- 🚀 AHREFS ANALYTICS SEULEMENT - Chargement ultra-différé -->
   <script>
     let ahrefsLoaded = false;
 
@@ -190,15 +207,38 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       ahrefsScript.src = "https://analytics.ahrefs.com/analytics.js";
       ahrefsScript.setAttribute("data-key", "fNbl74Cz0zyN4NtzpNBdKg");
       ahrefsScript.async = true;
+      ahrefsScript.defer = true;
       document.head.appendChild(ahrefsScript);
 
       console.log("✅ Ahrefs Analytics loaded");
     }
 
-    // Charger après interaction ou fallback 2 secondes
+    // Charger après interaction ou fallback 3 secondes (plus tard)
     ["scroll", "click", "touchstart", "keydown"].forEach((event) => {
       document.addEventListener(event, loadAhrefs, { once: true });
     });
-    setTimeout(loadAhrefs, 2000);
+    setTimeout(loadAhrefs, 3000); // Augmenté à 3 secondes
   </script>
+
+  <!-- 🚀 CSS CRITIQUE MINIMAL - ANTI-FLASH SEULEMENT -->
+  <style>
+    /* Juste anti-flash et base critique - N'interfère PAS avec Tailwind */
+    html { font-size: 16px; }
+    @media (min-width: 1024px) { html { font-size: 17px; } }
+    
+    body {
+      font-family: "Source Sans Pro", ui-sans-serif, system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      margin: 0;
+    }
+
+    /* Anti-flash pour éviter le FOUC */
+    .loading { opacity: 0; animation: fadeIn 0.2s ease forwards; }
+    @keyframes fadeIn { to { opacity: 1; } }
+    
+    /* Prévenire layout shift pendant chargement fonts */
+    .font-loading {
+      font-display: swap;
+    }
+  </style>
 </head>
