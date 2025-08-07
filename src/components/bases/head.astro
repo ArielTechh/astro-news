@@ -46,18 +46,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
   <!-- ✅ META DE BASE -->
   <link rel="canonical" href={canonicalURL} />
 
-  <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE EN PRIORITÉ -->
-  <link
-    rel="preload"
-    href="/_astro/_page_.Cjmaqns_.css"
-    as="style"
-    onload="this.onload=null;this.rel='stylesheet'"
-  />
-  <noscript>
-    <link rel="stylesheet" href="/_astro/_page_.Cjmaqns_.css" />
-  </noscript>
-
-  <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES -->
+  <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES AVANT TOUT -->
   <link
     rel="preload"
     href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
@@ -69,6 +58,17 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&family=Source+Serif+4:opsz,wght@8..60,200..900&display=swap"
     />
+  </noscript>
+
+  <!-- 🚀 PRÉCHARGEMENT CSS CRITIQUE OPTIMISÉ -->
+  <link
+    rel="preload"
+    href="/_astro/_page_.Ce1h15xc.css"
+    as="style"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript>
+    <link rel="stylesheet" href="/_astro/_page_.Ce1h15xc.css" />
   </noscript>
 
   <!-- 🚀 PRÉCHARGEMENT WOFF2 CRITIQUE -->
@@ -181,37 +181,20 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     ) : null
   }
 
-  <!-- 🚀 CSS CRITIQUE INLINE OPTIMISÉ -->
-  <style>
-    /* Base critique - Compatible Tailwind */
-    html { font-size: 16px; }
-    @media (min-width: 1024px) { html { font-size: 17px; } }
-    
-    body {
-      font-family: "Source Sans Pro", ui-sans-serif, system-ui, sans-serif;
-      -webkit-font-smoothing: antialiased;
-      margin: 0;
-    }
+  <!-- 🚀 CHARGEMENT DIFFÉRÉ ET OPTIMAL DU CLIENT ROUTER -->
+  <script>
+    // ClientRouter chargé de manière asynchrone
+    document.addEventListener('DOMContentLoaded', () => {
+      import('astro:transitions').then(({ ClientRouter }) => {
+        // Initialiser le ClientRouter après que la page soit prête
+        if (ClientRouter) {
+          console.log('✅ ClientRouter loaded asynchronously');
+        }
+      });
+    });
+  </script>
 
-    /* Styles critiques above-the-fold */
-    header { background: #fff; border-bottom: 1px solid #e5e7eb; }
-    nav { display: flex; align-items: center; justify-content: space-between; }
-    .container { max-width: 1248px; margin: 0 auto; padding: 0 1rem; }
-    
-    /* Anti-flash */
-    .loading { opacity: 0; animation: fadeIn 0.2s ease forwards; }
-    @keyframes fadeIn { to { opacity: 1; } }
-    
-    /* Dark mode critique */
-    @media (prefers-color-scheme: dark) {
-      header { background: #1f2937; border-bottom-color: #374151; }
-    }
-
-    /* Prévenire layout shift */
-    .font-loading { font-display: swap; }
-  </style>
-
-  <!-- 🚀 AHREFS ANALYTICS DIFFÉRÉ -->
+  <!-- 🚀 AHREFS ANALYTICS SEULEMENT - Chargement ultra-différé -->
   <script>
     let ahrefsLoaded = false;
 
@@ -219,6 +202,7 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       if (ahrefsLoaded) return;
       ahrefsLoaded = true;
 
+      // Ahrefs Analytics seulement
       const ahrefsScript = document.createElement("script");
       ahrefsScript.src = "https://analytics.ahrefs.com/analytics.js";
       ahrefsScript.setAttribute("data-key", "fNbl74Cz0zyN4NtzpNBdKg");
@@ -229,9 +213,25 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       console.log("✅ Ahrefs Analytics loaded");
     }
 
+    // Charger après interaction ou fallback 3 secondes (plus tard)
     ["scroll", "click", "touchstart", "keydown"].forEach((event) => {
       document.addEventListener(event, loadAhrefs, { once: true });
     });
-    setTimeout(loadAhrefs, 3000);
+    setTimeout(loadAhrefs, 3000); // Augmenté à 3 secondes
   </script>
+
+  <!-- 🚀 CSS CRITIQUE INLINE POUR LES STYLES ABOVE THE FOLD -->
+  <style>
+    /* CSS critique inline - À compléter avec vos styles critiques */
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Source Sans Pro', sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+    }
+    /* Styles critiques pour l'header et première section */
+    .header-critical { /* Ajoutez ici vos styles header critiques */ }
+    .hero-section { /* Ajoutez ici vos styles hero critiques */ }
+    
+  </style>
 </head>
