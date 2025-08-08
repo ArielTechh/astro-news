@@ -166,12 +166,17 @@ const getOptimizedImageProps = (block) => {
   const srcSet = sizes
     .map(
       (size) =>
-        `${baseUrl.width(size).quality(85).format("webp").url()} ${size}w`,
+        `${baseUrl.width(size).quality(70).format("webp").url()} ${size}w`,
     )
     .join(", ");
-
+  const srcSetAvif = sizes
+    .map(
+      (size) =>
+        `${baseUrl.width(size).quality(70).format("avif").url()} ${size}w`,
+    )
+    .join(", ");
   return {
-    src: baseUrl.width(800).quality(85).format("webp").url(),
+    src: baseUrl.width(800).quality(70).format("avif").url(),
     srcSet,
     sizes: "(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 800px",
   };
