@@ -41,43 +41,41 @@ const category = article.categories?.[0];
 const authors = article.authors || [];
 
 // 🚀 IMAGES OPTIMISÉES AVEC TAILLES RESPONSIVES
-const coverImages =
-  article.cover && article.cover.asset
-    ? {
-        mobile: urlFor(article.cover)
-          .crop("focalpoint")
-          .width(412)
-          .height(206)
-          .format("webp")
-          .quality(70)
-          .url(),
-        tablet: urlFor(article.cover)
-          .crop("focalpoint")
-          .width(768)
-          .height(384)
-          .format("webp")
-          .quality(70)
-          .url(),
-        desktop: urlFor(article.cover)
-          .crop("focalpoint")
-          .width(1024)
-          .height(512)
-          .format("webp")
-          .quality(70)
-          .url(),
-        fallback: urlFor(article.cover)
-          .crop("focalpoint")
-          .width(1024)
-          .height(512)
-          .format("jpg")
-          .quality(65)
-          .url(),
-      }
-    : null;
+const coverImages = article.cover
+  ? {
+      // Mobile : 412x206 (ratio détecté par Lighthouse)
+      mobile: urlFor(article.cover)
+        .width(412)
+        .height(206)
+        .format("webp")
+        .quality(70)
+        .url(),
 
-{
-  coverImages && console.log("Cover Images:", coverImages);
-}
+      // Tablet : 768x384
+      tablet: urlFor(article.cover)
+        .width(768)
+        .height(384)
+        .format("webp")
+        .quality(70)
+        .url(),
+
+      // Desktop : 1024x512 (max nécessaire)
+      desktop: urlFor(article.cover)
+        .width(1024)
+        .height(512)
+        .format("webp")
+        .quality(70)
+        .url(),
+
+      // Fallback JPEG pour compatibilité
+      fallback: urlFor(article.cover)
+        .width(1024)
+        .height(512)
+        .format("jpg")
+        .quality(65)
+        .url(),
+    }
+  : null;
 
 // Fonction pour formater la date en dd/mm/yyyy avec timezone Jerusalem
 const formatJerusalemDate = (dateString) => {
@@ -103,13 +101,14 @@ const formatJerusalemDate = (dateString) => {
     {
       coverImages && (
         <picture>
+          {/* WebP pour les navigateurs modernes */}
           <source
             media="(max-width: 480px)"
             srcset={coverImages.mobile}
             type="image/webp"
           />
           <source
-            media="(min-width: 481px) and (max-width: 768px)"
+            media="(max-width: 768px)"
             srcset={coverImages.tablet}
             type="image/webp"
           />
@@ -118,6 +117,8 @@ const formatJerusalemDate = (dateString) => {
             srcset={coverImages.desktop}
             type="image/webp"
           />
+
+          {/* Fallback JPEG */}
           <img
             src={coverImages.fallback}
             alt={article.title}
