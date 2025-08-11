@@ -1,4 +1,4 @@
-<!-- Bannière de consentement avec AdSense retardé au scroll -->
+<!-- Bannière de consentement avec AdSense retardé de 7+ secondes -->
 <div
   id="consent-banner"
   style="
@@ -56,6 +56,9 @@
     // Configuration
     const COOKIE_NAME = "user-consent";
     const COOKIE_DURATION = 365;
+    const ADSENSE_DELAY_MIN = 7000; // 7 secondes minimum
+    const ADSENSE_DELAY_MAX = 15000; // 15 secondes maximum
+    const SCROLL_THRESHOLD = 200; // pixels de scroll avant déclenchement
 
     // GTM Setup
     window.dataLayer = window.dataLayer || [];
@@ -97,40 +100,19 @@
       if (banner) banner.style.display = "block";
     }
 
-    // ✅ SOLUTION RADICALE : AdSense seulement au premier scroll
+    // ✅ NOUVELLE SOLUTION : AdSense avec délai minimum de 7 secondes
     let adSenseActivated = false;
     let consentGiven = false;
+    let pageLoadTime = Date.now();
+    let userScrolled = false;
+    let adSenseTimer = null;
 
-    function activateAdSenseOnScroll() {
-      if (adSenseActivated || !consentGiven) return;
-
-      const scrollHandler = () => {
-        if (window.scrollY > 100) {
-          // Après 100px de scroll
-          adSenseActivated = true;
-          window.removeEventListener("scroll", scrollHandler);
-
-          console.log("🚀 User scrolled - loading AdSense now...");
-          loadAdSense();
-        }
-      };
-
-      // Écouter le scroll
-      window.addEventListener("scroll", scrollHandler, { passive: true });
-
-      // Backup : charger après 5 secondes même sans scroll
-      setTimeout(() => {
-        if (!adSenseActivated && consentGiven) {
-          console.log("🚀 Timeout - loading AdSense...");
-          scrollHandler();
-        }
-      }, 5000);
-    }
-
+    // Fonction pour charger AdSense de manière différée
     function loadAdSense() {
-      if (window.adSenseLoaded) return;
+      if (window.adSenseLoaded || adSenseActivated) return;
 
-      console.log("📥 Loading AdSense script...");
+      adSenseActivated = true;
+      console.log("📥 Loading AdSense script (delayed)...");
 
       const script = document.createElement("script");
       script.src =
@@ -138,19 +120,30 @@
       script.async = true;
       script.crossOrigin = "anonymous";
 
+      // Ajouter defer pour encore plus de retard
+      script.defer = true;
+
       script.onload = () => {
         window.adSenseLoaded = true;
-        console.log("✅ AdSense loaded - initializing ads...");
+        console.log("✅ AdSense loaded after delay - initializing ads...");
 
-        // Initialiser toutes les pubs existantes
-        const ads = document.querySelectorAll("ins.adsbygoogle");
-        ads.forEach(() => {
-          try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-          } catch (e) {
-            console.error("AdSense push error:", e);
-          }
-        });
+        // Attendre encore un peu avant d'initialiser les pubs
+        setTimeout(() => {
+          const ads = document.querySelectorAll("ins.adsbygoogle");
+          console.log(`Found ${ads.length} ads to initialize`);
+
+          ads.forEach((ad, index) => {
+            try {
+              // Initialiser une pub à la fois avec délai
+              setTimeout(() => {
+                (window.adsbygoogle = window.adsbygoogle || []).push({});
+                console.log(`Ad ${index + 1} initialized`);
+              }, index * 500); // 500ms entre chaque pub
+            } catch (e) {
+              console.error(`AdSense push error for ad ${index}:`, e);
+            }
+          });
+        }, 1000); // 1 seconde supplémentaire avant initialisation
       };
 
       script.onerror = () => {
@@ -160,11 +153,61 @@
       document.head.appendChild(script);
     }
 
-    // Chargement des services (ULTRA-SIMPLIFIÉ)
-    function loadServices() {
-      console.log("🚀 Loading GTM...");
+    // Nouvelle fonction pour gérer le délai intelligent
+    function scheduleAdSense() {
+      if (!consentGiven || adSenseActivated) return;
 
-      // GTM uniquement (immédiat)
+      console.log("📋 Scheduling AdSense with intelligent delay...");
+
+      // Calculer le temps écoulé depuis le chargement
+      const elapsedTime = Date.now() - pageLoadTime;
+      const minimumWait = Math.max(0, ADSENSE_DELAY_MIN - elapsedTime);
+
+      console.log(
+        `Time elapsed: ${elapsedTime}ms, minimum wait: ${minimumWait}ms`,
+      );
+
+      // Écouter le scroll de l'utilisateur
+      const scrollHandler = () => {
+        if (window.scrollY > SCROLL_THRESHOLD) {
+          userScrolled = true;
+          console.log("👆 User scrolled past threshold");
+          window.removeEventListener("scroll", scrollHandler);
+
+          // Si on a déjà attendu assez longtemps, charger immédiatement
+          if (elapsedTime >= ADSENSE_DELAY_MIN) {
+            loadAdSense();
+          }
+        }
+      };
+
+      window.addEventListener("scroll", scrollHandler, { passive: true });
+
+      // Timer principal : au minimum après ADSENSE_DELAY_MIN
+      adSenseTimer = setTimeout(() => {
+        console.log("⏰ Minimum delay reached");
+
+        if (userScrolled) {
+          // L'utilisateur a scrollé ET le délai minimum est écoulé
+          console.log("🚀 Loading AdSense (user engaged + delay complete)");
+          loadAdSense();
+        } else {
+          // L'utilisateur n'a pas scrollé, attendre plus longtemps
+          console.log("⏳ User not engaged, waiting longer...");
+
+          setTimeout(() => {
+            console.log("🚀 Loading AdSense (maximum delay reached)");
+            loadAdSense();
+          }, ADSENSE_DELAY_MAX - ADSENSE_DELAY_MIN);
+        }
+      }, minimumWait);
+    }
+
+    // Chargement des services (OPTIMISÉ)
+    function loadServices() {
+      console.log("🚀 Loading GTM immediately...");
+
+      // GTM en priorité (immédiat)
       if (!window.gtmLoaded) {
         (function (w, d, s, l, i) {
           w[l] = w[l] || [];
@@ -179,9 +222,8 @@
         window.gtmLoaded = true;
       }
 
-      // AdSense : SEULEMENT au scroll (pas maintenant)
-      console.log("📋 AdSense will load on user scroll...");
-      activateAdSenseOnScroll();
+      // AdSense : TOUJOURS avec délai intelligent
+      scheduleAdSense();
     }
 
     // Gestion du consentement
@@ -210,15 +252,23 @@
         dataLayer.push({
           event: "consent_granted",
           page_path: window.location.pathname,
+          timestamp: Date.now(),
         });
 
-        console.log("✅ Consent accepted - services will load on scroll");
+        console.log("✅ Consent accepted - AdSense scheduled with delay");
       } else {
+        // Annuler le timer AdSense si l'utilisateur refuse
+        if (adSenseTimer) {
+          clearTimeout(adSenseTimer);
+          adSenseTimer = null;
+        }
+
         dataLayer.push({
           event: "consent_rejected",
           page_path: window.location.pathname,
+          timestamp: Date.now(),
         });
-        console.log("❌ Consent rejected");
+        console.log("❌ Consent rejected - AdSense cancelled");
       }
     }
 
@@ -248,12 +298,26 @@
       }
     }
 
-    // Démarrage
+    // Démarrage avec mesure du temps
+    pageLoadTime = Date.now();
+
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", init);
     } else {
       init();
     }
+
+    // Debug : afficher les stats après 30 secondes
+    setTimeout(() => {
+      console.log("📊 Debug stats:", {
+        pageLoadTime: new Date(pageLoadTime).toISOString(),
+        consentGiven,
+        userScrolled,
+        adSenseActivated,
+        adSenseLoaded: !!window.adSenseLoaded,
+        timeElapsed: Date.now() - pageLoadTime,
+      });
+    }, 30000);
   })();
 </script>
 
