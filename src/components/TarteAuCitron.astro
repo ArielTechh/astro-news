@@ -1,4 +1,4 @@
-<!-- Bannière de consentement avec AdSense DESACTIVE -->
+<!-- Bannière de consentement avec AdSense retardé au scroll -->
 <div
   id="consent-banner"
   style="
@@ -66,11 +66,11 @@
     // Consentement par défaut (refusé)
     gtag("consent", "default", {
       analytics_storage: "denied",
-      // ad_storage: "denied", // COMMENTÉ - AdSense désactivé
+      ad_storage: "denied",
       functionality_storage: "denied",
       personalization_storage: "denied",
-      // ad_user_data: "denied", // COMMENTÉ - AdSense désactivé
-      // ad_personalization: "denied", // COMMENTÉ - AdSense désactivé
+      ad_user_data: "denied",
+      ad_personalization: "denied",
       security_storage: "granted",
     });
 
@@ -97,8 +97,7 @@
       if (banner) banner.style.display = "block";
     }
 
-    // ❌ ADSENSE DÉSACTIVÉ - Toute cette section est commentée
-    /*
+    // ✅ SOLUTION RADICALE : AdSense seulement au premier scroll
     let adSenseActivated = false;
     let consentGiven = false;
 
@@ -160,11 +159,10 @@
 
       document.head.appendChild(script);
     }
-    */
 
-    // Chargement des services (GTM SEULEMENT - AdSense désactivé)
+    // Chargement des services (ULTRA-SIMPLIFIÉ)
     function loadServices() {
-      console.log("🚀 Loading GTM only (AdSense disabled)...");
+      console.log("🚀 Loading GTM...");
 
       // GTM uniquement (immédiat)
       if (!window.gtmLoaded) {
@@ -181,9 +179,9 @@
         window.gtmLoaded = true;
       }
 
-      // ❌ AdSense désactivé - ligne commentée
-      // console.log("📋 AdSense will load on user scroll...");
-      // activateAdSenseOnScroll();
+      // AdSense : SEULEMENT au scroll (pas maintenant)
+      console.log("📋 AdSense will load on user scroll...");
+      activateAdSenseOnScroll();
     }
 
     // Gestion du consentement
@@ -196,15 +194,15 @@
       hideBanner();
 
       if (accepted) {
-        // consentGiven = true; // COMMENTÉ - Variable AdSense
+        consentGiven = true;
 
         gtag("consent", "update", {
           analytics_storage: "granted",
-          // ad_storage: "granted", // COMMENTÉ - AdSense désactivé
+          ad_storage: "granted",
           functionality_storage: "granted",
           personalization_storage: "granted",
-          // ad_user_data: "granted", // COMMENTÉ - AdSense désactivé
-          // ad_personalization: "granted", // COMMENTÉ - AdSense désactivé
+          ad_user_data: "granted",
+          ad_personalization: "granted",
         });
 
         loadServices();
@@ -214,7 +212,7 @@
           page_path: window.location.pathname,
         });
 
-        console.log("✅ Consent accepted - GTM loaded (AdSense disabled)");
+        console.log("✅ Consent accepted - services will load on scroll");
       } else {
         dataLayer.push({
           event: "consent_rejected",
@@ -229,7 +227,7 @@
       const consent = getCookie(COOKIE_NAME);
 
       if (consent === "accepted") {
-        // consentGiven = true; // COMMENTÉ - Variable AdSense
+        consentGiven = true;
         handleConsent(true);
       } else if (consent === "rejected") {
         console.log("ℹ️ Consent previously rejected");
@@ -259,7 +257,7 @@
   })();
 </script>
 
-<!-- GTM noscript fallback - CONSERVÉ -->
+<!-- GTM noscript fallback -->
 <noscript>
   <iframe
     src="https://www.googletagmanager.com/ns.html?id=GTM-PQC6K9BZ"
