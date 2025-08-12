@@ -86,6 +86,36 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
 
+  const oldCategoryRedirects = [
+    'technology', 'apple', 'gaming', 'smartphones', 'mobile',
+    'news', 'streaming', 'netflix', 'amazon-prime-video',
+    'playstation-5', 'nintendo-switch', 'computers', 'ia',
+    'google', 'honor', 'audio', 'cinema', 'apps', 'crunchyroll',
+    'hbo-max', 'desktop-game', 'buying-guide', 'productivity',
+    'health', 'wellness', 'test', 'finance', 'apple-tv'
+    // Ajoutez toutes vos catégories ici
+  ];
+
+  // Vérifier si c'est une ancienne catégorie
+  const pathWithoutSlash = pathname.replace(/^\/|\/$/g, ''); // Enlever slashes
+  if (oldCategoryRedirects.includes(pathWithoutSlash)) {
+    return new Response(null, {
+      status: 301,
+      headers: {
+        'Location': `/categories/${pathWithoutSlash}`,
+        'Cache-Control': 'public, max-age=31536000', // 1 an
+      }
+    });
+  }
+
+
+
+
+
+
+
+
+
   if (pathname.match(/^\/categories\/[^\/]+\/1$/)) {
     // Extraire la catégorie : /categories/apple/1 → /categories/apple
     const categoryPath = pathname.replace(/\/1$/, '');
