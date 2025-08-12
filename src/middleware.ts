@@ -100,30 +100,20 @@ export const onRequest = defineMiddleware(async (context, next) => {
     });
   }
 
-  // ✨ REDIRECTIONS 301 : /categories/{category} vers /categories/{category}/1
-  if (pathname.match(/^\/categories\/[^\/]+$/) && !pathname.endsWith('/')) {
-    // Redirection 301 vers la page 1
-    return new Response(null, {
-      status: 301,
-      headers: {
-        'Location': `${pathname}/1`,
-        'Cache-Control': 'public, max-age=31536000', // 1 an de cache
-      }
-    });
-  }
+
 
   // ✨ REDIRECTIONS 301 : URLs malformées avec double pagination /1/1
-  if (pathname.match(/^\/categories\/[^\/]+\/\d+\/\d+/)) {
-    // Redirection vers la version correcte (sans le dernier /1)
-    const correctedPath = pathname.replace(/\/\d+$/, '');
-    return new Response(null, {
-      status: 301,
-      headers: {
-        'Location': correctedPath,
-        'Cache-Control': 'public, max-age=31536000', // 1 an de cache
-      }
-    });
-  }
+  // if (pathname.match(/^\/categories\/[^\/]+\/\d+\/\d+/)) {
+  //   // Redirection vers la version correcte (sans le dernier /1)
+  //   const correctedPath = pathname.replace(/\/\d+$/, '');
+  //   return new Response(null, {
+  //     status: 301,
+  //     headers: {
+  //       'Location': correctedPath,
+  //       'Cache-Control': 'public, max-age=31536000', // 1 an de cache
+  //     }
+  //   });
+  // }
 
   // Traiter la requête
   const response = await next();

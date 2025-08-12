@@ -1,72 +1,77 @@
 ---
-// src/pages/categories/[category]/[page].astro - VERSION FINALE PROPRE
+// src/pages/categories/[category]/[page].astro - VERSION SIMPLIFIÉE
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { getAllCategories, getArticlesByCategory } from "@/lib/sanity";
 import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
-import { getEntry } from "astro:content";
-import { getMeta } from "@/lib/utils/getMetaSanity";
 
-export const getStaticPaths = (async ({ paginate }) => {
+export const getStaticPaths = (async () => {
   const allCategories = await getAllCategories();
   const allPaths = [];
 
   for (const category of allCategories) {
     const categoryArticles = await getArticlesByCategory(category.slug.current);
 
-    if (categoryArticles.length > 0) {
-      const paginatedPaths = paginate(categoryArticles, {
-        params: { category: category.slug.current },
-        props: {
-          postsLength: categoryArticles.length,
-          categoryInfo: category,
-        },
-        pageSize: SITE.postsPerPage,
-      });
+    if (categoryArticles.length > SITE.postsPerPage) {
+      const totalPages = Math.ceil(categoryArticles.length / SITE.postsPerPage);
 
-      allPaths.push(...paginatedPaths);
+      // Générer pages 2, 3, 4...
+      for (let pageNum = 2; pageNum <= totalPages; pageNum++) {
+        const startIndex = (pageNum - 1) * SITE.postsPerPage;
+        const endIndex = startIndex + SITE.postsPerPage;
+        const pageArticles = categoryArticles.slice(startIndex, endIndex);
+
+        allPaths.push({
+          params: {
+            category: category.slug.current,
+            page: pageNum.toString(),
+          },
+          props: {
+            categoryInfo: category,
+            articles: pageArticles,
+            currentPage: pageNum,
+            totalPages: totalPages,
+            totalArticles: categoryArticles.length,
+          },
+        });
+      }
     }
   }
 
   return allPaths;
 }) satisfies GetStaticPaths;
 
-const { page } = Astro.props;
-const { postsLength, categoryInfo } = Astro.props;
-const params = Astro.params;
+const { categoryInfo, articles, currentPage, totalPages, totalArticles } =
+  Astro.props;
+const { category } = Astro.params;
 
-const articles = page?.data || [];
-const pathname = new URL(Astro.request.url).pathname.split("/");
-const basePath = `${pathname[1]}/${pathname[2]}`;
+// Métadonnées
+const categoryMeta = {
+  title: `${categoryInfo.title} - עמוד ${currentPage}`,
+  metaTitle: `${categoryInfo.title} - עמוד ${currentPage}`,
+  description: `מאמרים בנושא ${categoryInfo.title} - עמוד ${currentPage}`,
+  type: "website",
+};
 
-const entry = await getEntry("views", "categories");
+const categoryEntry = {
+  id: "category-page",
+  collection: "views",
+  data: categoryMeta,
+};
 
-if (!entry) {
-  return Astro.redirect("/404");
-}
-
-// Générer les métadonnées correctes pour cette catégorie
-const customMeta = await getMeta(
-  entry,
-  params.category,
-  page.currentPage,
-  categoryInfo,
-);
-
-const categoryTitle = categoryInfo?.title || params.category;
-const canonicalUrl = `${SITE.url}/categories/${params.category}/${page.currentPage}`;
+const canonicalUrl = `${SITE.url}/categories/${category}/${currentPage}`;
 ---
 
 <ListLayout
-  header={categoryTitle}
-  entry={entry}
+  header={`${categoryInfo.title} - עמוד ${currentPage}`}
+  entry={categoryEntry}
   canonical={canonicalUrl}
-  customMeta={customMeta}
+  customMeta={categoryMeta}
 >
   <div dir="rtl">
-    <!-- Breadcrumb pour catégories hiérarchiques -->
+    <!-- Breadcrumb -->
     {
       categoryInfo?.parent && (
         <nav class="mb-6 text-sm" dir="rtl">
@@ -81,24 +86,25 @@ const canonicalUrl = `${SITE.url}/categories/${params.category}/${page.currentPa
             {categoryInfo.parent.title}
           </a>
           <span class="mx-2">←</span>
-          <span class="text-gray-600">{categoryInfo.title}</span>
+          <a
+            href={`/categories/${categoryInfo.slug.current}`}
+            class="text-blue-600 hover:underline"
+          >
+            {categoryInfo.title}
+          </a>
+          <span class="mx-2">←</span>
+          <span class="text-gray-600">עמוד {currentPage}</span>
         </nav>
       )
     }
 
-    <!-- Compteur d'articles -->
+    <!-- Compteur -->
     <div class="mb-6 text-sm text-gray-600" dir="rtl">
-      <span>{postsLength} מאמרים בקטגוריה זו</span>
-      {
-        page.currentPage > 1 && (
-          <span class="mr-4">
-            עמוד {page.currentPage} מתוך {page.lastPage}
-          </span>
-        )
-      }
+      <span>{totalArticles} מאמרים בקטגוריה זו</span>
+      <span class="mr-4">עמוד {currentPage} מתוך {totalPages}</span>
     </div>
 
-    <!-- Liste des articles -->
+    <!-- Articles -->
     <ul class="flex flex-col gap-2 flex-1">
       {
         articles.map((article, index) => (
@@ -108,20 +114,20 @@ const canonicalUrl = `${SITE.url}/categories/${params.category}/${page.currentPa
     </ul>
 
     <!-- Pagination -->
-    {
-      postsLength > SITE.postsPerPage && (
-        <div dir="ltr" class="mt-8">
-          <Pagination
-            length={page.lastPage}
-            currentUrl={page.url.current}
-            currentPage={page.currentPage}
-            baseUrl={`/${basePath}`}
-            prevUrl={page.url.prev}
-            nextUrl={page.url.next}
-            lastUrl={`/${basePath}/${page.lastPage}`}
-          />
-        </div>
-      )
-    }
-  </div>
-</ListLayout>
+    <div dir="ltr" class="mt-8">
+      <Pagination
+        length={totalPages}
+        currentUrl={`/categories/${category}/${currentPage}`}
+        currentPage={currentPage}
+        baseUrl={`/categories/${category}`}
+        prevUrl={currentPage === 2
+          ? `/categories/${category}`
+          : `/categories/${category}/${currentPage - 1}`}
+        nextUrl={currentPage < totalPages
+          ? `/categories/${category}/${currentPage + 1}`
+          : null}
+        lastUrl={`/categories/${category}/${totalPages}`}
+      />
+    </div>
+  </div></ListLayout
+>
