@@ -85,7 +85,7 @@ function getPageType(pathname: string): keyof typeof robotsConfig {
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
-
+  // ✅ Redirection anciennes catégories avec pagination vers page 1
   const oldCategoryRedirects = [
     'technology', 'apple', 'gaming', 'smartphones', 'mobile',
     'news', 'streaming', 'netflix', 'amazon-prime-video',
@@ -93,21 +93,35 @@ export const onRequest = defineMiddleware(async (context, next) => {
     'google', 'honor', 'audio', 'cinema', 'apps', 'crunchyroll',
     'hbo-max', 'desktop-game', 'buying-guide', 'productivity',
     'health', 'wellness', 'test', 'finance', 'apple-tv'
-    // Ajoutez toutes vos catégories ici
   ];
 
-  // Vérifier si c'est une ancienne catégorie
-  const pathWithoutSlash = pathname.replace(/^\/|\/$/g, ''); // Enlever slashes
+  // Redirection catégories avec pagination : /category/page/N/ → /categories/category (page 1)
+  const paginationMatch = pathname.match(/^\/([^\/]+)\/page\/\d+\/?$/);
+  if (paginationMatch) {
+    const [, categorySlug] = paginationMatch;
+
+    if (oldCategoryRedirects.includes(categorySlug)) {
+      return new Response(null, {
+        status: 301,
+        headers: {
+          'Location': `/categories/${categorySlug}`,
+          'Cache-Control': 'public, max-age=31536000',
+        }
+      });
+    }
+  }
+
+  // Redirection catégories simples : /category/ → /categories/category
+  const pathWithoutSlash = pathname.replace(/^\/|\/$/g, '');
   if (oldCategoryRedirects.includes(pathWithoutSlash)) {
     return new Response(null, {
       status: 301,
       headers: {
         'Location': `/categories/${pathWithoutSlash}`,
-        'Cache-Control': 'public, max-age=31536000', // 1 an
+        'Cache-Control': 'public, max-age=31536000',
       }
     });
   }
-
 
 
 
