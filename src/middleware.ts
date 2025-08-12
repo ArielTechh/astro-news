@@ -85,6 +85,22 @@ function getPageType(pathname: string): keyof typeof robotsConfig {
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
+
+  if (pathname.match(/^\/categories\/[^\/]+\/1$/)) {
+    // Extraire la catégorie : /categories/apple/1 → /categories/apple
+    const categoryPath = pathname.replace(/\/1$/, '');
+
+    return new Response(null, {
+      status: 301,
+      headers: {
+        'Location': categoryPath,
+        'Cache-Control': 'public, max-age=31536000', // 1 an de cache
+      }
+    });
+  }
+
+
+
   // ✨ REDIRECTIONS 301 : /articles/* vers /*
   if (pathname.startsWith('/articles/') && pathname !== '/articles/') {
     // Extraire le slug après /articles/
