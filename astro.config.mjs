@@ -25,25 +25,16 @@ const integrations = [
     lastmod: new Date(),
 
     // FILTER : Exclure les anciennes URLs /articles/ du sitemap
-    filter: async (page) => {
+    filter: (page) => {
       const url = page.toLowerCase();
-
-      // Exclure les URLs système
-      if (url.includes('/authors/') || url.includes('/admin/') ||
-        url.includes('/articles/') || url.includes('/404')) {
-        return false;
-      }
-
-      // ✅ Vérifier que les catégories existent dans Sanity
-      if (url.includes('/categories/')) {
-        const categorySlug = url.split('/categories/')[1]?.split('/')[0];
-        const { getAllCategories } = await import('./src/lib/sanity.js');
-        const categories = await getAllCategories();
-        const validSlugs = categories.map(cat => cat.slug.current);
-        return validSlugs.includes(categorySlug);
-      }
-
-      return true;
+      return !url.includes('/authors/') &&
+        !url.includes('/admin/') &&
+        !url.includes('/preview/') &&
+        !url.includes('/api/') &&
+        !url.includes('/_astro/') &&
+        !url.includes('/404') &&
+        !url.includes('/500') &&
+        !url.includes('/articles/');  // ← EXCLURE /articles/ du sitemap
     },
 
     // Personnalisation par type de page - SEULEMENT STRUCTURE RACINE
