@@ -1,5 +1,4 @@
 ---
-// src/layouts/base.astro - VERSION FINALE PROPRE
 import { SITE } from "@/lib/config";
 import Head from "@/components/bases/head.astro";
 import Header from "@/components/shared/header.astro";
@@ -21,8 +20,18 @@ type Props = {
 
 const { entry, article, readingTime, canonical, customMeta } = Astro.props;
 
-// Utiliser customMeta si fourni, sinon getMeta normal
-const meta = customMeta || (await getMeta(entry));
+// ✅ CORRECTION : Toujours appeler getMeta en premier pour préserver la logique thème
+const baseMeta = await getMeta(entry);
+
+// ✅ Puis merger avec customMeta SEULEMENT pour titre/description
+const meta = customMeta
+  ? {
+      ...baseMeta, // Garder toute la logique de base (thème, etc.)
+      title: customMeta.title,
+      metaTitle: customMeta.metaTitle,
+      description: customMeta.description,
+    }
+  : baseMeta;
 
 const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
 const isProduction = import.meta.env.PROD;
