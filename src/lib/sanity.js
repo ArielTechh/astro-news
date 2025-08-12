@@ -716,3 +716,20 @@ export async function getRelatedArticles(currentArticle, settings) {
     return [];
   }
 }
+
+
+// Récupérer une catégorie par slug
+export async function getCategoryBySlug(slug) {
+  return await sanityClient.fetch(`
+    *[_type == "category" && slug.current == $slug][0] {
+      _id,
+      title,
+      slug,
+      description,
+      parent-> {
+        title,
+        slug
+      }
+    }
+  `, { slug })
+}

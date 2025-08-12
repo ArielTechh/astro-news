@@ -37,9 +37,6 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"
   />
 
-  <!-- ✅ META DE BASE -->
-  <!-- <link rel="canonical" href={canonicalURL} /> -->
-
   <!-- 🚀 PRÉCHARGEMENT FONTS CRITIQUES AVANT TOUT -->
   <link
     rel="preload"
@@ -81,12 +78,12 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
     crossorigin
   />
 
-  <!-- ✅ astro-seo AVEC PROTECTION -->
+  <!-- ✅ astro-seo AVEC PROTECTION - gère maintenant le canonical -->
   {
     meta && meta.title && meta.description ? (
       <SEO
         title={meta.title}
-        titleTemplate={`%s | ${SITE.title}`}
+        titleTemplate={meta.type === 'article' ? `%s | ${SITE.title}` : `%s | ${SITE.title}`}
         description={meta.description}
         canonical={canonicalURL}
         openGraph={{
@@ -163,9 +160,12 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
         }}
       />
     ) : (
-      <!-- Fallback si astro-seo échoue -->
-      <title>{meta?.title || "Tech Horizons"} | {SITE.title}</title>
-      <meta name="description" content={meta?.description || "Tech news and reviews"} />
+      <!-- Fallback si astro-seo échoue - AVEC canonical -->
+      <>
+        <title>{meta?.title || "Tech Horizons"} | {SITE.title}</title>
+        <meta name="description" content={meta?.description || "Tech news and reviews"} />
+        <link rel="canonical" href={canonicalURL} />
+      </>
     )
   }
 
@@ -174,7 +174,6 @@ const OGImage = new URL(meta.ogImage, Astro.url).href;
       <StructuredData article={article} readingTime={readingTime} />
     ) : null
   }
-
 
   <!-- 🚀 AHREFS ANALYTICS SEULEMENT - Chargement ultra-différé -->
   <script>

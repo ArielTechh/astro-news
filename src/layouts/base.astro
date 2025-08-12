@@ -1,4 +1,5 @@
 ---
+// src/layouts/base.astro - VERSION FINALE PROPRE
 import { SITE } from "@/lib/config";
 import Head from "@/components/bases/head.astro";
 import Header from "@/components/shared/header.astro";
@@ -15,11 +16,13 @@ type Props = {
   article?: any;
   readingTime?: number;
   canonical?: string;
+  customMeta?: any;
 };
 
-const { entry, article, readingTime, canonical } = Astro.props;
+const { entry, article, readingTime, canonical, customMeta } = Astro.props;
 
-const meta = await getMeta(entry);
+// Utiliser customMeta si fourni, sinon getMeta normal
+const meta = customMeta || (await getMeta(entry));
 
 const GTM_ID = import.meta.env.GTM_ID || "GTM-PQC6K9BZ";
 const isProduction = import.meta.env.PROD;
@@ -77,15 +80,15 @@ const isProduction = import.meta.env.PROD;
           script.crossOrigin = "anonymous";
           document.head.appendChild(script);
           adsenseLoaded = true;
-          console.log("AdSense chargé"); // Pour debug
+          console.log("AdSense chargé");
         }
       }
 
       // Charger AdSense après premier scroll, clic, ou après 2 secondes
       document.addEventListener("scroll", loadAdsense, { once: true });
       document.addEventListener("click", loadAdsense, { once: true });
-      document.addEventListener("touchstart", loadAdsense, { once: true }); // Pour mobile
-      setTimeout(loadAdsense, 4000); // Fallback après 2 secondes
+      document.addEventListener("touchstart", loadAdsense, { once: true });
+      setTimeout(loadAdsense, 4000);
     </script>
   </body>
 </html>

@@ -1,0 +1,1434 @@
+{
+  "summary": {
+    "totalPages": 1356,
+    "uniqueTitles": 1084,
+    "duplicateTitles": 2,
+    "totalDuplicatePages": 274,
+    "errors": 0
+  },
+  "duplicates": [
+    {
+      "title": "Categories - TechHorizons | TechHorizons",
+      "count": 244,
+      "pages": [
+        {
+          "url": "https://techhorizons.co.il/categories",
+          "titleLength": 40,
+          "h1": "כל הקטגוריות"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/amazon-prime-video/1",
+          "titleLength": 40,
+          "h1": "Amazon Prime Video"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/amazon-prime-video/2",
+          "titleLength": 40,
+          "h1": "Amazon Prime Video"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/amazon-prime-video/3",
+          "titleLength": 40,
+          "h1": "Amazon Prime Video"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple-tv/1",
+          "titleLength": 40,
+          "h1": "Apple TV"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple-tv/2",
+          "titleLength": 40,
+          "h1": "Apple TV"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple-tv/3",
+          "titleLength": 40,
+          "h1": "Apple TV"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/1",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/2",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/3",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/4",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/5",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/6",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/7",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/8",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/9",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/10",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/11",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/12",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/13",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple/14",
+          "titleLength": 40,
+          "h1": "Apple"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apps/1",
+          "titleLength": 40,
+          "h1": "Apps"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apps/2",
+          "titleLength": 40,
+          "h1": "Apps"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apps/3",
+          "titleLength": 40,
+          "h1": "Apps"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apps/4",
+          "titleLength": 40,
+          "h1": "Apps"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/audio-main/1",
+          "titleLength": 40,
+          "h1": "Audio Main"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/audio-main/2",
+          "titleLength": 40,
+          "h1": "Audio Main"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/audio/1",
+          "titleLength": 40,
+          "h1": "Audio"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/audio/2",
+          "titleLength": 40,
+          "h1": "Audio"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/cinema/1",
+          "titleLength": 40,
+          "h1": "Cinema"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/cinema/2",
+          "titleLength": 40,
+          "h1": "Cinema"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/cinema/3",
+          "titleLength": 40,
+          "h1": "Cinema"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/cinema/4",
+          "titleLength": 40,
+          "h1": "Cinema"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers-main/1",
+          "titleLength": 40,
+          "h1": "Computers Main"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers-main/2",
+          "titleLength": 40,
+          "h1": "Computers Main"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers-main/3",
+          "titleLength": 40,
+          "h1": "Computers Main"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers/1",
+          "titleLength": 40,
+          "h1": "Computers"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers/2",
+          "titleLength": 40,
+          "h1": "Computers"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers/3",
+          "titleLength": 40,
+          "h1": "Computers"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers/4",
+          "titleLength": 40,
+          "h1": "Computers"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers/5",
+          "titleLength": 40,
+          "h1": "Computers"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers/6",
+          "titleLength": 40,
+          "h1": "Computers"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/crunchyroll/1",
+          "titleLength": 40,
+          "h1": "Crunchyroll"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/crunchyroll/2",
+          "titleLength": 40,
+          "h1": "Crunchyroll"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/crunchyroll/3",
+          "titleLength": 40,
+          "h1": "Crunchyroll"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/deals-promotions/1",
+          "titleLength": 40,
+          "h1": "Deals & Promotions"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/desktop-game/1",
+          "titleLength": 40,
+          "h1": "Desktop Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/desktop-game/2",
+          "titleLength": 40,
+          "h1": "Desktop Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/desktop-game/3",
+          "titleLength": 40,
+          "h1": "Desktop Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/desktop-game/4",
+          "titleLength": 40,
+          "h1": "Desktop Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/desktop-game/5",
+          "titleLength": 40,
+          "h1": "Desktop Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/desktop-game/6",
+          "titleLength": 40,
+          "h1": "Desktop Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/disney/1",
+          "titleLength": 40,
+          "h1": "Disney"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming-laptops/1",
+          "titleLength": 40,
+          "h1": "Gaming Laptops"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/1",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/2",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/3",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/4",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/5",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/6",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/7",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/8",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/9",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/10",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/11",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/12",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/13",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/14",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/15",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/16",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/17",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/18",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/19",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/20",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/21",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/22",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/23",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/24",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming/25",
+          "titleLength": 40,
+          "h1": "Gaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/google/1",
+          "titleLength": 40,
+          "h1": "Google"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/google/2",
+          "titleLength": 40,
+          "h1": "Google"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/google/3",
+          "titleLength": 40,
+          "h1": "Google"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/google/4",
+          "titleLength": 40,
+          "h1": "Google"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/graphic-cards/1",
+          "titleLength": 40,
+          "h1": "Graphic Cards"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/graphic-cards/2",
+          "titleLength": 40,
+          "h1": "Graphic Cards"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/hbo-max/1",
+          "titleLength": 40,
+          "h1": "HBO Max"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/hbo-max/2",
+          "titleLength": 40,
+          "h1": "HBO Max"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/honor/1",
+          "titleLength": 40,
+          "h1": "Honor"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/honor/2",
+          "titleLength": 40,
+          "h1": "Honor"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/huawei/1",
+          "titleLength": 40,
+          "h1": "Huawei"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ia/1",
+          "titleLength": 40,
+          "h1": "IA"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ia/2",
+          "titleLength": 40,
+          "h1": "IA"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ia/3",
+          "titleLength": 40,
+          "h1": "IA"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ia/4",
+          "titleLength": 40,
+          "h1": "IA"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ia/5",
+          "titleLength": 40,
+          "h1": "IA"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ia/6",
+          "titleLength": 40,
+          "h1": "IA"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ia/7",
+          "titleLength": 40,
+          "h1": "IA"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ia/8",
+          "titleLength": 40,
+          "h1": "IA"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/lifestyle/1",
+          "titleLength": 40,
+          "h1": "Lifestyle"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/1",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/2",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/3",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/4",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/5",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/6",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/7",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/8",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/9",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/10",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/11",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/12",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/13",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/14",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/15",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/16",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/17",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/18",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/19",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/20",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/21",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile/22",
+          "titleLength": 40,
+          "h1": "Mobile"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/movies-tv-shows/1",
+          "titleLength": 40,
+          "h1": "Movies & TV Shows"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/movies-tv-shows/2",
+          "titleLength": 40,
+          "h1": "Movies & TV Shows"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/movies-tv-shows/3",
+          "titleLength": 40,
+          "h1": "Movies & TV Shows"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/netflix/1",
+          "titleLength": 40,
+          "h1": "Netflix"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/netflix/2",
+          "titleLength": 40,
+          "h1": "Netflix"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/netflix/3",
+          "titleLength": 40,
+          "h1": "Netflix"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/netflix/4",
+          "titleLength": 40,
+          "h1": "Netflix"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news-video-games/1",
+          "titleLength": 40,
+          "h1": "News Video Games"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/1",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/2",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/3",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/4",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/5",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/6",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/7",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/8",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/9",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news/10",
+          "titleLength": 40,
+          "h1": "News"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/nintendo-switch/1",
+          "titleLength": 40,
+          "h1": "Nintendo Switch"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/nintendo-switch/2",
+          "titleLength": 40,
+          "h1": "Nintendo Switch"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/nintendo-switch/3",
+          "titleLength": 40,
+          "h1": "Nintendo Switch"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/oneplus/1",
+          "titleLength": 40,
+          "h1": "OnePlus"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/oppo/1",
+          "titleLength": 40,
+          "h1": "Oppo"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/1",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/2",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/3",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/4",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/5",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/6",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/7",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/8",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/9",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5/10",
+          "titleLength": 40,
+          "h1": "PlayStation 5"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/processors/1",
+          "titleLength": 40,
+          "h1": "Processors"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/programming/1",
+          "titleLength": 40,
+          "h1": "Programming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ram/1",
+          "titleLength": 40,
+          "h1": "RAM"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/samsung/1",
+          "titleLength": 40,
+          "h1": "Samsung"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/smartphones/1",
+          "titleLength": 40,
+          "h1": "Smartphones"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/smartphones/2",
+          "titleLength": 40,
+          "h1": "Smartphones"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/smartphones/3",
+          "titleLength": 40,
+          "h1": "Smartphones"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/smartphones/4",
+          "titleLength": 40,
+          "h1": "Smartphones"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/smartphones/5",
+          "titleLength": 40,
+          "h1": "Smartphones"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/smartphones/6",
+          "titleLength": 40,
+          "h1": "Smartphones"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/smartphones/7",
+          "titleLength": 40,
+          "h1": "Smartphones"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/1",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/2",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/3",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/4",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/5",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/6",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/7",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/8",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/9",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/10",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/11",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/12",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/13",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/14",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/15",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/16",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/17",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/18",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming/19",
+          "titleLength": 40,
+          "h1": "Streaming"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/1",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/2",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/3",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/4",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/5",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/6",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/7",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/8",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/9",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/10",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/11",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/12",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/13",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/14",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/15",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/16",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/17",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/18",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/19",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/20",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/21",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/22",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/23",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/24",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/25",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/26",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/27",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/28",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/29",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/30",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/31",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/32",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/33",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/34",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/35",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/36",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/37",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/38",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/39",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/40",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/41",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/42",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/43",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/44",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/45",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/46",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/47",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/48",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/49",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/50",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/51",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/52",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/53",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/54",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology/55",
+          "titleLength": 40,
+          "h1": "Technology"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/test/1",
+          "titleLength": 40,
+          "h1": "test"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/vpn/1",
+          "titleLength": 40,
+          "h1": "VPN"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/wireless-earbuds/1",
+          "titleLength": 40,
+          "h1": "Wireless Earbuds"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/wireless-headphones/1",
+          "titleLength": 40,
+          "h1": "Wireless Headphones"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/xbox-series-x-s/1",
+          "titleLength": 40,
+          "h1": "Xbox Series X/S"
+        }
+      ]
+    },
+    {
+      "title": "TechHorizons | TechHorizons",
+      "count": 30,
+      "pages": [
+        {
+          "url": "https://techhorizons.co.il",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/amazon-prime-video",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apple-tv",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/apps",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/audio",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/buying-guide",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/cinema",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/computers",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/crunchyroll",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/desktop-game",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/finance",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/gaming",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/google",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/hbo-max",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/health",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/honor",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/ia",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/mobile",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/netflix",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/news",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/nintendo-switch",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/playstation-5",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/productivity",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/smartphones",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/streaming",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/technology",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/test",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/categories/wellness",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        },
+        {
+          "url": "https://techhorizons.co.il/privacy-policy",
+          "titleLength": 27,
+          "h1": "TechHorizons – חדשות טכנולוגיה, חדשנות וסטארטאפים בישראל 2025"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "recommendations": [
+    {
+      "type": "short_title",
+      "title": "TechHorizons | TechHorizons",
+      "issue": "Titre trop court",
+      "solution": "Ajouter plus de contexte (30+ caractères)",
+      "pages": [
+        "https://techhorizons.co.il",
+        "https://techhorizons.co.il/categories/amazon-prime-video",
+        "https://techhorizons.co.il/categories/apple",
+        "https://techhorizons.co.il/categories/apple-tv",
+        "https://techhorizons.co.il/categories/apps",
+        "https://techhorizons.co.il/categories/audio",
+        "https://techhorizons.co.il/categories/buying-guide",
+        "https://techhorizons.co.il/categories/cinema",
+        "https://techhorizons.co.il/categories/computers",
+        "https://techhorizons.co.il/categories/crunchyroll",
+        "https://techhorizons.co.il/categories/desktop-game",
+        "https://techhorizons.co.il/categories/finance",
+        "https://techhorizons.co.il/categories/gaming",
+        "https://techhorizons.co.il/categories/google",
+        "https://techhorizons.co.il/categories/hbo-max",
+        "https://techhorizons.co.il/categories/health",
+        "https://techhorizons.co.il/categories/honor",
+        "https://techhorizons.co.il/categories/ia",
+        "https://techhorizons.co.il/categories/mobile",
+        "https://techhorizons.co.il/categories/netflix",
+        "https://techhorizons.co.il/categories/news",
+        "https://techhorizons.co.il/categories/nintendo-switch",
+        "https://techhorizons.co.il/categories/playstation-5",
+        "https://techhorizons.co.il/categories/productivity",
+        "https://techhorizons.co.il/categories/smartphones",
+        "https://techhorizons.co.il/categories/streaming",
+        "https://techhorizons.co.il/categories/technology",
+        "https://techhorizons.co.il/categories/test",
+        "https://techhorizons.co.il/categories/wellness",
+        "https://techhorizons.co.il/privacy-policy"
+      ]
+    }
+  ]
+}

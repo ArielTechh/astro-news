@@ -1,4 +1,5 @@
 ---
+// src/layouts/list.astro - VERSION FINALE PROPRE
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./base.astro";
 import ViewListHeader from "@/components/shared/view-list-header.astro";
@@ -6,14 +7,14 @@ import ViewListHeader from "@/components/shared/view-list-header.astro";
 type Props = {
   header: string;
   entry: CollectionEntry<"views">;
-  canonical?: string; // ✅ AJOUT : prop canonical
+  canonical?: string;
+  customMeta?: any;
 };
 
-const { entry, header, canonical } = Astro.props; // ✅ AJOUT : récupérer canonical
+const { entry, header, canonical, customMeta } = Astro.props;
 ---
 
-<BaseLayout entry={entry} canonical={canonical}>
-  <!-- ✅ AJOUT : passer canonical -->
+<BaseLayout entry={entry} canonical={canonical} customMeta={customMeta}>
   <div
     class="container flex flex-col h-full pb-8 pt-4"
     data-pagefind-ignore="all"

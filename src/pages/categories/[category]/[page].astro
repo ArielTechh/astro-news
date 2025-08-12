@@ -1,5 +1,5 @@
 ---
-// src/pages/categories/[category]/[page].astro
+// src/pages/categories/[category]/[page].astro - VERSION FINALE PROPRE
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { getAllCategories, getArticlesByCategory } from "@/lib/sanity";
@@ -7,19 +7,16 @@ import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
 import { getEntry } from "astro:content";
+import { getMeta } from "@/lib/utils/getMetaSanity";
 
 export const getStaticPaths = (async ({ paginate }) => {
-  // Récupérer toutes les catégories depuis Sanity
   const allCategories = await getAllCategories();
-
   const allPaths = [];
 
   for (const category of allCategories) {
-    // Récupérer les articles de cette catégorie
     const categoryArticles = await getArticlesByCategory(category.slug.current);
 
     if (categoryArticles.length > 0) {
-      // Créer les pages paginées pour cette catégorie
       const paginatedPaths = paginate(categoryArticles, {
         params: { category: category.slug.current },
         props: {
@@ -50,14 +47,24 @@ if (!entry) {
   return Astro.redirect("/404");
 }
 
-// Titre de la catégorie en hébreu ou utiliser le titre Sanity
-const categoryTitle = categoryInfo?.title || params.category;
+// Générer les métadonnées correctes pour cette catégorie
+const customMeta = await getMeta(
+  entry,
+  params.category,
+  page.currentPage,
+  categoryInfo,
+);
 
-// ✅ AJOUT : URL canonique SANS slash final
+const categoryTitle = categoryInfo?.title || params.category;
 const canonicalUrl = `${SITE.url}/categories/${params.category}/${page.currentPage}`;
 ---
 
-<ListLayout header={categoryTitle} entry={entry} canonical={canonicalUrl}>
+<ListLayout
+  header={categoryTitle}
+  entry={entry}
+  canonical={canonicalUrl}
+  customMeta={customMeta}
+>
   <div dir="rtl">
     <!-- Breadcrumb pour catégories hiérarchiques -->
     {
@@ -82,6 +89,13 @@ const canonicalUrl = `${SITE.url}/categories/${params.category}/${page.currentPa
     <!-- Compteur d'articles -->
     <div class="mb-6 text-sm text-gray-600" dir="rtl">
       <span>{postsLength} מאמרים בקטגוריה זו</span>
+      {
+        page.currentPage > 1 && (
+          <span class="mr-4">
+            עמוד {page.currentPage} מתוך {page.lastPage}
+          </span>
+        )
+      }
     </div>
 
     <!-- Liste des articles -->
