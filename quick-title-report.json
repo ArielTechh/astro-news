@@ -1,0 +1,20 @@
+{
+  "summary": {
+    "totalPages": 1356,
+    "uniqueTitles": 1327,
+    "duplicateTitles": 1,
+    "totalDuplicatePages": 30,
+    "errors": 0
+  },
+  "duplicates": [
+    {
+      "title": "חדשות טכנולוגיה, ביקורות ומדריכים | TechHorizons",
+      "count": 30,
+      "sampleUrls": [
+        "https://techhorizons.co.il",
+        "https://techhorizons.co.il/categories/amazon-prime-video",
+        "https://techhorizons.co.il/categories/apple"
+      ]
+    }
+  ]
+}
