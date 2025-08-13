@@ -1,6 +1,306 @@
 {
   "redirects": [
     {
+      "source": "/page/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/:slug*/feed/:path*",
+      "destination": "/:slug*",
+      "permanent": true
+    },
+    {
+      "source": "/:slug*/feed",
+      "destination": "/:slug*",
+      "permanent": true
+    },
+    {
+      "source": "/technology/:path*",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/apple/:path*",
+      "destination": "/categories/apple",
+      "permanent": true
+    },
+    {
+      "source": "/apple",
+      "destination": "/categories/apple",
+      "permanent": true
+    },
+    {
+      "source": "/gaming/:path*",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
+      "source": "/gaming",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
+      "source": "/smartphones/:path*",
+      "destination": "/categories/smartphones",
+      "permanent": true
+    },
+    {
+      "source": "/smartphones",
+      "destination": "/categories/smartphones",
+      "permanent": true
+    },
+    {
+      "source": "/mobile/:path*",
+      "destination": "/categories/mobile",
+      "permanent": true
+    },
+    {
+      "source": "/mobile",
+      "destination": "/categories/mobile",
+      "permanent": true
+    },
+    {
+      "source": "/news/:path*",
+      "destination": "/categories/news",
+      "permanent": true
+    },
+    {
+      "source": "/news",
+      "destination": "/categories/news",
+      "permanent": true
+    },
+    {
+      "source": "/streaming/:path*",
+      "destination": "/categories/streaming",
+      "permanent": true
+    },
+    {
+      "source": "/streaming",
+      "destination": "/categories/streaming",
+      "permanent": true
+    },
+    {
+      "source": "/netflix/:path*",
+      "destination": "/categories/netflix",
+      "permanent": true
+    },
+    {
+      "source": "/netflix",
+      "destination": "/categories/netflix",
+      "permanent": true
+    },
+    {
+      "source": "/amazon-prime-video/:path*",
+      "destination": "/categories/amazon-prime-video",
+      "permanent": true
+    },
+    {
+      "source": "/amazon-prime-video",
+      "destination": "/categories/amazon-prime-video",
+      "permanent": true
+    },
+    {
+      "source": "/playstation-5/:path*",
+      "destination": "/categories/playstation-5",
+      "permanent": true
+    },
+    {
+      "source": "/playstation-5",
+      "destination": "/categories/playstation-5",
+      "permanent": true
+    },
+    {
+      "source": "/nintendo-switch/:path*",
+      "destination": "/categories/nintendo-switch",
+      "permanent": true
+    },
+    {
+      "source": "/nintendo-switch",
+      "destination": "/categories/nintendo-switch",
+      "permanent": true
+    },
+    {
+      "source": "/computers/:path*",
+      "destination": "/categories/computers",
+      "permanent": true
+    },
+    {
+      "source": "/computers",
+      "destination": "/categories/computers",
+      "permanent": true
+    },
+    {
+      "source": "/ia/:path*",
+      "destination": "/categories/ia",
+      "permanent": true
+    },
+    {
+      "source": "/ia",
+      "destination": "/categories/ia",
+      "permanent": true
+    },
+    {
+      "source": "/google/:path*",
+      "destination": "/categories/google",
+      "permanent": true
+    },
+    {
+      "source": "/google",
+      "destination": "/categories/google",
+      "permanent": true
+    },
+    {
+      "source": "/honor/:path*",
+      "destination": "/categories/honor",
+      "permanent": true
+    },
+    {
+      "source": "/honor",
+      "destination": "/categories/honor",
+      "permanent": true
+    },
+    {
+      "source": "/audio/:path*",
+      "destination": "/categories/audio",
+      "permanent": true
+    },
+    {
+      "source": "/audio",
+      "destination": "/categories/audio",
+      "permanent": true
+    },
+    {
+      "source": "/cinema/:path*",
+      "destination": "/categories/cinema",
+      "permanent": true
+    },
+    {
+      "source": "/cinema",
+      "destination": "/categories/cinema",
+      "permanent": true
+    },
+    {
+      "source": "/apps/:path*",
+      "destination": "/categories/apps",
+      "permanent": true
+    },
+    {
+      "source": "/apps",
+      "destination": "/categories/apps",
+      "permanent": true
+    },
+    {
+      "source": "/crunchyroll/:path*",
+      "destination": "/categories/crunchyroll",
+      "permanent": true
+    },
+    {
+      "source": "/crunchyroll",
+      "destination": "/categories/crunchyroll",
+      "permanent": true
+    },
+    {
+      "source": "/hbo-max/:path*",
+      "destination": "/categories/hbo-max",
+      "permanent": true
+    },
+    {
+      "source": "/hbo-max",
+      "destination": "/categories/hbo-max",
+      "permanent": true
+    },
+    {
+      "source": "/desktop-game/:path*",
+      "destination": "/categories/desktop-game",
+      "permanent": true
+    },
+    {
+      "source": "/desktop-game",
+      "destination": "/categories/desktop-game",
+      "permanent": true
+    },
+    {
+      "source": "/buying-guide/:path*",
+      "destination": "/categories/buying-guide",
+      "permanent": true
+    },
+    {
+      "source": "/buying-guide",
+      "destination": "/categories/buying-guide",
+      "permanent": true
+    },
+    {
+      "source": "/productivity/:path*",
+      "destination": "/categories/productivity",
+      "permanent": true
+    },
+    {
+      "source": "/productivity",
+      "destination": "/categories/productivity",
+      "permanent": true
+    },
+    {
+      "source": "/health/:path*",
+      "destination": "/categories/health",
+      "permanent": true
+    },
+    {
+      "source": "/health",
+      "destination": "/categories/health",
+      "permanent": true
+    },
+    {
+      "source": "/wellness/:path*",
+      "destination": "/categories/wellness",
+      "permanent": true
+    },
+    {
+      "source": "/wellness",
+      "destination": "/categories/wellness",
+      "permanent": true
+    },
+    {
+      "source": "/test/:path*",
+      "destination": "/categories/test",
+      "permanent": true
+    },
+    {
+      "source": "/test",
+      "destination": "/categories/test",
+      "permanent": true
+    },
+    {
+      "source": "/finance/:path*",
+      "destination": "/categories/finance",
+      "permanent": true
+    },
+    {
+      "source": "/finance",
+      "destination": "/categories/finance",
+      "permanent": true
+    },
+    {
+      "source": "/apple-tv/:path*",
+      "destination": "/categories/apple-tv",
+      "permanent": true
+    },
+    {
+      "source": "/apple-tv",
+      "destination": "/categories/apple-tv",
+      "permanent": true
+    },
+    {
+      "source": "/categories/:category/1",
+      "destination": "/categories/:category",
+      "permanent": true
+    },
+    {
       "source": "/articles/:slug*",
       "destination": "/:slug*",
       "permanent": true
