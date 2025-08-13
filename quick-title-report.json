@@ -1,10 +1,10 @@
 {
   "summary": {
-    "totalPages": 1308,
-    "uniqueTitles": 1307,
+    "totalPages": 1307,
+    "uniqueTitles": 1306,
     "duplicateTitles": 1,
     "totalDuplicatePages": 2,
-    "errors": 0
+    "errors": 1
   },
   "duplicates": [
     {

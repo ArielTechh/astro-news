@@ -85,8 +85,8 @@ function getPageType(pathname: string): keyof typeof robotsConfig {
 export const onRequest = defineMiddleware(async (context, next) => {
   const { pathname } = context.url;
 
-  // ✅ Redirection anciennes catégories avec pagination vers page 1
-  const oldCategoryRedirects = [
+  // ✅ Liste des catégories à rediriger
+  const categoryRedirects = [
     'technology', 'apple', 'gaming', 'smartphones', 'mobile',
     'news', 'streaming', 'netflix', 'amazon-prime-video',
     'playstation-5', 'nintendo-switch', 'computers', 'ia',
@@ -95,12 +95,29 @@ export const onRequest = defineMiddleware(async (context, next) => {
     'health', 'wellness', 'test', 'finance', 'apple-tv'
   ];
 
-  // Redirection catégories avec pagination : /category/page/N/ → /categories/category (page 1)
+  // ✨ NOUVELLES REDIRECTIONS : /category/* → /categories/category
+  // Gère tous les cas : /streaming, /streaming/, /streaming/page/1, /streaming/anything
+  for (const category of categoryRedirects) {
+    // Pattern pour détecter /category ou /category/* (avec ou sans slash final)
+    const categoryPattern = new RegExp(`^\\/${category}(?:\\/.*)?$`);
+
+    if (categoryPattern.test(pathname)) {
+      return new Response(null, {
+        status: 301,
+        headers: {
+          'Location': `/categories/${category}`,
+          'Cache-Control': 'public, max-age=31536000', // 1 an de cache
+        }
+      });
+    }
+  }
+
+  // ✅ Redirection catégories avec pagination : /category/page/N/ → /categories/category (page 1)
   const paginationMatch = pathname.match(/^\/([^\/]+)\/page\/\d+\/?$/);
   if (paginationMatch) {
     const [, categorySlug] = paginationMatch;
 
-    if (oldCategoryRedirects.includes(categorySlug)) {
+    if (categoryRedirects.includes(categorySlug)) {
       return new Response(null, {
         status: 301,
         headers: {
@@ -111,25 +128,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
     }
   }
 
-  // Redirection catégories simples : /category/ → /categories/category
-  const pathWithoutSlash = pathname.replace(/^\/|\/$/g, '');
-  if (oldCategoryRedirects.includes(pathWithoutSlash)) {
-    return new Response(null, {
-      status: 301,
-      headers: {
-        'Location': `/categories/${pathWithoutSlash}`,
-        'Cache-Control': 'public, max-age=31536000',
-      }
-    });
-  }
-
-
-
-
-
-
-
-
+  // ✅ Redirection /categories/category/1 → /categories/category (supprime la page 1)
   if (pathname.match(/^\/categories\/[^\/]+\/1$/)) {
     // Extraire la catégorie : /categories/apple/1 → /categories/apple
     const categoryPath = pathname.replace(/\/1$/, '');
@@ -143,7 +142,30 @@ export const onRequest = defineMiddleware(async (context, next) => {
     });
   }
 
+  // ✨ REDIRECTIONS 301 : /page/* vers l'accueil
+  if (pathname.startsWith('/page/')) {
+    return new Response(null, {
+      status: 301,
+      headers: {
+        'Location': '/',
+        'Cache-Control': 'public, max-age=31536000', // 1 an de cache
+      }
+    });
+  }
 
+  // ✨ REDIRECTIONS 301 : Suppression des /feed/ des articles
+  if (pathname.endsWith('/feed/') || pathname.endsWith('/feed')) {
+    // Supprimer /feed ou /feed/ de la fin
+    const cleanPath = pathname.replace(/\/feed\/?$/, '');
+
+    return new Response(null, {
+      status: 301,
+      headers: {
+        'Location': cleanPath,
+        'Cache-Control': 'public, max-age=31536000', // 1 an de cache
+      }
+    });
+  }
 
   // ✨ REDIRECTIONS 301 : /articles/* vers /*
   if (pathname.startsWith('/articles/') && pathname !== '/articles/') {
@@ -159,21 +181,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
       }
     });
   }
-
-
-
-  // ✨ REDIRECTIONS 301 : URLs malformées avec double pagination /1/1
-  // if (pathname.match(/^\/categories\/[^\/]+\/\d+\/\d+/)) {
-  //   // Redirection vers la version correcte (sans le dernier /1)
-  //   const correctedPath = pathname.replace(/\/\d+$/, '');
-  //   return new Response(null, {
-  //     status: 301,
-  //     headers: {
-  //       'Location': correctedPath,
-  //       'Cache-Control': 'public, max-age=31536000', // 1 an de cache
-  //     }
-  //   });
-  // }
 
   // Traiter la requête
   const response = await next();
