@@ -16,7 +16,7 @@ const { items, current } = Astro.props;
 function processUrl(url: string): string {
   // Si l'URL commence par /categories/ et ne finit pas déjà par un nombre
   if (url.startsWith("/categories/") && !/\/\d+$/.test(url)) {
-    return `${url}/1`;
+    return `${url}`;
   }
   return url;
 }
@@ -35,7 +35,7 @@ const structuredData = {
     "@type": "ListItem",
     position: index + 1,
     name: item.name,
-    item: `${Astro.site?.href || "https://votre-site.com"}${item.url}`,
+    item: `${Astro.site?.href || "https://techhorizons.co.il"}${item.url}`,
   })),
 };
 
