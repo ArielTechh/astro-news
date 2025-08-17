@@ -1,4 +1,4 @@
-import { SITE } from '../lib/config.js';
+import { SITE } from '../lib/config/index.ts';
 
 export async function GET() {
   try {

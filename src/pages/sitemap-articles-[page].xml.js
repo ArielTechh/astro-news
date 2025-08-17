@@ -1,5 +1,5 @@
 import { getAllArticles } from '../lib/sanity.js';
-import { SITE } from '../lib/config.js';
+import { SITE } from '../lib/config/index.ts';
 
 // Utility functions
 function calculatePriority(publishedDate, sitemapIndex = 0) {
