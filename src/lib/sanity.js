@@ -564,7 +564,7 @@ export async function getNavigation() {
               subHref = subItem.internalLink || '/';
               break;
             case 'category':
-              subHref = subItem.categoryLink?.slug?.current ? `/categories/${subItem.categoryLink.slug.current}/1` : '#';
+              subHref = subItem.categoryLink?.slug?.current ? `/categories/${subItem.categoryLink.slug.current}` : '#';
               break;
             case 'article':
               subHref = subItem.articleLink?.slug?.current ? `/articles/${subItem.articleLink.slug.current}` : '#';
