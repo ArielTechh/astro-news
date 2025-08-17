@@ -1,6 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
-import { getAllArticles } from './src/lib/sanity.js';
+import { getAllArticles } from './src/lib/sanity.js'; // ← Ajoutez cette ligne en haut
 import tailwindcss from "@tailwindcss/vite";
 import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
@@ -12,177 +12,153 @@ import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
 import sanity from '@sanity/astro';
 
+
 const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
-// Calculate priority based on article age and sitemap index
-function calculatePriority(publishedDate, sitemapIndex = 0) {
-  const now = new Date();
-  const published = new Date(publishedDate);
-  const daysSincePublished = Math.floor((now - published) / (1000 * 60 * 60 * 24));
-
-  let basePriority;
-  if (daysSincePublished <= 7) basePriority = 1.0;
-  else if (daysSincePublished <= 30) basePriority = 0.9;
-  else if (daysSincePublished <= 180) basePriority = 0.8;
-  else basePriority = 0.7;
-
-  // Reduce priority by sitemap index (sitemap-1 > sitemap-2, etc.)
-  return Math.max(0.5, basePriority - (sitemapIndex * 0.1));
-}
-
-// Calculate changefreq based on article age
-function calculateChangefreq(publishedDate) {
-  const now = new Date();
-  const published = new Date(publishedDate);
-  const daysSincePublished = Math.floor((now - published) / (1000 * 60 * 60 * 24));
-
-  if (daysSincePublished <= 30) return 'daily';
-  if (daysSincePublished <= 180) return 'weekly';
-  return 'monthly';
-}
-
-// Custom sitemap configuration
 const integrations = [
   mdx(),
-
-  // Main sitemap index configuration
+  // SITEMAP OPTIMISÉ - EXCLURE /articles/ ET GARDER SEULEMENT LA RACINE
   sitemap({
-    customPages: async () => {
-      const customPages = [];
+    // Configuration de base
+    changefreq: 'daily',
+    priority: 0.7,
+    lastmod: new Date(),
 
-      try {
-        // Fetch and sort articles (reverse chronological order)
-        const articles = await getAllArticles();
-        const sortedArticles = articles
-          .filter(article => article.slug?.current)
-          .sort((a, b) => {
-            const dateA = new Date(a.publishedTime || a._createdAt);
-            const dateB = new Date(b.publishedTime || b._createdAt);
-            return dateB - dateA; // Most recent first
-          });
-
-        // Split into chunks of 400 articles
-        const ARTICLES_PER_SITEMAP = 400;
-        const articleChunks = [];
-        for (let i = 0; i < sortedArticles.length; i += ARTICLES_PER_SITEMAP) {
-          articleChunks.push(sortedArticles.slice(i, i + ARTICLES_PER_SITEMAP));
-        }
-
-        // Generate URLs for each chunk
-        articleChunks.forEach((chunk, index) => {
-          chunk.forEach(article => {
-            const publishedDate = article.publishedTime || article._createdAt;
-            const priority = calculatePriority(publishedDate, index);
-            const changefreq = calculateChangefreq(publishedDate);
-            const lastmod = new Date(article._updatedAt || publishedDate).toISOString();
-
-            customPages.push({
-              url: `${SITE.url}/${article.slug.current}`,
-              changefreq,
-              priority,
-              lastmod,
-              // Tag to identify target sitemap
-              _sitemapGroup: `articles-${index + 1}`
-            });
-          });
-        });
-
-        // Add categories
-        const categories = [
-          'intelligence-artificielle',
-          'cybersecurite',
-          'blockchain',
-          'programmation',
-          'devops',
-          'mobile'
-        ];
-
-        categories.forEach(category => {
-          customPages.push({
-            url: `${SITE.url}/categories/${category}`,
-            changefreq: 'weekly',
-            priority: 0.8,
-            lastmod: new Date().toISOString(),
-            _sitemapGroup: 'categories'
-          });
-
-          // Category pagination (example: max 5 pages)
-          for (let page = 2; page <= 5; page++) {
-            customPages.push({
-              url: `${SITE.url}/categories/${category}/${page}`,
-              changefreq: 'weekly',
-              priority: 0.6,
-              lastmod: new Date().toISOString(),
-              _sitemapGroup: 'categories'
-            });
-          }
-        });
-
-        // Static pages
-        const staticPages = [
-          { path: '/about', priority: 0.6, changefreq: 'monthly' },
-          { path: '/contact', priority: 0.6, changefreq: 'monthly' },
-          { path: '/search', priority: 0.5, changefreq: 'monthly' },
-          { path: '/accessibility', priority: 0.3, changefreq: 'yearly' },
-          { path: '/privacy', priority: 0.3, changefreq: 'yearly' },
-          { path: '/cookie', priority: 0.3, changefreq: 'yearly' }
-        ];
-
-        staticPages.forEach(page => {
-          customPages.push({
-            url: `${SITE.url}${page.path}`,
-            changefreq: page.changefreq,
-            priority: page.priority,
-            lastmod: '2024-01-01T00:00:00.000Z',
-            _sitemapGroup: 'pages'
-          });
-        });
-
-      } catch (error) {
-        console.error('Error generating sitemap:', error);
-      }
-
-      return customPages;
-    },
-
-    // URL filtering and cleaning
+    // FILTER : Exclure les anciennes URLs /articles/ du sitemap
     filter: (page) => {
       const url = page.toLowerCase();
-      return !url.includes('/admin/') &&
+      return !url.includes('/authors/') &&
+        !url.includes('/admin/') &&
         !url.includes('/preview/') &&
         !url.includes('/api/') &&
         !url.includes('/_astro/') &&
         !url.includes('/404') &&
-        !url.includes('/500');
+        !url.includes('/500') &&
+        !url.includes('/articles/');  // ← EXCLURE /articles/ du sitemap
     },
 
-    // Advanced configuration
-    serialize: (item) => {
-      // Remove trailing slash except for homepage
-      const cleanUrl = item.url.endsWith('/') && item.url !== `${SITE.url}/`
-        ? item.url.slice(0, -1)
-        : item.url;
+    // Personnalisation par type de page - SEULEMENT STRUCTURE RACINE
+    serialize: async (item) => {
+      const url = item.url;
 
+      // ✅ AJOUT : Enlever le slash final pour TOUT sauf l'accueil
+      const cleanUrl = url.endsWith('/') && url !== 'https://techhorizons.co.il/'
+        ? url.slice(0, -1)
+        : url;
+
+      const path = new URL(cleanUrl).pathname;
+
+      // PAGE D'ACCUEIL - Priorité maximale (garde le slash)
+      if (cleanUrl === 'https://techhorizons.co.il/') {
+        return {
+          url: cleanUrl,
+          changefreq: 'hourly',
+          priority: 1.0,
+          lastmod: new Date().toISOString()
+        };
+      }
+
+      // ✨ NOUVEAU : ARTICLES À LA RACINE avec dates Sanity
+      if (path !== '/' &&
+        !path.includes('/categories/') &&
+        !path.includes('/about') &&
+        !path.includes('/contact') &&
+        !path.includes('/accessibility') &&
+        !path.includes('/cookie') &&
+        !path.includes('/privacy') &&
+        !path.match(/\/\d+$/) &&
+        !path.includes('/search') &&
+        !path.includes('/rss') &&
+        !path.includes('/sitemap')) {
+
+        try {
+          // Extraire le slug depuis l'URL
+          const slug = path.replace('/', '');
+
+          // ✨ Récupérer les articles depuis Sanity
+          const articles = await getAllArticles();
+          const article = articles.find(a => a.slug?.current === slug);
+
+          if (article) {
+            // ✨ Utiliser les vraies dates Sanity !
+            const articleDate = new Date(
+              article._updatedAt ||    // Date de modification
+              article.publishedTime || // Date de publication
+              article._createdAt ||    // Date de création
+              new Date()              // Fallback
+            ).toISOString();
+
+            return {
+              url: cleanUrl,
+              changefreq: 'daily',
+              priority: 0.9,
+              lastmod: articleDate // ← VOILÀ LA VRAIE DATE !
+            };
+          }
+        } catch (error) {
+          console.error(`Erreur Sanity pour ${path}:`, error);
+        }
+
+        // Fallback si erreur
+        return {
+          url: cleanUrl,
+          changefreq: 'daily',
+          priority: 0.9,
+          lastmod: new Date().toISOString()
+        };
+      }
+
+      // CATÉGORIES PRINCIPALES - Haute priorité
+      if (cleanUrl.includes('/categories/') && !cleanUrl.match(/\/\d+$/)) {
+        return {
+          url: cleanUrl,
+          changefreq: 'daily',
+          priority: 0.8,
+          lastmod: new Date().toISOString()
+        };
+      }
+
+      // PAGINATION DES CATÉGORIES
+      if (cleanUrl.includes('/categories/') && cleanUrl.match(/\/\d+$/)) {
+        return {
+          url: cleanUrl,
+          changefreq: 'daily',
+          priority: 0.6,
+          lastmod: new Date().toISOString()
+        };
+      }
+
+      // PAGINATION ARTICLES À LA RACINE
+      if (cleanUrl.match(/\/\d+$/) && !cleanUrl.includes('/categories/')) {
+        return {
+          url: cleanUrl,
+          changefreq: 'daily',
+          priority: 0.5,
+          lastmod: new Date().toISOString()
+        };
+      }
+
+      // PAGES STATIQUES
+      if (cleanUrl.includes('/about') || cleanUrl.includes('/contact') ||
+        cleanUrl.includes('/accessibility') || cleanUrl.includes('/cookie') ||
+        cleanUrl.includes('/privacy') || cleanUrl.includes('/search')) {
+        return {
+          url: cleanUrl,
+          changefreq: 'monthly',
+          priority: 0.3,
+          lastmod: '2024-01-01T00:00:00.000Z'
+        };
+      }
+
+      // AUTRES PAGES
       return {
         url: cleanUrl,
-        changefreq: item.changefreq || 'weekly',
-        priority: item.priority || 0.5,
-        lastmod: item.lastmod || new Date().toISOString()
+        changefreq: 'weekly',
+        priority: 0.4,
+        lastmod: new Date().toISOString()
       };
-    },
-
-    // Manual head link management
-    createLinkInHead: false,
-
-    // Hebrew locale configuration
-    i18n: {
-      defaultLocale: 'he',
-      locales: {
-        he: 'he-IL'
-      }
     }
   }),
-
   pagefind(),
   sanity({
     projectId: "0lbfqiht",
@@ -212,7 +188,7 @@ export default defineConfig({
   vite: {
     plugins: [tailwindcss()],
     build: {
-      minify: 'esbuild',
+      minify: 'esbuild', // Minification agressive
     },
   },
 });

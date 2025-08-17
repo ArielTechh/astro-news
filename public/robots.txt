@@ -1,11 +1,5 @@
 User-agent: *
-Allow: /
-
 Disallow: /admin/
 Disallow: /api/
-Disallow: /_astro/
-
-User-agent: Googlebot-News
-Allow: /
 
 Sitemap: https://techhorizons.co.il/sitemap-index.xml
