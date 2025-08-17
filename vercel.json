@@ -328,11 +328,6 @@
       ]
     },
     {
-      "source": "/_astro/_page_.DH_Rpls4.css",
-      "destination": "/",
-      "permanent": true
-    },
-    {
       "source": "/privacy-policy",
       "destination": "/",
       "permanent": true
@@ -378,6 +373,17 @@
         }
       ],
       "destination": "https://techhorizons.co.il/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/robots.txt",
+      "has": [
+        {
+          "type": "host",
+          "value": "mail.techhorizons.co.il"
+        }
+      ],
+      "destination": "https://techhorizons.co.il/robots.txt",
       "permanent": true
     }
   ],
