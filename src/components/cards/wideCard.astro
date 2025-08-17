@@ -43,7 +43,7 @@ const coverImageUrl = article.cover
 
 const category = article.categories?.[0];
 const categorySlug = category?.slug?.current;
-const categoryUrl = categorySlug ? `/categories/${categorySlug}/1` : null;
+const categoryUrl = categorySlug ? `/categories/${categorySlug}` : null;
 
 const author = article.authors?.[0];
 

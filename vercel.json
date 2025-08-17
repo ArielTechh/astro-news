@@ -341,6 +341,44 @@
       "source": "/articles/",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.techhorizons.co.il"
+        }
+      ],
+      "destination": "https://techhorizons.co.il/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "techhorizons.co.il"
+        },
+        {
+          "type": "header",
+          "key": "x-forwarded-proto",
+          "value": "http"
+        }
+      ],
+      "destination": "https://techhorizons.co.il/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "mail.techhorizons.co.il"
+        }
+      ],
+      "destination": "https://techhorizons.co.il/:path*",
+      "permanent": true
     }
   ],
   "headers": [
