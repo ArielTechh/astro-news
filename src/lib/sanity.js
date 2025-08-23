@@ -883,33 +883,3 @@ export async function getArticlesByTag(tagSlug) {
     return [];
   }
 }
-
-// === FONCTION DE TEST POUR VÉRIFIER LA CORRECTION ===
-export async function testSpacesFix() {
-  console.log("🧪 === TEST DE LA CORRECTION DES ESPACES ===");
-
-  // Tester les tags qui avaient 0 résultats avant
-  const tagsToTest = [
-    'dune',           // devrait trouver "Dune " 
-    'mac',            // devrait trouver "Mac "
-    'nintendo',       // devrait trouver "Nintendo "
-    'openai',         // devrait trouver "OpenAI " ou "Open AI"
-    'amd',            // devrait trouver "AMD " ou "AMD"
-    'ryzen',          // devrait trouver "Ryzen "
-    'iphone'          // devrait trouver "iPhone" (déjà marchait)
-  ];
-
-  for (const tagSlug of tagsToTest) {
-    console.log(`\n🔍 Test: "${tagSlug}"`);
-    const articles = await getArticlesByTag(tagSlug);
-    console.log(`   📊 Résultat: ${articles.length} articles`);
-
-    if (articles.length > 0) {
-      console.log(`   ✅ SUCCESS: Trouve maintenant des articles !`);
-    } else {
-      console.log(`   ❌ Toujours 0 articles`);
-    }
-  }
-
-  console.log("\n✅ Test terminé.");
-}
