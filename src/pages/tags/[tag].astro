@@ -8,17 +8,14 @@ import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
 
 export const getStaticPaths = (async () => {
-  console.log("🔍 DEBUT getStaticPaths pour tags");
 
   try {
     const allTags = await getAllTags();
-    console.log("📊 Tags trouvés:", allTags.length);
 
     const paths = [];
 
     for (const tag of allTags) {
       const articles = await getArticlesByTag(tag.url);
-      console.log(`🏷️ Tag "${tag.url}": ${articles.length} articles`);
 
       if (articles.length > 0) {
         paths.push({
@@ -31,10 +28,8 @@ export const getStaticPaths = (async () => {
       }
     }
 
-    console.log("✅ Paths générés:", paths.length);
     return paths;
   } catch (error) {
-    console.error("❌ Erreur dans getStaticPaths:", error);
     return [];
   }
 }) satisfies GetStaticPaths;

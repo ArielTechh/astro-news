@@ -747,7 +747,6 @@ export async function getCategoryBySlug(slug) {
 
 // Récupérer tous les tags uniques avec compteurs - VERSION CORRIGÉE
 export async function getAllTags() {
-  console.log("🔍 Récupération de tous les tags...");
 
   try {
     const articles = await sanityClient.fetch(`
@@ -756,10 +755,8 @@ export async function getAllTags() {
       }
     `);
 
-    console.log("📊 Articles avec tags trouvés:", articles.length);
 
     if (articles.length === 0) {
-      console.log("⚠️ Aucun article avec tags trouvé");
       return [];
     }
 
@@ -788,8 +785,6 @@ export async function getAllTags() {
     });
 
     const result = Array.from(tagCounts.values()).sort((a, b) => b.count - a.count);
-    console.log("🏷️ Tags générés:", result.length);
-    console.log("📋 Premiers 5 tags:", result.slice(0, 5));
 
     return result;
 
@@ -801,24 +796,33 @@ export async function getAllTags() {
 
 
 
+
+
+
+
+
+
+
+
+
+// === SOLUTION FINALE : NETTOYER LES ESPACES ===
+// Remplacez votre fonction getArticlesByTag dans sanity.js par celle-ci :
+
 export async function getArticlesByTag(tagSlug) {
   console.log(`🔍 Recherche articles pour tag: "${tagSlug}"`);
 
   try {
-    // Convertir "galaxy-watch" vers "Galaxy Watch"
-    const originalTag = tagSlug.replace(/-/g, ' '); // "galaxy watch"
-    const capitalizedTag = originalTag
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' '); // "Galaxy Watch"
+    // Convertir rtx-50 -> rtx 50
+    const baseTag = tagSlug.replace(/-/g, ' ');
 
-    console.log("🔍 Recherche pour:", { tagSlug, originalTag, capitalizedTag });
-
+    // ✅ RÉCUPÉRER TOUS LES ARTICLES ET FILTRER EN JAVASCRIPT
     const articles = await sanityClient.fetch(`
-      *[_type == "article" && !isDraft && defined(publishedTime) && defined(slug.current) && defined(tags) && (
-        $originalTag in tags ||
-        $capitalizedTag in tags
-      )] | order(publishedTime desc) {
+      *[_type == "article" && 
+        !isDraft && 
+        defined(publishedTime) && 
+        defined(slug.current) && 
+        defined(tags)
+      ] | order(publishedTime desc) {
         _id,
         title,
         description,
@@ -841,16 +845,71 @@ export async function getArticlesByTag(tagSlug) {
         },
         tags
       }
-    `, {
-      originalTag,     // "galaxy watch"
-      capitalizedTag   // "Galaxy Watch"
+    `);
+
+    // ✅ FILTRAGE UNIVERSEL INSENSIBLE À LA CASSE EN JAVASCRIPT
+    const filteredArticles = articles.filter(article => {
+      if (!article.tags || !Array.isArray(article.tags)) return false;
+
+      return article.tags.some(tag => {
+        if (!tag || typeof tag !== 'string') return false;
+
+        // Nettoyer les deux chaînes : supprimer espaces, convertir minuscule
+        const cleanTag = tag.trim().toLowerCase();
+        const cleanSearch = baseTag.trim().toLowerCase();
+
+        // Match exact OU contient
+        return cleanTag === cleanSearch || cleanTag.includes(cleanSearch);
+      });
     });
 
-    console.log(`📄 Articles trouvés:`, articles.length);
-    return articles;
+    console.log(`📄 Articles trouvés pour "${tagSlug}":`, filteredArticles.length);
+
+    if (filteredArticles.length > 0) {
+      console.log("Premier article trouvé:", filteredArticles[0].title);
+      // Afficher les tags qui ont matché
+      const matchedTags = filteredArticles[0].tags?.filter(tag => {
+        const cleanTag = tag.trim().toLowerCase();
+        const cleanSearch = baseTag.trim().toLowerCase();
+        return cleanTag === cleanSearch || cleanTag.includes(cleanSearch);
+      });
+      console.log("Tags qui ont matché:", matchedTags);
+    }
+
+    return filteredArticles;
 
   } catch (error) {
-    console.error(`❌ Erreur:`, error);
+    console.error(`❌ Erreur recherche tag "${tagSlug}":`, error);
     return [];
   }
+}
+
+// === FONCTION DE TEST POUR VÉRIFIER LA CORRECTION ===
+export async function testSpacesFix() {
+  console.log("🧪 === TEST DE LA CORRECTION DES ESPACES ===");
+
+  // Tester les tags qui avaient 0 résultats avant
+  const tagsToTest = [
+    'dune',           // devrait trouver "Dune " 
+    'mac',            // devrait trouver "Mac "
+    'nintendo',       // devrait trouver "Nintendo "
+    'openai',         // devrait trouver "OpenAI " ou "Open AI"
+    'amd',            // devrait trouver "AMD " ou "AMD"
+    'ryzen',          // devrait trouver "Ryzen "
+    'iphone'          // devrait trouver "iPhone" (déjà marchait)
+  ];
+
+  for (const tagSlug of tagsToTest) {
+    console.log(`\n🔍 Test: "${tagSlug}"`);
+    const articles = await getArticlesByTag(tagSlug);
+    console.log(`   📊 Résultat: ${articles.length} articles`);
+
+    if (articles.length > 0) {
+      console.log(`   ✅ SUCCESS: Trouve maintenant des articles !`);
+    } else {
+      console.log(`   ❌ Toujours 0 articles`);
+    }
+  }
+
+  console.log("\n✅ Test terminé.");
 }
