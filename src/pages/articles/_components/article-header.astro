@@ -31,6 +31,7 @@ type Props = {
       bio?: string;
       avatar?: any;
     }>;
+    tags?: string[]; // ✅ AJOUTÉ : support des tags
   };
   readingTime: number;
 };
@@ -39,6 +40,19 @@ const { article, readingTime } = Astro.props;
 
 const category = article.categories?.[0];
 const authors = article.authors || [];
+
+// ✅ AJOUTÉ : Traitement des tags
+const tags = article.tags || [];
+const displayTags = tags.slice(0, 5); // Limiter à 5 tags max pour éviter l'encombrement
+
+// Fonction pour convertir un tag en URL
+function tagToUrl(tag: string): string {
+  return tag
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w\u0590-\u05FF-]/g, ""); // Support hébreu
+}
 
 // 🚀 IMAGES OPTIMISÉES AVEC TAILLES RESPONSIVES
 const coverImages = article.cover
@@ -135,19 +149,38 @@ const formatJerusalemDate = (dateString) => {
     }
   </div>
 
-  {
-    category && (
-      <div class="container my-4 max-w-5xl lg:hidden flex items-center gap-2">
-        <ResourcesAdd size="16" />
-        <a
-          href={`/categories/${category.slug.current}`}
-          class="a-01 font-semibold"
-        >
-          {category.title}
-        </a>
-      </div>
-    )
-  }
+  {/* ✅ MODIFIÉ : Catégorie ET tags sur mobile */}
+  <div class="container my-4 max-w-5xl lg:hidden">
+    {
+      category && (
+        <div class="flex items-center gap-2 mb-3">
+          <ResourcesAdd size="16" />
+          <a
+            href={`/categories/${category.slug.current}`}
+            class="a-01 font-semibold"
+          >
+            {category.title}
+          </a>
+        </div>
+      )
+    }
+
+    {/* Tags sur mobile */}
+    {
+      displayTags.length > 0 && (
+        <div class="flex flex-wrap gap-2">
+          {displayTags.map((tag) => (
+            <a
+              href={`/tags/${tagToUrl(tag)}`}
+              class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
+            >
+              {tag}
+            </a>
+          ))}
+        </div>
+      )
+    }
+  </div>
 
   <div class="container max-w-5xl">
     <h1 class="text-3xl lg:text-4xl font-bold text-right text-pretty">
@@ -184,6 +217,27 @@ const formatJerusalemDate = (dateString) => {
           <span>{readingTime} דק' קריאה</span>
         </span>
       </div>
+
+      {/* ✅ AJOUTÉ : Tags sur desktop */}
+      {
+        displayTags.length > 0 && (
+          <div class="hidden lg:flex flex-wrap gap-2">
+            {displayTags.map((tag) => (
+              <a
+                href={`/tags/${tagToUrl(tag)}`}
+                class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors border border-blue-200"
+              >
+                {tag}
+              </a>
+            ))}
+            {tags.length > 5 && (
+              <span class="inline-flex items-center px-3 py-1.5 rounded-full text-sm text-gray-500">
+                +{tags.length - 5} עוד
+              </span>
+            )}
+          </div>
+        )
+      }
 
       <div class="w-full flex flex-wrap gap-2 items-center justify-between">
         <div class="flex flex-wrap gap-4">

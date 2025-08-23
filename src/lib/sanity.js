@@ -377,6 +377,7 @@ export async function getArticleBySlug(slug) {
       isMainHeadline,
       isSubHeadline,
       content,
+      tags,
       categories[]-> {
         _id,
         title,
@@ -732,4 +733,124 @@ export async function getCategoryBySlug(slug) {
       }
     }
   `, { slug })
+}
+
+
+
+
+
+
+
+
+
+
+
+// Récupérer tous les tags uniques avec compteurs - VERSION CORRIGÉE
+export async function getAllTags() {
+  console.log("🔍 Récupération de tous les tags...");
+
+  try {
+    const articles = await sanityClient.fetch(`
+      *[_type == "article" && !isDraft && defined(tags) && defined(publishedTime) && defined(slug.current)] {
+        tags
+      }
+    `);
+
+    console.log("📊 Articles avec tags trouvés:", articles.length);
+
+    if (articles.length === 0) {
+      console.log("⚠️ Aucun article avec tags trouvé");
+      return [];
+    }
+
+    // Compter les occurrences de chaque tag
+    const tagCounts = new Map();
+
+    articles.forEach(article => {
+      if (article.tags && Array.isArray(article.tags)) {
+        article.tags.forEach(tag => {
+          if (tag && typeof tag === 'string' && tag.trim()) {
+            const cleanTag = tag.trim();
+            const urlTag = cleanTag
+              .toLowerCase()
+              .replace(/\s+/g, '-')
+              .replace(/[^\w\u0590-\u05FF-]/g, ''); // Supporte l'hébreu
+
+            const current = tagCounts.get(urlTag) || {
+              name: cleanTag,
+              count: 0,
+              url: urlTag
+            };
+            tagCounts.set(urlTag, { ...current, count: current.count + 1 });
+          }
+        });
+      }
+    });
+
+    const result = Array.from(tagCounts.values()).sort((a, b) => b.count - a.count);
+    console.log("🏷️ Tags générés:", result.length);
+    console.log("📋 Premiers 5 tags:", result.slice(0, 5));
+
+    return result;
+
+  } catch (error) {
+    console.error("❌ Erreur getAllTags:", error);
+    return [];
+  }
+}
+
+
+
+export async function getArticlesByTag(tagSlug) {
+  console.log(`🔍 Recherche articles pour tag: "${tagSlug}"`);
+
+  try {
+    // Convertir "galaxy-watch" vers "Galaxy Watch"
+    const originalTag = tagSlug.replace(/-/g, ' '); // "galaxy watch"
+    const capitalizedTag = originalTag
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' '); // "Galaxy Watch"
+
+    console.log("🔍 Recherche pour:", { tagSlug, originalTag, capitalizedTag });
+
+    const articles = await sanityClient.fetch(`
+      *[_type == "article" && !isDraft && defined(publishedTime) && defined(slug.current) && defined(tags) && (
+        $originalTag in tags ||
+        $capitalizedTag in tags
+      )] | order(publishedTime desc) {
+        _id,
+        title,
+        description,
+        slug,
+        cover,
+        publishedTime,
+        categories[]-> {
+          _id,
+          title,
+          slug,
+          parent-> {
+            title,
+            slug
+          }
+        },
+        authors[]-> {
+          _id,
+          name,
+          slug
+        },
+        tags
+      }
+    `, {
+      originalTag,     // "galaxy watch"
+      capitalizedTag   // "Galaxy Watch"
+    });
+
+    console.log(`📄 Articles trouvés:`, articles.length);
+    return articles;
+
+  } catch (error) {
+    console.error(`❌ Erreur:`, error);
+    return [];
+  }
 }

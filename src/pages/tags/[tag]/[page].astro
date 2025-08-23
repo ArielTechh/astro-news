@@ -1,0 +1,132 @@
+---
+// src/pages/tags/[tag]/[page].astro - PAGES DE PAGINATION
+import type { GetStaticPaths } from "astro";
+import { SITE } from "@/lib/config";
+import { getAllTags, getArticlesByTag } from "@/lib/sanity";
+import ListLayout from "@/layouts/list.astro";
+import Pagination from "@/components/shared/pagination.astro";
+import WideCard from "@/components/cards/wideCard.astro";
+
+export const getStaticPaths = (async () => {
+  console.log("🔍 DEBUT getStaticPaths pour tags/[tag]/[page]");
+
+  try {
+    const allTags = await getAllTags();
+    console.log("📊 Tags trouvés pour pagination:", allTags.length);
+
+    const paths = [];
+    const articlesPerPage = SITE.postsPerPage;
+
+    for (const tag of allTags) {
+      const articles = await getArticlesByTag(tag.url);
+
+      if (articles.length > articlesPerPage) {
+        const totalPages = Math.ceil(articles.length / articlesPerPage);
+
+        // Générer les pages 2, 3, 4...
+        for (let page = 2; page <= totalPages; page++) {
+          const startIndex = (page - 1) * articlesPerPage;
+          const endIndex = startIndex + articlesPerPage;
+          const pageArticles = articles.slice(startIndex, endIndex);
+
+          paths.push({
+            params: {
+              tag: tag.url,
+              page: page.toString(),
+            },
+            props: {
+              tagInfo: tag,
+              articles: pageArticles,
+              allArticles: articles,
+              currentPage: page,
+              totalPages: totalPages,
+            },
+          });
+        }
+      }
+    }
+
+    console.log("✅ Pages de pagination générées:", paths.length);
+    return paths;
+  } catch (error) {
+    console.error("❌ Erreur dans getStaticPaths pagination:", error);
+    return [];
+  }
+}) satisfies GetStaticPaths;
+
+const { tagInfo, articles, allArticles, currentPage, totalPages } = Astro.props;
+const { tag } = Astro.params;
+
+// Métadonnées
+const tagMeta = {
+  title: `${tagInfo.name} - עמוד ${currentPage}`,
+  metaTitle: `מאמרים עם התג ${tagInfo.name} - עמוד ${currentPage}`,
+  description: `עמוד ${currentPage} של המאמרים עם התג ${tagInfo.name}`,
+  type: "website",
+};
+
+const tagEntry = {
+  id: "tag-page",
+  collection: "views",
+  data: tagMeta,
+};
+
+const canonicalUrl = `${SITE.url}/tags/${tag}/${currentPage}`;
+---
+
+<ListLayout
+  header={`${tagInfo.name} - עמוד ${currentPage}`}
+  entry={tagEntry}
+  canonical={canonicalUrl}
+  customMeta={tagMeta}
+>
+  <div dir="rtl">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm">
+      <a href="/" class="text-blue-600 hover:underline">הכל</a>
+      <span class="mx-2">←</span>
+      <a href={`/tags/${tag}`} class="text-blue-600 hover:underline"
+        >{tagInfo.name}</a
+      >
+      <span class="mx-2">←</span>
+      <span class="text-gray-600">עמוד {currentPage}</span>
+    </nav>
+
+    <!-- Compteur total -->
+    <div class="mb-6 text-sm text-gray-600">
+      <span
+        >{allArticles.length} מאמרים | עמוד {currentPage} מתוך {
+          totalPages
+        }</span
+      >
+    </div>
+
+    <!-- Articles de cette page -->
+    <ul class="flex flex-col gap-2 flex-1">
+      {
+        articles.map((article, index) => (
+          <WideCard article={article} isLast={index === articles.length - 1} />
+        ))
+      }
+    </ul>
+
+    <!-- Pagination -->
+    <div dir="ltr" class="mt-8">
+      <Pagination
+        length={totalPages}
+        currentUrl={`/tags/${tag}/${currentPage}`}
+        currentPage={currentPage}
+        baseUrl={`/tags/${tag}`}
+        prevUrl={currentPage > 2
+          ? `/tags/${tag}/${currentPage - 1}`
+          : currentPage === 2
+            ? `/tags/${tag}`
+            : null}
+        nextUrl={currentPage < totalPages
+          ? `/tags/${tag}/${currentPage + 1}`
+          : null}
+        lastUrl={`/tags/${tag}/${totalPages}`}
+      />
+    </div>
+  </div>
+</ListLayout>

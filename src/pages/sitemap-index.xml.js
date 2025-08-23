@@ -32,6 +32,12 @@ export async function GET() {
     <loc>${SITE.url}/sitemap-pages.xml</loc>
     <lastmod>2024-01-01T00:00:00.000Z</lastmod>
   </sitemap>
+
+  <sitemap>
+  <loc>${SITE.url}/sitemap-tags.xml</loc>
+  <lastmod>${new Date().toISOString()}</lastmod>
+</sitemap>
+
 </sitemapindex>`;
 
     return new Response(xml, {

@@ -185,24 +185,30 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Traiter la requête
   const response = await next();
 
-  // ✨ NOUVELLE GESTION DES 404
+
+  // ✨ GESTION DES 404 AVEC EXCEPTIONS
   if (response.status === 404) {
-    // Option 1: Redirection 301 vers l'accueil (SEO friendly)
+    // 🚫 NE PAS rediriger si c'est une page tags, categories ou autres pages dynamiques
+    const isDynamicPage = pathname.startsWith('/tags/') ||
+      pathname.startsWith('/categories/') ||
+      pathname.startsWith('/authors/');
+
+    if (isDynamicPage) {
+      // Laisser Astro gérer l'erreur 404 normalement pour les pages dynamiques
+      const pageType = 'notfound';
+      const robotsDirective = robotsConfig[pageType];
+      response.headers.set('X-Robots-Tag', robotsDirective);
+      return response;
+    }
+
+    // Pour toutes les autres 404 (pages inexistantes), rediriger vers l'accueil
     return new Response(null, {
       status: 301,
       headers: {
         'Location': '/',
-        'Cache-Control': 'no-cache', // Pas de cache pour les 404
+        'Cache-Control': 'no-cache',
       }
     });
-
-    // Option 2: Garder le 404 mais avec les bons headers (décommentez si préféré)
-    /*
-    const pageType = 'notfound';
-    const robotsDirective = robotsConfig[pageType];
-    response.headers.set('X-Robots-Tag', robotsDirective);
-    return response;
-    */
   }
 
   // Déterminer le type de page pour les réponses valides

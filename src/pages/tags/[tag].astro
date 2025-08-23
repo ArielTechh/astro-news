@@ -1,0 +1,121 @@
+---
+// src/pages/tags/[tag].astro - PAGE 1 CORRIGÉE
+import type { GetStaticPaths } from "astro";
+import { SITE } from "@/lib/config";
+import { getAllTags, getArticlesByTag } from "@/lib/sanity";
+import ListLayout from "@/layouts/list.astro";
+import Pagination from "@/components/shared/pagination.astro";
+import WideCard from "@/components/cards/wideCard.astro";
+
+export const getStaticPaths = (async () => {
+  console.log("🔍 DEBUT getStaticPaths pour tags");
+
+  try {
+    const allTags = await getAllTags();
+    console.log("📊 Tags trouvés:", allTags.length);
+
+    const paths = [];
+
+    for (const tag of allTags) {
+      const articles = await getArticlesByTag(tag.url);
+      console.log(`🏷️ Tag "${tag.url}": ${articles.length} articles`);
+
+      if (articles.length > 0) {
+        paths.push({
+          params: { tag: tag.url },
+          props: {
+            tagInfo: tag,
+            allArticles: articles,
+          },
+        });
+      }
+    }
+
+    console.log("✅ Paths générés:", paths.length);
+    return paths;
+  } catch (error) {
+    console.error("❌ Erreur dans getStaticPaths:", error);
+    return [];
+  }
+}) satisfies GetStaticPaths;
+
+const { tagInfo, allArticles } = Astro.props;
+const { tag } = Astro.params;
+
+const totalArticles = allArticles.length;
+const articlesPerPage = SITE.postsPerPage;
+const articles = allArticles.slice(0, articlesPerPage);
+const totalPages = Math.ceil(totalArticles / articlesPerPage);
+
+const tagMeta = {
+  title: tagInfo.name,
+  metaTitle: `מאמרים עם התג ${tagInfo.name}`,
+  description: `כל המאמרים והביקורות עם התג ${tagInfo.name}`,
+  type: "website",
+};
+
+const tagEntry = {
+  id: "tag-page",
+  collection: "views",
+  data: tagMeta,
+};
+
+const canonicalUrl = `${SITE.url}/tags/${tag}`;
+
+// ✅ CORRECTION : URLs de pagination corrigées
+const prevUrl = null; // Page 1 n'a pas de précédent
+const nextUrl = totalPages > 1 ? `/tags/${tag}/2` : null;
+const firstUrl = `/tags/${tag}`; // Page 1 (cette page)
+const lastUrl = totalPages > 1 ? `/tags/${tag}/${totalPages}` : null;
+---
+
+<ListLayout
+  header={tagInfo.name}
+  entry={tagEntry}
+  canonical={canonicalUrl}
+  customMeta={tagMeta}
+>
+  <div dir="rtl">
+    <!-- Breadcrumb -->
+    <nav class="mb-6 text-sm" dir="rtl">
+      <a href="/" class="text-blue-600 hover:underline"> הכל </a>
+      <span class="mx-2">←</span>
+      <span class="text-gray-600">{tagInfo.name}</span>
+    </nav>
+
+    <!-- Compteur d'articles -->
+    <div class="mb-6 text-sm text-gray-600" dir="rtl">
+      <span>{totalArticles} מאמרים</span>
+      {totalPages > 1 && (
+        <span class="mx-2">|</span>
+        <span>עמוד 1 מתוך {totalPages}</span>
+      )}
+    </div>
+
+    <!-- Liste des articles -->
+    <ul class="flex flex-col gap-2 flex-1">
+      {
+        articles.map((article, index) => (
+          <WideCard article={article} isLast={index === articles.length - 1} />
+        ))
+      }
+    </ul>
+
+    <!-- Pagination corrigée -->
+    {
+      totalPages > 1 && (
+        <div dir="ltr" class="mt-8">
+          <Pagination
+            length={totalPages}
+            currentUrl={firstUrl}
+            currentPage={1}
+            baseUrl={`/tags/${tag}`}
+            prevUrl={prevUrl}
+            nextUrl={nextUrl}
+            lastUrl={lastUrl}
+          />
+        </div>
+      )
+    }
+  </div>
+</ListLayout>

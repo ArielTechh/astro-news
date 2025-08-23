@@ -17,6 +17,14 @@ type Props = {
 const { length, currentUrl, currentPage, baseUrl, prevUrl, nextUrl, lastUrl } =
   Astro.props;
 
+// ✅ FONCTION AJOUTÉE : génère la bonne URL pour chaque page
+function getPageUrl(pageNumber: number, baseUrl: string): string {
+  if (pageNumber === 1) {
+    return baseUrl; // Page 1 = baseUrl sans /1
+  }
+  return `${baseUrl}/${pageNumber}`;
+}
+
 // Define the maximum number of visible buttons
 const maxVisibleButtons = 4;
 
@@ -32,6 +40,10 @@ const paginationList = Array.from(
   { length: endPage - adjustedStartPage + 1 },
   (_, i) => adjustedStartPage + i,
 );
+
+// ✅ CORRECTION : URLs de première et dernière page
+const firstPageUrl = getPageUrl(1, baseUrl);
+const lastPageUrl = getPageUrl(length, baseUrl);
 ---
 
 <section
@@ -42,13 +54,13 @@ const paginationList = Array.from(
 >
   <nav class="join">
     {
-      `${baseUrl}/1` == `${currentUrl}` ? (
+      firstPageUrl === currentUrl ? (
         <span class="join-item btn btn-sm btn-disabled" aria-label="First page">
           <ArrowLeftDouble />
         </span>
       ) : (
         <a
-          href={`${baseUrl}/1`}
+          href={firstPageUrl}
           class="join-item btn btn-sm"
           aria-label="First page"
         >
@@ -70,14 +82,17 @@ const paginationList = Array.from(
     }
 
     {
-      paginationList.map((num) => (
-        <a
-          href={`${baseUrl}/${num}`}
-          class={`join-item btn btn-sm ${currentPage == num ? "btn-active pointer-events-none" : ""}`}
-        >
-          {num}
-        </a>
-      ))
+      paginationList.map((num) => {
+        const pageUrl = getPageUrl(num, baseUrl);
+        return (
+          <a
+            href={pageUrl}
+            class={`join-item btn btn-sm ${currentPage == num ? "btn-active pointer-events-none" : ""}`}
+          >
+            {num}
+          </a>
+        );
+      })
     }
 
     {
@@ -93,12 +108,16 @@ const paginationList = Array.from(
     }
 
     {
-      lastUrl == currentUrl ? (
+      lastPageUrl === currentUrl ? (
         <span class="join-item btn btn-sm btn-disabled" aria-label="Last page">
           <ArrowRightDouble />
         </span>
       ) : (
-        <a href={lastUrl} class="join-item btn btn-sm" aria-label="Last page">
+        <a
+          href={lastPageUrl}
+          class="join-item btn btn-sm"
+          aria-label="Last page"
+        >
           <ArrowRightDouble />
         </a>
       )
