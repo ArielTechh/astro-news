@@ -139,12 +139,5 @@
         }
       ]
     }
-  ],
-  "routes": [
-    {
-      "src": "/categories/([^/]+)/(\\d+)",
-      "dest": "/categories/$1/$2",
-      "status": 200
-    }
   ]
 }
