@@ -100,6 +100,18 @@
       "source": "/:slug*/feed",
       "destination": "/:slug*",
       "permanent": true
+    },
+    {
+      "source": "/categories/:category/:page(\\d+)",
+      "destination": "/categories/:category",
+      "permanent": true,
+      "has": [
+        {
+          "type": "header",
+          "key": "x-vercel-status",
+          "value": "404"
+        }
+      ]
     }
   ],
   "headers": [
