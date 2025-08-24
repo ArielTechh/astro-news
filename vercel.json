@@ -121,23 +121,6 @@
       "permanent": true
     },
     {
-      "source": "/([a-z0-9][a-z0-9\\-]*[a-z0-9])/",
-      "destination": "/$1",
-      "statusCode": 301,
-      "has": [
-        {
-          "type": "header",
-          "key": "host"
-        }
-      ],
-      "missing": [
-        {
-          "type": "query",
-          "key": "page"
-        }
-      ]
-    },
-    {
       "source": "/privacy-policy",
       "destination": "/",
       "permanent": true
@@ -725,6 +708,23 @@
       "source": "/contact",
       "destination": "/",
       "permanent": true
+    },
+    {
+      "source": "/([a-z0-9][a-z0-9\\-]*[a-z0-9])/",
+      "destination": "/$1",
+      "statusCode": 301,
+      "has": [
+        {
+          "type": "header",
+          "key": "host"
+        }
+      ],
+      "missing": [
+        {
+          "type": "query",
+          "key": "page"
+        }
+      ]
     }
   ],
   "headers": [
