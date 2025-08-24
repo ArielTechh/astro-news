@@ -21,21 +21,6 @@
       "permanent": true
     },
     {
-      "source": "/:slug/feed",
-      "destination": "/:slug",
-      "permanent": true
-    },
-    {
-      "source": "/:slug/feed/",
-      "destination": "/:slug",
-      "permanent": true
-    },
-    {
-      "source": "/:slug/feed/:path*",
-      "destination": "/:slug",
-      "permanent": true
-    },
-    {
       "source": "/technology",
       "destination": "/categories/technology",
       "permanent": true
@@ -108,6 +93,21 @@
     {
       "source": "/tag/:tagname/:path*",
       "destination": "/tags/:tagname",
+      "permanent": true
+    },
+    {
+      "source": "/:slug/feed",
+      "destination": "/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/:slug/feed/",
+      "destination": "/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/:slug/feed/:path*",
+      "destination": "/:slug",
       "permanent": true
     },
     {
@@ -203,11 +203,6 @@
     },
     {
       "source": "/:slug*/feed/:path*",
-      "destination": "/:slug*",
-      "permanent": true
-    },
-    {
-      "source": "/:slug*/feed",
       "destination": "/:slug*",
       "permanent": true
     },
