@@ -100,7 +100,529 @@
       "source": "/:slug*/feed",
       "destination": "/:slug*",
       "permanent": true
+    },
+    // to delete
+    {
+      "source": "/categories/deals-promotions/2",
+      "destination": "/categories/deals-promotions",
+      "permanent": true
+    },
+    {
+      "source": "/categories/vpn/2",
+      "destination": "/categories/vpn",
+      "permanent": true
+    },
+    {
+      "source": "/categories/oneplus/3",
+      "destination": "/categories/oneplus",
+      "permanent": true
+    },
+    {
+      "source": "/categories/programming/5",
+      "destination": "/categories/programming",
+      "permanent": true
+    },
+    {
+      "source": "/categories/finance/2",
+      "destination": "/categories/finance",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wireless-headphones/2",
+      "destination": "/categories/wireless-headphones",
+      "permanent": true
+    },
+    {
+      "source": "/categories/oppo/5",
+      "destination": "/categories/oppo",
+      "permanent": true
+    },
+    {
+      "source": "/categories/disney/3",
+      "destination": "/categories/disney",
+      "permanent": true
+    },
+    {
+      "source": "/categories/health/4",
+      "destination": "/categories/health",
+      "permanent": true
+    },
+    {
+      "source": "/categories/programming/2",
+      "destination": "/categories/programming",
+      "permanent": true
+    },
+    {
+      "source": "/categories/disney/5",
+      "destination": "/categories/disney",
+      "permanent": true
+    },
+    {
+      "source": "/categories/apple-tv/4",
+      "destination": "/categories/apple-tv",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wireless-headphones/5",
+      "destination": "/categories/wireless-headphones",
+      "permanent": true
+    },
+    {
+      "source": "/categories/finance/4",
+      "destination": "/categories/finance",
+      "permanent": true
+    },
+    {
+      "source": "/categories/buying-guide/5",
+      "destination": "/categories/buying-guide",
+      "permanent": true
+    },
+    {
+      "source": "/categories/productivity/3",
+      "destination": "/categories/productivity",
+      "permanent": true
+    },
+    {
+      "source": "/categories/health/5",
+      "destination": "/categories/health",
+      "permanent": true
+    },
+    {
+      "source": "/categories/oneplus/2",
+      "destination": "/categories/oneplus",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wellness/2",
+      "destination": "/categories/wellness",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wireless-earbuds/4",
+      "destination": "/categories/wireless-earbuds",
+      "permanent": true
+    },
+    {
+      "source": "/categories/nintendo-switch/4",
+      "destination": "/categories/nintendo-switch",
+      "permanent": true
+    },
+    {
+      "source": "/categories/samsung/3",
+      "destination": "/categories/samsung",
+      "permanent": true
+    },
+    {
+      "source": "/categories/deals-promotions/5",
+      "destination": "/categories/deals-promotions",
+      "permanent": true
+    },
+    {
+      "source": "/categories/finance/5",
+      "destination": "/categories/finance",
+      "permanent": true
+    },
+    {
+      "source": "/categories/huawei/2",
+      "destination": "/categories/huawei",
+      "permanent": true
+    },
+    {
+      "source": "/categories/huawei/5",
+      "destination": "/categories/huawei",
+      "permanent": true
+    },
+    {
+      "source": "/categories/buying-guide/3",
+      "destination": "/categories/buying-guide",
+      "permanent": true
+    },
+    {
+      "source": "/categories/xbox-series-x-s/2",
+      "destination": "/categories/xbox-series-x-s",
+      "permanent": true
+    },
+    {
+      "source": "/categories/computers-main/5",
+      "destination": "/categories/computers-main",
+      "permanent": true
+    },
+    {
+      "source": "/categories/honor/4",
+      "destination": "/categories/honor",
+      "permanent": true
+    },
+    {
+      "source": "/categories/huawei/4",
+      "destination": "/categories/huawei",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wireless-earbuds/5",
+      "destination": "/categories/wireless-earbuds",
+      "permanent": true
+    },
+    {
+      "source": "/categories/productivity/5",
+      "destination": "/categories/productivity",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wellness/5",
+      "destination": "/categories/wellness",
+      "permanent": true
+    },
+    {
+      "source": "/categories/test/5",
+      "destination": "/categories/test",
+      "permanent": true
+    },
+    {
+      "source": "/categories/oppo/3",
+      "destination": "/categories/oppo",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wireless-headphones/3",
+      "destination": "/categories/wireless-headphones",
+      "permanent": true
+    },
+    {
+      "source": "/categories/ram/3",
+      "destination": "/categories/ram",
+      "permanent": true
+    },
+    {
+      "source": "/categories/apps/5",
+      "destination": "/categories/apps",
+      "permanent": true
+    },
+    {
+      "source": "/categories/computers-main/4",
+      "destination": "/categories/computers-main",
+      "permanent": true
+    },
+    {
+      "source": "/categories/ram/2",
+      "destination": "/categories/ram",
+      "permanent": true
+    },
+    {
+      "source": "/categories/audio/5",
+      "destination": "/categories/audio",
+      "permanent": true
+    },
+    {
+      "source": "/categories/gaming-laptops/4",
+      "destination": "/categories/gaming-laptops",
+      "permanent": true
+    },
+    {
+      "source": "/categories/hbo-max/4",
+      "destination": "/categories/hbo-max",
+      "permanent": true
+    },
+    {
+      "source": "/categories/audio-main/3",
+      "destination": "/categories/audio-main",
+      "permanent": true
+    },
+    {
+      "source": "/categories/lifestyle/5",
+      "destination": "/categories/lifestyle",
+      "permanent": true
+    },
+    {
+      "source": "/categories/vpn/4",
+      "destination": "/categories/vpn",
+      "permanent": true
+    },
+    {
+      "source": "/categories/samsung/2",
+      "destination": "/categories/samsung",
+      "permanent": true
+    },
+    {
+      "source": "/categories/gaming-laptops/5",
+      "destination": "/categories/gaming-laptops",
+      "permanent": true
+    },
+    {
+      "source": "/categories/deals-promotions/3",
+      "destination": "/categories/deals-promotions",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wellness/3",
+      "destination": "/categories/wellness",
+      "permanent": true
+    },
+    {
+      "source": "/categories/graphic-cards/3",
+      "destination": "/categories/graphic-cards",
+      "permanent": true
+    },
+    {
+      "source": "/categories/productivity/4",
+      "destination": "/categories/productivity",
+      "permanent": true
+    },
+    {
+      "source": "/categories/news-video-games/5",
+      "destination": "/categories/news-video-games",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wireless-headphones/4",
+      "destination": "/categories/wireless-headphones",
+      "permanent": true
+    },
+    {
+      "source": "/categories/lifestyle/4",
+      "destination": "/categories/lifestyle",
+      "permanent": true
+    },
+    {
+      "source": "/categories/processors/4",
+      "destination": "/categories/processors",
+      "permanent": true
+    },
+    {
+      "source": "/categories/vpn/3",
+      "destination": "/categories/vpn",
+      "permanent": true
+    },
+    {
+      "source": "/categories/finance/3",
+      "destination": "/categories/finance",
+      "permanent": true
+    },
+    {
+      "source": "/categories/news-video-games/3",
+      "destination": "/categories/news-video-games",
+      "permanent": true
+    },
+    {
+      "source": "/categories/crunchyroll/4",
+      "destination": "/categories/crunchyroll",
+      "permanent": true
+    },
+    {
+      "source": "/categories/huawei/3",
+      "destination": "/categories/huawei",
+      "permanent": true
+    },
+    {
+      "source": "/categories/samsung/4",
+      "destination": "/categories/samsung",
+      "permanent": true
+    },
+    {
+      "source": "/categories/processors/3",
+      "destination": "/categories/processors",
+      "permanent": true
+    },
+    {
+      "source": "/categories/gaming-laptops/2",
+      "destination": "/categories/gaming-laptops",
+      "permanent": true
+    },
+    {
+      "source": "/categories/hbo-max/5",
+      "destination": "/categories/hbo-max",
+      "permanent": true
+    },
+    {
+      "source": "/categories/oneplus/4",
+      "destination": "/categories/oneplus",
+      "permanent": true
+    },
+    {
+      "source": "/categories/processors/2",
+      "destination": "/categories/processors",
+      "permanent": true
+    },
+    {
+      "source": "/categories/apple-tv/5",
+      "destination": "/categories/apple-tv",
+      "permanent": true
+    },
+    {
+      "source": "/categories/audio-main/5",
+      "destination": "/categories/audio-main",
+      "permanent": true
+    },
+    {
+      "source": "/categories/movies-tv-shows/5",
+      "destination": "/categories/movies-tv-shows",
+      "permanent": true
+    },
+    {
+      "source": "/categories/vpn/5",
+      "destination": "/categories/vpn",
+      "permanent": true
+    },
+    {
+      "source": "/categories/health/2",
+      "destination": "/categories/health",
+      "permanent": true
+    },
+    {
+      "source": "/categories/test/2",
+      "destination": "/categories/test",
+      "permanent": true
+    },
+    {
+      "source": "/categories/programming/3",
+      "destination": "/categories/programming",
+      "permanent": true
+    },
+    {
+      "source": "/categories/honor/5",
+      "destination": "/categories/honor",
+      "permanent": true
+    },
+    {
+      "source": "/categories/netflix/5",
+      "destination": "/categories/netflix",
+      "permanent": true
+    },
+    {
+      "source": "/categories/wireless-earbuds/2",
+      "destination": "/categories/wireless-earbuds",
+      "permanent": true
+    },
+    {
+      "source": "/categories/test/3",
+      "destination": "/categories/test",
+      "permanent": true
+    },
+    {
+      "source": "/categories/oppo/2",
+      "destination": "/categories/oppo",
+      "permanent": true
+    },
+    {
+      "source": "/categories/nintendo-switch/5",
+      "destination": "/categories/nintendo-switch",
+      "permanent": true
+    },
+    {
+      "source": "/categories/audio/4",
+      "destination": "/categories/audio",
+      "permanent": true
+    },
+    {
+      "source": "/categories/gaming-laptops/3",
+      "destination": "/categories/gaming-laptops",
+      "permanent": true
+    },
+    {
+      "source": "/categories/xbox-series-x-s/3",
+      "destination": "/categories/xbox-series-x-s",
+      "permanent": true
+    },
+    {
+      "source": "/categories/news-video-games/4",
+      "destination": "/categories/news-video-games",
+      "permanent": true
+    },
+    {
+      "source": "/categories/news-video-games/2",
+      "destination": "/categories/news-video-games",
+      "permanent": true
+    },
+    {
+      "source": "/categories/movies-tv-shows/4",
+      "destination": "/categories/movies-tv-shows",
+      "permanent": true
+    },
+    {
+      "source": "/categories/xbox-series-x-s/4",
+      "destination": "/categories/xbox-series-x-s",
+      "permanent": true
+    },
+    {
+      "source": "/categories/processors/5",
+      "destination": "/categories/processors",
+      "permanent": true
+    },
+    {
+      "source": "/categories/audio-main/4",
+      "destination": "/categories/audio-main",
+      "permanent": true
+    },
+    {
+      "source": "/categories/samsung/5",
+      "destination": "/categories/samsung",
+      "permanent": true
+    },
+    {
+      "source": "/categories/ram/4",
+      "destination": "/categories/ram",
+      "permanent": true
+    },
+    {
+      "source": "/categories/deals-promotions/4",
+      "destination": "/categories/deals-promotions",
+      "permanent": true
+    },
+    {
+      "source": "/categories/audio/3",
+      "destination": "/categories/audio",
+      "permanent": true
+    },
+    {
+      "source": "/categories/oppo/4",
+      "destination": "/categories/oppo",
+      "permanent": true
+    },
+    {
+      "source": "/categories/ram/5",
+      "destination": "/categories/ram",
+      "permanent": true
+    },
+    {
+      "source": "/categories/disney/4",
+      "destination": "/categories/disney",
+      "permanent": true
+    },
+    {
+      "source": "/categories/programming/4",
+      "destination": "/categories/programming",
+      "permanent": true
+    },
+    {
+      "source": "/categories/graphic-cards/4",
+      "destination": "/categories/graphic-cards",
+      "permanent": true
+    },
+    {
+      "source": "/categories/test/4",
+      "destination": "/categories/test",
+      "permanent": true
+    },
+    {
+      "source": "/accessibility",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/privacy",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/cookie",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/contact",
+      "destination": "/",
+      "permanent": true
     }
+    // to here
   ],
   "headers": [
     {
