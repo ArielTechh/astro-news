@@ -1,5 +1,10 @@
-// src/middleware.ts - Version modifiée avec gestion 404
+// src/middleware.ts - Version avec vérification intelligente pagination
 import { defineMiddleware } from "astro:middleware";
+import { getAllCategories, getArticlesByCategory } from "@/lib/sanity";
+import { SITE } from "@/lib/config";
+
+// Cache pour éviter de refaire les requêtes Sanity à chaque fois
+const categoryCache = new Map<string, { totalPages: number; exists: boolean }>();
 
 // ✨ Configuration des directives robots par type de page
 const robotsConfig = {
@@ -27,6 +32,79 @@ const robotsConfig = {
   // Défaut : sécurisé
   default: "index, follow, max-image-preview:standard"
 };
+
+// ✨ Fonction pour vérifier si une page de catégorie existe
+async function checkCategoryPageExists(categorySlug: string, pageNum: number): Promise<{ exists: boolean; totalPages: number; shouldRedirect: boolean; redirectTo: string | null }> {
+  const cacheKey = `${categorySlug}-info`;
+
+  // Vérifier le cache d'abord
+  let categoryInfo = categoryCache.get(cacheKey);
+
+  if (!categoryInfo) {
+    try {
+      // Récupérer les infos de la catégorie depuis Sanity
+      const articles = await getArticlesByCategory(categorySlug);
+      const totalPages = Math.ceil(articles.length / SITE.postsPerPage);
+
+      categoryInfo = {
+        totalPages,
+        exists: articles.length > 0
+      };
+
+      // Mettre en cache pour 5 minutes
+      categoryCache.set(cacheKey, categoryInfo);
+
+      // Nettoyer le cache après 5 minutes
+      setTimeout(() => {
+        categoryCache.delete(cacheKey);
+      }, 5 * 60 * 1000);
+
+    } catch (error) {
+      console.error(`Erreur lors de la vérification de la catégorie ${categorySlug}:`, error);
+
+      // En cas d'erreur, on assume que la catégorie n'existe pas
+      categoryInfo = { totalPages: 0, exists: false };
+    }
+  }
+
+  // Si la catégorie n'existe pas du tout
+  if (!categoryInfo.exists) {
+    return {
+      exists: false,
+      totalPages: 0,
+      shouldRedirect: true,
+      redirectTo: '/'
+    };
+  }
+
+  // Si c'est la page 1, elle existe toujours (tant que la catégorie existe)
+  if (pageNum === 1) {
+    return {
+      exists: true,
+      totalPages: categoryInfo.totalPages,
+      shouldRedirect: true, // Rediriger /categories/cat/1 vers /categories/cat
+      redirectTo: `/categories/${categorySlug}`
+    };
+  }
+
+  // Pour les pages > 1, vérifier si la page existe
+  if (pageNum > categoryInfo.totalPages) {
+    return {
+      exists: false,
+      totalPages: categoryInfo.totalPages,
+      shouldRedirect: true,
+      redirectTo: categoryInfo.totalPages > 1 ? `/categories/${categorySlug}/${categoryInfo.totalPages}` : `/categories/${categorySlug}`
+    };
+  }
+
+  // La page existe et est valide
+  return {
+    exists: true,
+    totalPages: categoryInfo.totalPages,
+    shouldRedirect: false,
+    redirectTo: null
+  };
+}
 
 // ✨ Fonction pour déterminer le type de page
 function getPageType(pathname: string): keyof typeof robotsConfig {
@@ -76,7 +154,7 @@ function getPageType(pathname: string): keyof typeof robotsConfig {
     pathname.includes('/cookie') ||
     pathname.includes('/privacy') ||
     pathname.includes('/search')) {
-    return 'staticc';
+    return 'static';
   }
 
   return 'default';
@@ -94,6 +172,31 @@ export const onRequest = defineMiddleware(async (context, next) => {
     'hbo-max', 'desktop-game', 'buying-guide', 'productivity',
     'health', 'wellness', 'test', 'finance', 'apple-tv'
   ];
+
+  // 🆕 VÉRIFICATION INTELLIGENTE DES PAGES DE PAGINATION
+  // Pattern : /categories/category/page (où page est un nombre)
+  const paginationMatch = pathname.match(/^\/categories\/([^\/]+)\/(\d+)$/);
+  if (paginationMatch) {
+    const [, categorySlug, pageNum] = paginationMatch;
+    const pageNumber = parseInt(pageNum);
+
+    try {
+      const checkResult = await checkCategoryPageExists(categorySlug, pageNumber);
+
+      if (checkResult.shouldRedirect && checkResult.redirectTo) {
+        return new Response(null, {
+          status: 301,
+          headers: {
+            'Location': checkResult.redirectTo,
+            'Cache-Control': 'public, max-age=3600', // Cache 1h pour pagination
+          }
+        });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la vérification de pagination:', error);
+      // En cas d'erreur, laisser Astro gérer normalement
+    }
+  }
 
   // ✨ NOUVELLES REDIRECTIONS : /category/* → /categories/category
   // Gère tous les cas : /streaming, /streaming/, /streaming/page/1, /streaming/anything
@@ -113,9 +216,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   }
 
   // ✅ Redirection catégories avec pagination : /category/page/N/ → /categories/category (page 1)
-  const paginationMatch = pathname.match(/^\/([^\/]+)\/page\/\d+\/?$/);
-  if (paginationMatch) {
-    const [, categorySlug] = paginationMatch;
+  const oldPaginationMatch = pathname.match(/^\/([^\/]+)\/page\/\d+\/?$/);
+  if (oldPaginationMatch) {
+    const [, categorySlug] = oldPaginationMatch;
 
     if (categoryRedirects.includes(categorySlug)) {
       return new Response(null, {
@@ -126,20 +229,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
         }
       });
     }
-  }
-
-  // ✅ Redirection /categories/category/1 → /categories/category (supprime la page 1)
-  if (pathname.match(/^\/categories\/[^\/]+\/1$/)) {
-    // Extraire la catégorie : /categories/apple/1 → /categories/apple
-    const categoryPath = pathname.replace(/\/1$/, '');
-
-    return new Response(null, {
-      status: 301,
-      headers: {
-        'Location': categoryPath,
-        'Cache-Control': 'public, max-age=31536000', // 1 an de cache
-      }
-    });
   }
 
   // ✨ REDIRECTIONS 301 : /page/* vers l'accueil
@@ -185,12 +274,10 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Traiter la requête
   const response = await next();
 
-
-  // ✨ GESTION DES 404 AVEC EXCEPTIONS
+  // ✨ GESTION DES 404 SIMPLIFIÉE
   if (response.status === 404) {
-    // 🚫 NE PAS rediriger si c'est une page tags, categories ou autres pages dynamiques
+    // 🚫 NE PAS rediriger si c'est une page tags ou authors
     const isDynamicPage = pathname.startsWith('/tags/') ||
-      pathname.startsWith('/categories/') ||
       pathname.startsWith('/authors/');
 
     if (isDynamicPage) {
@@ -201,7 +288,7 @@ export const onRequest = defineMiddleware(async (context, next) => {
       return response;
     }
 
-    // Pour toutes les autres 404 (pages inexistantes), rediriger vers l'accueil
+    // Pour toutes les autres 404 (y compris les catégories inexistantes), rediriger vers l'accueil
     return new Response(null, {
       status: 301,
       headers: {
@@ -214,6 +301,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Déterminer le type de page pour les réponses valides
   const pageType = getPageType(context.url.pathname);
   const robotsDirective = robotsConfig[pageType];
+
+  // Appliquer les directives robots
+  response.headers.set('X-Robots-Tag', robotsDirective);
 
   if (!response.headers.has('Referrer-Policy')) {
     response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
