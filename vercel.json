@@ -1,5 +1,115 @@
 {
   "redirects": [
+    // ===== NOUVELLES RÈGLES (à ajouter en premier) =====
+    // 1. Pages de pagination vers home (58 pages)
+    {
+      "source": "/page/:number",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/page/:number/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    // 2. URLs feed d'articles (180 pages) 
+    {
+      "source": "/:slug/feed",
+      "destination": "/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/:slug/feed/:path*",
+      "destination": "/:slug",
+      "permanent": true
+    },
+    // 3. Technology avec pages 
+    {
+      "source": "/technology/:path*/page/:number",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology/:path*",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    // 4. Gaming avec pages
+    {
+      "source": "/gaming/:path*/page/:number",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
+      "source": "/gaming/:path*",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
+      "source": "/gaming",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    // 5. Movies-TV-Shows avec pages
+    {
+      "source": "/movies-tv-shows/:path*/page/:number",
+      "destination": "/categories/streaming",
+      "permanent": true
+    },
+    {
+      "source": "/movies-tv-shows/:path*",
+      "destination": "/categories/streaming",
+      "permanent": true
+    },
+    {
+      "source": "/movies-tv-shows",
+      "destination": "/categories/streaming",
+      "permanent": true
+    },
+    // 6. News avec pages
+    {
+      "source": "/news/:path*/page/:number",
+      "destination": "/categories/news",
+      "permanent": true
+    },
+    {
+      "source": "/news/:path*",
+      "destination": "/categories/news",
+      "permanent": true
+    },
+    {
+      "source": "/news",
+      "destination": "/categories/news",
+      "permanent": true
+    },
+    // 7. Tags avec pages
+    {
+      "source": "/tag/:tagname/page/:number",
+      "destination": "/tags/:tagname",
+      "permanent": true
+    },
+    {
+      "source": "/tag/:tagname/:path*",
+      "destination": "/tags/:tagname",
+      "permanent": true
+    },
+    {
+      "source": "/tag/:tagname",
+      "destination": "/tags/:tagname",
+      "permanent": true
+    },
+    // 8. Catch-all pour autres pages
+    {
+      "source": "/:path*/page/:number",
+      "destination": "/",
+      "permanent": true
+    },
+    // ===== TES RÈGLES EXISTANTES =====
     {
       "source": "/articles/:slug*",
       "destination": "/:slug*",
