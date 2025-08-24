@@ -1,7 +1,7 @@
 {
   "redirects": [
     {
-      "source": "/page/:number",
+      "source": "/page/:number/",
       "destination": "/",
       "permanent": true
     },
@@ -31,7 +31,7 @@
       "permanent": true
     },
     {
-      "source": "/technology",
+      "source": "/technology/",
       "destination": "/categories/technology",
       "permanent": true
     },
@@ -46,7 +46,7 @@
       "permanent": true
     },
     {
-      "source": "/gaming",
+      "source": "/gaming/",
       "destination": "/categories/gaming",
       "permanent": true
     },
@@ -61,7 +61,7 @@
       "permanent": true
     },
     {
-      "source": "/movies-tv-shows",
+      "source": "/movies-tv-shows/",
       "destination": "/categories/streaming",
       "permanent": true
     },
@@ -76,7 +76,7 @@
       "permanent": true
     },
     {
-      "source": "/news",
+      "source": "/news/",
       "destination": "/categories/news",
       "permanent": true
     },
