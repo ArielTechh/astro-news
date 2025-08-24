@@ -1,47 +1,63 @@
 ---
-// src/pages/categories/[category]/[page].astro - VERSION DYNAMIQUE
+// src/pages/categories/[category]/[page].astro - PAGES PAGINATION AVEC STRUCTURED DATA
+import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { getAllCategories, getArticlesByCategory } from "@/lib/sanity";
 import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
-import CategoryStructuredData from "@/components/seo/CategoryStructuredData.astro";
+import CategoryStructuredData from "@/components/seo/CategoryStructuredData.astro"; // ✨ NOUVEAU
 
-// ✨ PLUS DE getStaticPaths - MODE DYNAMIQUE
-export const prerender = false;
+export const getStaticPaths = (async () => {
+  const allCategories = await getAllCategories();
+  const allPaths = [];
 
-const { category, page } = Astro.params;
-const pageNum = parseInt(page || "1");
+  for (const category of allCategories) {
+    const categoryArticles = await getArticlesByCategory(category.slug.current);
 
-// Vérifier que la catégorie existe
-const allCategories = await getAllCategories();
-const categoryInfo = allCategories.find(
-  (cat) => cat.slug?.current === category,
-);
+    if (categoryArticles.length > SITE.postsPerPage) {
+      const totalPages = Math.ceil(categoryArticles.length / SITE.postsPerPage);
 
-if (!categoryInfo) {
-  return Astro.redirect("/categories", 301);
-}
+      for (let pageNum = 2; pageNum <= totalPages; pageNum++) {
+        const startIndex = (pageNum - 1) * SITE.postsPerPage;
+        const endIndex = startIndex + SITE.postsPerPage;
+        const pageArticles = categoryArticles.slice(startIndex, endIndex);
 
-// Récupérer TOUS les articles de cette catégorie
-const allArticles = await getArticlesByCategory(category);
-const totalArticles = allArticles.length;
-const totalPages = Math.ceil(totalArticles / SITE.postsPerPage);
+        allPaths.push({
+          params: {
+            category: category.slug.current,
+            page: pageNum.toString(),
+          },
+          props: {
+            categoryInfo: category,
+            articles: pageArticles,
+            allArticles: categoryArticles, // ✨ AJOUTÉ pour structured data
+            currentPage: pageNum,
+            totalPages: totalPages,
+            totalArticles: categoryArticles.length,
+          },
+        });
+      }
+    }
+  }
 
-// ✅ VÉRIFICATION DYNAMIQUE : Si page > totalPages → REDIRECT 301
-if (pageNum > totalPages) {
-  return Astro.redirect(`/categories/${category}`, 301);
-}
+  return allPaths;
+}) satisfies GetStaticPaths;
 
-// Calculer les articles de cette page
-const startIndex = (pageNum - 1) * SITE.postsPerPage;
-const endIndex = startIndex + SITE.postsPerPage;
-const articles = allArticles.slice(startIndex, endIndex);
+const {
+  categoryInfo,
+  articles,
+  allArticles,
+  currentPage,
+  totalPages,
+  totalArticles,
+} = Astro.props;
+const { category } = Astro.params;
 
 const categoryMeta = {
-  title: `${categoryInfo.title} - עמוד ${pageNum}`,
-  metaTitle: `${categoryInfo.title} - עמוד ${pageNum}`,
-  description: `מאמרים בנושא ${categoryInfo.title} - עמוד ${pageNum}`,
+  title: `${categoryInfo.title} - עמוד ${currentPage}`,
+  metaTitle: `${categoryInfo.title} - עמוד ${currentPage}`,
+  description: `מאמרים בנושא ${categoryInfo.title} - עמוד ${currentPage}`,
   type: "website",
 };
 
@@ -51,7 +67,7 @@ const categoryEntry = {
   data: categoryMeta,
 };
 
-const canonicalUrl = `${SITE.url}/categories/${category}/${pageNum}`;
+const canonicalUrl = `${SITE.url}/categories/${category}/${currentPage}`;
 ---
 
 <!-- ✨ STRUCTURED DATA POUR CATÉGORIE PAGINÉE -->
@@ -59,12 +75,12 @@ const canonicalUrl = `${SITE.url}/categories/${category}/${pageNum}`;
   categoryInfo={categoryInfo}
   articles={articles}
   allArticles={allArticles}
-  currentPage={pageNum}
+  currentPage={currentPage}
   canonicalUrl={canonicalUrl}
 />
 
 <ListLayout
-  header={`${categoryInfo.title} - עמוד ${pageNum}`}
+  header={`${categoryInfo.title} - עמוד ${currentPage}`}
   entry={categoryEntry}
   canonical={canonicalUrl}
   customMeta={categoryMeta}
@@ -92,7 +108,7 @@ const canonicalUrl = `${SITE.url}/categories/${category}/${pageNum}`;
             {categoryInfo.title}
           </a>
           <span class="mx-2">←</span>
-          <span class="text-gray-600">עמוד {pageNum}</span>
+          <span class="text-gray-600">עמוד {currentPage}</span>
         </nav>
       )
     }
@@ -100,7 +116,7 @@ const canonicalUrl = `${SITE.url}/categories/${category}/${pageNum}`;
     <!-- Compteur -->
     <div class="mb-6 text-sm text-gray-600" dir="rtl">
       <span>{totalArticles} מאמרים בקטגוריה זו</span>
-      <span class="mr-4">עמוד {pageNum} מתוך {totalPages}</span>
+      <span class="mr-4">עמוד {currentPage} מתוך {totalPages}</span>
     </div>
 
     <!-- Articles -->
@@ -116,14 +132,14 @@ const canonicalUrl = `${SITE.url}/categories/${category}/${pageNum}`;
     <div dir="ltr" class="mt-8">
       <Pagination
         length={totalPages}
-        currentUrl={`/categories/${category}/${pageNum}`}
-        currentPage={pageNum}
+        currentUrl={`/categories/${category}/${currentPage}`}
+        currentPage={currentPage}
         baseUrl={`/categories/${category}`}
-        prevUrl={pageNum === 2
+        prevUrl={currentPage === 2
           ? `/categories/${category}`
-          : `/categories/${category}/${pageNum - 1}`}
-        nextUrl={pageNum < totalPages
-          ? `/categories/${category}/${pageNum + 1}`
+          : `/categories/${category}/${currentPage - 1}`}
+        nextUrl={currentPage < totalPages
+          ? `/categories/${category}/${currentPage + 1}`
           : null}
         lastUrl={`/categories/${category}/${totalPages}`}
       />
