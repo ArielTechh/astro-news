@@ -1,6 +1,11 @@
 {
   "redirects": [
     {
+      "source": "/page/:number",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/page/:number/",
       "destination": "/",
       "permanent": true
@@ -11,7 +16,17 @@
       "permanent": true
     },
     {
+      "source": "/page/",
+      "destination": "/",
+      "permanent": true
+    },
+    {
       "source": "/:slug/feed",
+      "destination": "/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/:slug/feed/",
       "destination": "/:slug",
       "permanent": true
     },
@@ -21,12 +36,7 @@
       "permanent": true
     },
     {
-      "source": "/technology/:path*/page/:number",
-      "destination": "/categories/technology",
-      "permanent": true
-    },
-    {
-      "source": "/technology/:path*",
+      "source": "/technology",
       "destination": "/categories/technology",
       "permanent": true
     },
@@ -36,12 +46,12 @@
       "permanent": true
     },
     {
-      "source": "/gaming/:path*/page/:number",
-      "destination": "/categories/gaming",
+      "source": "/technology/:path*",
+      "destination": "/categories/technology",
       "permanent": true
     },
     {
-      "source": "/gaming/:path*",
+      "source": "/gaming",
       "destination": "/categories/gaming",
       "permanent": true
     },
@@ -51,12 +61,12 @@
       "permanent": true
     },
     {
-      "source": "/movies-tv-shows/:path*/page/:number",
-      "destination": "/categories/streaming",
+      "source": "/gaming/:path*",
+      "destination": "/categories/gaming",
       "permanent": true
     },
     {
-      "source": "/movies-tv-shows/:path*",
+      "source": "/movies-tv-shows",
       "destination": "/categories/streaming",
       "permanent": true
     },
@@ -66,12 +76,12 @@
       "permanent": true
     },
     {
-      "source": "/news/:path*/page/:number",
-      "destination": "/categories/news",
+      "source": "/movies-tv-shows/:path*",
+      "destination": "/categories/streaming",
       "permanent": true
     },
     {
-      "source": "/news/:path*",
+      "source": "/news",
       "destination": "/categories/news",
       "permanent": true
     },
@@ -81,13 +91,8 @@
       "permanent": true
     },
     {
-      "source": "/tag/:tagname/page/:number",
-      "destination": "/tags/:tagname",
-      "permanent": true
-    },
-    {
-      "source": "/tag/:tagname/:path*",
-      "destination": "/tags/:tagname",
+      "source": "/news/:path*",
+      "destination": "/categories/news",
       "permanent": true
     },
     {
@@ -96,8 +101,13 @@
       "permanent": true
     },
     {
-      "source": "/:path*/page/:number",
-      "destination": "/",
+      "source": "/tag/:tagname/",
+      "destination": "/tags/:tagname",
+      "permanent": true
+    },
+    {
+      "source": "/tag/:tagname/:path*",
+      "destination": "/tags/:tagname",
       "permanent": true
     },
     {
