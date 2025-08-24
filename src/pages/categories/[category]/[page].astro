@@ -1,11 +1,12 @@
 ---
-// src/pages/categories/[category]/[page].astro - VERSION SIMPLIFIÉE
+// src/pages/categories/[category]/[page].astro - PAGES PAGINATION AVEC STRUCTURED DATA
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { getAllCategories, getArticlesByCategory } from "@/lib/sanity";
 import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
+import CategoryStructuredData from "@/components/seo/CategoryStructuredData.astro"; // ✨ NOUVEAU
 
 export const getStaticPaths = (async () => {
   const allCategories = await getAllCategories();
@@ -17,7 +18,6 @@ export const getStaticPaths = (async () => {
     if (categoryArticles.length > SITE.postsPerPage) {
       const totalPages = Math.ceil(categoryArticles.length / SITE.postsPerPage);
 
-      // Générer pages 2, 3, 4...
       for (let pageNum = 2; pageNum <= totalPages; pageNum++) {
         const startIndex = (pageNum - 1) * SITE.postsPerPage;
         const endIndex = startIndex + SITE.postsPerPage;
@@ -31,6 +31,7 @@ export const getStaticPaths = (async () => {
           props: {
             categoryInfo: category,
             articles: pageArticles,
+            allArticles: categoryArticles, // ✨ AJOUTÉ pour structured data
             currentPage: pageNum,
             totalPages: totalPages,
             totalArticles: categoryArticles.length,
@@ -43,11 +44,16 @@ export const getStaticPaths = (async () => {
   return allPaths;
 }) satisfies GetStaticPaths;
 
-const { categoryInfo, articles, currentPage, totalPages, totalArticles } =
-  Astro.props;
+const {
+  categoryInfo,
+  articles,
+  allArticles,
+  currentPage,
+  totalPages,
+  totalArticles,
+} = Astro.props;
 const { category } = Astro.params;
 
-// Métadonnées
 const categoryMeta = {
   title: `${categoryInfo.title} - עמוד ${currentPage}`,
   metaTitle: `${categoryInfo.title} - עמוד ${currentPage}`,
@@ -63,6 +69,15 @@ const categoryEntry = {
 
 const canonicalUrl = `${SITE.url}/categories/${category}/${currentPage}`;
 ---
+
+<!-- ✨ STRUCTURED DATA POUR CATÉGORIE PAGINÉE -->
+<CategoryStructuredData
+  categoryInfo={categoryInfo}
+  articles={articles}
+  allArticles={allArticles}
+  currentPage={currentPage}
+  canonicalUrl={canonicalUrl}
+/>
 
 <ListLayout
   header={`${categoryInfo.title} - עמוד ${currentPage}`}
@@ -129,5 +144,5 @@ const canonicalUrl = `${SITE.url}/categories/${category}/${currentPage}`;
         lastUrl={`/categories/${category}/${totalPages}`}
       />
     </div>
-  </div></ListLayout
->
+  </div>
+</ListLayout>

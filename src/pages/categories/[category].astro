@@ -1,19 +1,18 @@
 ---
-// src/pages/categories/[category].astro - PAGE 1 PROPRE
+// src/pages/categories/[category].astro - PAGE PRINCIPALE AVEC STRUCTURED DATA
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { getAllCategories, getArticlesByCategory } from "@/lib/sanity";
 import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
+import CategoryStructuredData from "@/components/seo/CategoryStructuredData.astro"; // ✨ NOUVEAU
 
 export const getStaticPaths = (async () => {
   const allCategories = await getAllCategories();
-
   const paths = [];
 
   for (const category of allCategories) {
-    // Vérifier qu'il y a des articles dans cette catégorie
     const articles = await getArticlesByCategory(category.slug.current);
 
     if (articles.length > 0) {
@@ -21,7 +20,7 @@ export const getStaticPaths = (async () => {
         params: { category: category.slug.current },
         props: {
           categoryInfo: category,
-          allArticles: articles, // ✅ Passer tous les articles
+          allArticles: articles,
         },
       });
     }
@@ -33,15 +32,11 @@ export const getStaticPaths = (async () => {
 const { categoryInfo, allArticles } = Astro.props;
 const { category } = Astro.params;
 
-// ✅ Utiliser les articles passés en props
 const totalArticles = allArticles.length;
-
-// Pagination pour page 1
 const articlesPerPage = SITE.postsPerPage;
 const articles = allArticles.slice(0, articlesPerPage);
 const totalPages = Math.ceil(totalArticles / articlesPerPage);
 
-// Métadonnées pour la catégorie (page 1)
 const categoryMeta = {
   title: `מאמרים בנושא ${categoryInfo.title}`,
   metaTitle: `מאמרים בנושא ${categoryInfo.title}`,
@@ -59,6 +54,15 @@ const categoryEntry = {
 
 const canonicalUrl = `${SITE.url}/categories/${category}`;
 ---
+
+<!-- ✨ STRUCTURED DATA POUR CATÉGORIE -->
+<CategoryStructuredData
+  categoryInfo={categoryInfo}
+  articles={articles}
+  allArticles={allArticles}
+  currentPage={1}
+  canonicalUrl={canonicalUrl}
+/>
 
 <ListLayout
   header={categoryInfo.title}
@@ -101,7 +105,7 @@ const canonicalUrl = `${SITE.url}/categories/${category}`;
       }
     </ul>
 
-    <!-- Pagination (seulement si plus d'1 page) -->
+    <!-- Pagination -->
     {
       totalPages > 1 && (
         <div dir="ltr" class="mt-8">
