@@ -11,6 +11,8 @@ import react from "@astrojs/react";
 import { loadEnv } from "vite";
 import pagefind from "astro-pagefind";
 import sanity from '@sanity/astro';
+import vercel from '@astrojs/vercel/serverless';
+
 
 const { RUN_KEYSTATIC } = loadEnv(import.meta.env.MODE, process.cwd(), "");
 
@@ -201,6 +203,8 @@ export default defineConfig({
   site: SITE.url,
   base: SITE.basePath,
   trailingSlash: 'never',
+  output: 'server', // 👈 AJOUTEZ CECI
+  adapter: vercel(), // 👈 AJOUTEZ CECI
   markdown: {
     remarkPlugins: [readingTime, modifiedTime],
   },
