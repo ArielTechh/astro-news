@@ -203,7 +203,7 @@ export default defineConfig({
   site: SITE.url,
   base: SITE.basePath,
   trailingSlash: 'never',
-  output: 'server', // 👈 AJOUTEZ CECI
+  output: 'hybrid', // 👈 AJOUTEZ CECI
   adapter: vercel(), // 👈 AJOUTEZ CECI
   markdown: {
     remarkPlugins: [readingTime, modifiedTime],
