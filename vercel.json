@@ -1,6 +1,26 @@
 {
   "redirects": [
     {
+      "source": "/:slug/feed",
+      "destination": "/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/:slug/feed/",
+      "destination": "/:slug",
+      "permanent": true
+    },
+    {
+      "source": "/gaming/xbox",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
+      "source": "/gaming/xbox/",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
       "source": "/page/:number",
       "destination": "/",
       "permanent": true
