@@ -101,7 +101,6 @@
       "destination": "/:slug*",
       "permanent": true
     },
-    // to delete
     {
       "source": "/categories/deals-promotions/2",
       "destination": "/categories/deals-promotions",
@@ -622,7 +621,6 @@
       "destination": "/",
       "permanent": true
     }
-    // to here
   ],
   "headers": [
     {
