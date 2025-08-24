@@ -20,3 +20,20 @@ const [HERO] = entry.data.blocks;
     >
   </div>
 </BaseLayout>
+
+<script>
+  // Redirection intelligente pour les pages de pagination inexistantes
+  const currentPath = window.location.pathname;
+  const paginationMatch = currentPath.match(/^\/categories\/([^\/]+)\/(\d+)$/);
+
+  if (paginationMatch) {
+    const [, categorySlug, pageNum] = paginationMatch;
+    const pageNumber = parseInt(pageNum);
+
+    // Rediriger vers la page 1 de la catégorie pour les pages inexistantes
+    if (pageNumber > 1) {
+      // Utiliser replace() pour que l'utilisateur ne puisse pas revenir à la 404
+      window.location.replace(`/categories/${categorySlug}`);
+    }
+  }
+</script>
