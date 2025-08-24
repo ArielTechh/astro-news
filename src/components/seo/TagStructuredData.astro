@@ -1,0 +1,150 @@
+---
+// src/components/seo/TagStructuredData.astro
+import { urlFor } from "@/lib/sanity";
+
+type Props = {
+  tagInfo: {
+    _id: string;
+    name: string;
+    url: string;
+    description?: string;
+  };
+  articles: Array<{
+    _id: string;
+    title: string;
+    description: string;
+    slug: { current: string };
+    cover?: any;
+    publishedTime: string;
+    authors?: Array<{
+      name: string;
+      slug: { current: string };
+    }>;
+  }>;
+  allArticles?: Array<any>;
+  currentPage?: number;
+  canonicalUrl: string;
+};
+
+const {
+  tagInfo,
+  articles,
+  allArticles = articles,
+  currentPage = 1,
+  canonicalUrl,
+} = Astro.props;
+
+const siteUrl = "https://techhorizons.co.il";
+
+// Organisation
+const organization = {
+  "@type": "Organization",
+  name: "TechHorizons",
+  url: siteUrl,
+  logo: {
+    "@type": "ImageObject",
+    url: `${siteUrl}/techh_logo.webp`,
+    width: 300,
+    height: 300,
+  },
+};
+
+// Schema principal - CollectionPage
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "@id": canonicalUrl,
+  name:
+    currentPage > 1 ? `${tagInfo.name} - עמוד ${currentPage}` : tagInfo.name,
+  description: `כל המאמרים והביקורות עם התג ${tagInfo.name}. ${allArticles.length} מאמרים בנושא ${tagInfo.name}`,
+  url: canonicalUrl,
+  inLanguage: "he-IL",
+
+  mainEntity: {
+    "@type": "ItemList",
+    name: `מאמרים עם התג ${tagInfo.name}`,
+    numberOfItems: allArticles.length,
+    itemListElement: articles.map((article, index) => ({
+      "@type": "ListItem",
+      position: (currentPage - 1) * articles.length + index + 1,
+      item: {
+        "@type": "Article",
+        "@id": `${siteUrl}/${article.slug.current}`,
+        headline: article.title,
+        description: article.description || article.title,
+        url: `${siteUrl}/${article.slug.current}`,
+        datePublished: article.publishedTime,
+        author:
+          article.authors?.map((author) => ({
+            "@type": "Person",
+            name: author.name,
+            url: `${siteUrl}/authors/${author.slug.current}`,
+          })) || organization,
+        publisher: organization,
+        ...(article.cover && {
+          image: {
+            "@type": "ImageObject",
+            url: urlFor(article.cover).width(1200).height(630).url(),
+            width: 1200,
+            height: 630,
+          },
+        }),
+        keywords: tagInfo.name,
+      },
+    })),
+  },
+
+  isPartOf: {
+    "@type": "WebSite",
+    "@id": siteUrl,
+    name: "TechHorizons",
+    url: siteUrl,
+  },
+
+  breadcrumb: {
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "הכל",
+        item: siteUrl,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: tagInfo.name,
+        item: `${siteUrl}/tags/${tagInfo.url}`,
+      },
+      ...(currentPage > 1
+        ? [
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: `עמוד ${currentPage}`,
+              item: canonicalUrl,
+            },
+          ]
+        : []),
+    ],
+  },
+
+  publisher: organization,
+  image:
+    articles.length > 0 && articles[0].cover
+      ? {
+          "@type": "ImageObject",
+          url: urlFor(articles[0].cover).width(1200).height(630).url(),
+          width: 1200,
+          height: 630,
+        }
+      : {
+          "@type": "ImageObject",
+          url: `${siteUrl}/techh_logo.webp`,
+          width: 300,
+          height: 300,
+        },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />

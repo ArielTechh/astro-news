@@ -1,17 +1,16 @@
 ---
-// src/pages/tags/[tag].astro - PAGE 1 CORRIGÉE
+// src/pages/tags/[tag].astro - PAGE PRINCIPALE AVEC STRUCTURED DATA
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { getAllTags, getArticlesByTag } from "@/lib/sanity";
 import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
+import TagStructuredData from "@/components/seo/TagStructuredData.astro"; // ✨ NOUVEAU
 
 export const getStaticPaths = (async () => {
-
   try {
     const allTags = await getAllTags();
-
     const paths = [];
 
     for (const tag of allTags) {
@@ -45,7 +44,7 @@ const totalPages = Math.ceil(totalArticles / articlesPerPage);
 const tagMeta = {
   title: tagInfo.name,
   metaTitle: `מאמרים עם התג ${tagInfo.name}`,
-  description: `כל המאמרים והביקורות עם התג ${tagInfo.name}`,
+  description: `כל המאמרים והביקורות עם התג ${tagInfo.name}. ${totalArticles} מאמרים בנושא ${tagInfo.name}`,
   type: "website",
 };
 
@@ -56,13 +55,20 @@ const tagEntry = {
 };
 
 const canonicalUrl = `${SITE.url}/tags/${tag}`;
-
-// ✅ CORRECTION : URLs de pagination corrigées
-const prevUrl = null; // Page 1 n'a pas de précédent
+const prevUrl = null;
 const nextUrl = totalPages > 1 ? `/tags/${tag}/2` : null;
-const firstUrl = `/tags/${tag}`; // Page 1 (cette page)
+const firstUrl = `/tags/${tag}`;
 const lastUrl = totalPages > 1 ? `/tags/${tag}/${totalPages}` : null;
 ---
+
+<!-- ✨ STRUCTURED DATA POUR TAG -->
+<TagStructuredData
+  tagInfo={tagInfo}
+  articles={articles}
+  allArticles={allArticles}
+  currentPage={1}
+  canonicalUrl={canonicalUrl}
+/>
 
 <ListLayout
   header={tagInfo.name}
@@ -96,7 +102,7 @@ const lastUrl = totalPages > 1 ? `/tags/${tag}/${totalPages}` : null;
       }
     </ul>
 
-    <!-- Pagination corrigée -->
+    <!-- Pagination -->
     {
       totalPages > 1 && (
         <div dir="ltr" class="mt-8">

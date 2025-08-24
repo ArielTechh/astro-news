@@ -1,16 +1,16 @@
 ---
-// src/pages/tags/[tag]/[page].astro - PAGES DE PAGINATION
+// src/pages/tags/[tag]/[page].astro - PAGES DE PAGINATION AVEC STRUCTURED DATA
 import type { GetStaticPaths } from "astro";
 import { SITE } from "@/lib/config";
 import { getAllTags, getArticlesByTag } from "@/lib/sanity";
 import ListLayout from "@/layouts/list.astro";
 import Pagination from "@/components/shared/pagination.astro";
 import WideCard from "@/components/cards/wideCard.astro";
+import TagStructuredData from "@/components/seo/TagStructuredData.astro"; // ✨ NOUVEAU
 
 export const getStaticPaths = (async () => {
   try {
     const allTags = await getAllTags();
-
     const paths = [];
     const articlesPerPage = SITE.postsPerPage;
 
@@ -20,7 +20,6 @@ export const getStaticPaths = (async () => {
       if (articles.length > articlesPerPage) {
         const totalPages = Math.ceil(articles.length / articlesPerPage);
 
-        // Générer les pages 2, 3, 4...
         for (let page = 2; page <= totalPages; page++) {
           const startIndex = (page - 1) * articlesPerPage;
           const endIndex = startIndex + articlesPerPage;
@@ -52,11 +51,10 @@ export const getStaticPaths = (async () => {
 const { tagInfo, articles, allArticles, currentPage, totalPages } = Astro.props;
 const { tag } = Astro.params;
 
-// Métadonnées
 const tagMeta = {
   title: `${tagInfo.name} - עמוד ${currentPage}`,
   metaTitle: `מאמרים עם התג ${tagInfo.name} - עמוד ${currentPage}`,
-  description: `עמוד ${currentPage} של המאמרים עם התג ${tagInfo.name}`,
+  description: `עמוד ${currentPage} של המאמרים עם התג ${tagInfo.name}. ${allArticles.length} מאמרים בסך הכל`,
   type: "website",
 };
 
@@ -69,6 +67,15 @@ const tagEntry = {
 const canonicalUrl = `${SITE.url}/tags/${tag}/${currentPage}`;
 ---
 
+<!-- ✨ STRUCTURED DATA POUR TAG PAGINÉ -->
+<TagStructuredData
+  tagInfo={tagInfo}
+  articles={articles}
+  allArticles={allArticles}
+  currentPage={currentPage}
+  canonicalUrl={canonicalUrl}
+/>
+
 <ListLayout
   header={`${tagInfo.name} - עמוד ${currentPage}`}
   entry={tagEntry}
@@ -80,20 +87,18 @@ const canonicalUrl = `${SITE.url}/tags/${tag}/${currentPage}`;
     <nav class="mb-6 text-sm">
       <a href="/" class="text-blue-600 hover:underline">הכל</a>
       <span class="mx-2">←</span>
-      <a href={`/tags/${tag}`} class="text-blue-600 hover:underline"
-        >{tagInfo.name}</a
-      >
+      <a href={`/tags/${tag}`} class="text-blue-600 hover:underline">
+        {tagInfo.name}
+      </a>
       <span class="mx-2">←</span>
       <span class="text-gray-600">עמוד {currentPage}</span>
     </nav>
 
     <!-- Compteur total -->
     <div class="mb-6 text-sm text-gray-600">
-      <span
-        >{allArticles.length} מאמרים | עמוד {currentPage} מתוך {
-          totalPages
-        }</span
-      >
+      <span>
+        {allArticles.length} מאמרים | עמוד {currentPage} מתוך {totalPages}
+      </span>
     </div>
 
     <!-- Articles de cette page -->
