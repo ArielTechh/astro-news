@@ -21,93 +21,108 @@
       "permanent": true
     },
     {
-      "source": "/technology",
+      "source": "/page/:path*",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/technology/smartphones/samsung",
       "destination": "/categories/technology",
       "permanent": true
     },
     {
-      "source": "/technology/",
+      "source": "/technology/smartphones/samsung/",
       "destination": "/categories/technology",
       "permanent": true
     },
     {
-      "source": "/technology/:path*",
+      "source": "/technology/smartphones/samsung/page/:number",
       "destination": "/categories/technology",
       "permanent": true
     },
     {
-      "source": "/gaming",
+      "source": "/technology/smartphones/samsung/page/:number/",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology/smartphones/xiaomi/page/:number",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology/smartphones/xiaomi/page/:number/",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology/smartphones/page/:number",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology/smartphones/page/:number/",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology/page/:number",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology/page/:number/",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/gaming/xbox-series-x-s/page/:number",
       "destination": "/categories/gaming",
       "permanent": true
     },
     {
-      "source": "/gaming/",
+      "source": "/gaming/xbox-series-x-s/page/:number/",
       "destination": "/categories/gaming",
       "permanent": true
     },
     {
-      "source": "/gaming/:path*",
+      "source": "/gaming/nintendo-switch/page/:number",
       "destination": "/categories/gaming",
       "permanent": true
     },
     {
-      "source": "/movies-tv-shows",
+      "source": "/gaming/nintendo-switch/page/:number/",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
+      "source": "/gaming/page/:number",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
+      "source": "/gaming/page/:number/",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
+      "source": "/movies-tv-shows/netflix/page/:number",
       "destination": "/categories/streaming",
       "permanent": true
     },
     {
-      "source": "/movies-tv-shows/",
+      "source": "/movies-tv-shows/netflix/page/:number/",
       "destination": "/categories/streaming",
       "permanent": true
     },
     {
-      "source": "/movies-tv-shows/:path*",
-      "destination": "/categories/streaming",
+      "source": "/tag/samsung/page/:number",
+      "destination": "/tags/samsung",
       "permanent": true
     },
     {
-      "source": "/news",
-      "destination": "/categories/news",
-      "permanent": true
-    },
-    {
-      "source": "/news/",
-      "destination": "/categories/news",
-      "permanent": true
-    },
-    {
-      "source": "/news/:path*",
-      "destination": "/categories/news",
-      "permanent": true
-    },
-    {
-      "source": "/tag/:tagname",
-      "destination": "/tags/:tagname",
-      "permanent": true
-    },
-    {
-      "source": "/tag/:tagname/",
-      "destination": "/tags/:tagname",
-      "permanent": true
-    },
-    {
-      "source": "/tag/:tagname/:path*",
-      "destination": "/tags/:tagname",
-      "permanent": true
-    },
-    {
-      "source": "/:slug/feed",
-      "destination": "/:slug",
-      "permanent": true
-    },
-    {
-      "source": "/:slug/feed/",
-      "destination": "/:slug",
-      "permanent": true
-    },
-    {
-      "source": "/:slug/feed/:path*",
-      "destination": "/:slug",
+      "source": "/tag/samsung/page/:number/",
+      "destination": "/tags/samsung",
       "permanent": true
     },
     {
@@ -180,12 +195,12 @@
       "permanent": true
     },
     {
-      "source": "/page/:path*",
-      "destination": "/",
+      "source": "/:slug*/feed/:path*",
+      "destination": "/:slug*",
       "permanent": true
     },
     {
-      "source": "/:slug*/feed/:path*",
+      "source": "/:slug*/feed",
       "destination": "/:slug*",
       "permanent": true
     },
