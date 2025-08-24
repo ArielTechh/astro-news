@@ -26,7 +26,17 @@
       "permanent": true
     },
     {
+      "source": "/gaming/:path*/",
+      "destination": "/categories/gaming",
+      "permanent": true
+    },
+    {
       "source": "/technology/:path*",
+      "destination": "/categories/technology",
+      "permanent": true
+    },
+    {
+      "source": "/technology/:path*/",
       "destination": "/categories/technology",
       "permanent": true
     },
@@ -36,7 +46,17 @@
       "permanent": true
     },
     {
+      "source": "/movies-tv-shows/:path*/",
+      "destination": "/categories/streaming",
+      "permanent": true
+    },
+    {
       "source": "/news/:path*",
+      "destination": "/categories/news",
+      "permanent": true
+    },
+    {
+      "source": "/news/:path*/",
       "destination": "/categories/news",
       "permanent": true
     },
