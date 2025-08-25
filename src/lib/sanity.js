@@ -743,8 +743,6 @@ export async function getCategoryBySlug(slug) {
 
 
 
-
-
 // Récupérer tous les tags uniques avec compteurs - VERSION CORRIGÉE
 export async function getAllTags() {
 
@@ -754,7 +752,6 @@ export async function getAllTags() {
         tags
       }
     `);
-
 
     if (articles.length === 0) {
       return [];
@@ -770,8 +767,11 @@ export async function getAllTags() {
             const cleanTag = tag.trim();
             const urlTag = cleanTag
               .toLowerCase()
-              .replace(/:/g, '') // ✅ AJOUT : Supprimer les deux-points
-              .replace(/\s+/g, '-')
+              .replace(/:/g, '') // Supprimer les deux-points
+              .replace(/\./g, '') // Supprimer les points
+              .replace(/'/g, '') // Supprimer les apostrophes
+              .replace(/-/g, '') // ✅ AJOUT : Supprimer TOUS les tirets
+              .replace(/\s+/g, '-') // Espaces → tirets
               .replace(/[^\w\u0590-\u05FF-]/g, ''); // Supporte l'hébreu
 
             const current = tagCounts.get(urlTag) || {
@@ -795,22 +795,11 @@ export async function getAllTags() {
   }
 }
 
-
-
-
-
-
-
-
-
-// === SOLUTION FINALE : NETTOYER LES ESPACES ===
-// Remplacez votre fonction getArticlesByTag dans sanity.js par celle-ci :
-
 export async function getArticlesByTag(tagSlug) {
   console.log(`🔍 Recherche articles pour tag: "${tagSlug}"`);
 
   try {
-    // Convertir robocop-rogue-city -> robocop rogue city
+    // Convertir assassins-creed -> assassins creed
     const baseTag = tagSlug.replace(/-/g, ' ');
 
     // ✅ RÉCUPÉRER TOUS LES ARTICLES ET FILTRER EN JAVASCRIPT
@@ -852,8 +841,8 @@ export async function getArticlesByTag(tagSlug) {
       return article.tags.some(tag => {
         if (!tag || typeof tag !== 'string') return false;
 
-        // Nettoyer les deux chaînes : supprimer espaces, convertir minuscule ET supprimer :
-        const cleanTag = tag.trim().toLowerCase().replace(/:/g, ''); // ✅ AJOUT : .replace(/:/g, '')
+        // Nettoyer les deux chaînes en supprimant TOUS les caractères spéciaux
+        const cleanTag = tag.trim().toLowerCase().replace(/:/g, '').replace(/\./g, '').replace(/'/g, '').replace(/-/g, '').replace(/\s+/g, '-');
         const cleanSearch = baseTag.trim().toLowerCase();
 
         // Match exact OU contient
@@ -867,7 +856,7 @@ export async function getArticlesByTag(tagSlug) {
       console.log("Premier article trouvé:", filteredArticles[0].title);
       // Afficher les tags qui ont matché
       const matchedTags = filteredArticles[0].tags?.filter(tag => {
-        const cleanTag = tag.trim().toLowerCase().replace(/:/g, ''); // ✅ AJOUT : .replace(/:/g, '')
+        const cleanTag = tag.trim().toLowerCase().replace(/:/g, '').replace(/\./g, '').replace(/'/g, '').replace(/-/g, '').replace(/\s+/g, '-');
         const cleanSearch = baseTag.trim().toLowerCase();
         return cleanTag === cleanSearch || cleanTag.includes(cleanSearch);
       });
