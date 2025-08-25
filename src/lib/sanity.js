@@ -770,8 +770,7 @@ export async function getAllTags() {
               .replace(/:/g, '') // Supprimer les deux-points
               .replace(/\./g, '') // Supprimer les points
               .replace(/'/g, '') // Supprimer les apostrophes
-              .replace(/-/g, '') // ✅ AJOUT : Supprimer TOUS les tirets
-              .replace(/\s+/g, '-') // Espaces → tirets
+              .replace(/\s+/g, '-')
               .replace(/[^\w\u0590-\u05FF-]/g, ''); // Supporte l'hébreu
 
             const current = tagCounts.get(urlTag) || {
@@ -841,8 +840,8 @@ export async function getArticlesByTag(tagSlug) {
       return article.tags.some(tag => {
         if (!tag || typeof tag !== 'string') return false;
 
-        // Nettoyer les deux chaînes en supprimant TOUS les caractères spéciaux
-        const cleanTag = tag.trim().toLowerCase().replace(/:/g, '').replace(/\./g, '').replace(/'/g, '').replace(/-/g, '').replace(/\s+/g, '-');
+        // Nettoyer les deux chaînes : supprimer caractères spéciaux
+        const cleanTag = tag.trim().toLowerCase().replace(/:/g, '').replace(/\./g, '').replace(/'/g, '');
         const cleanSearch = baseTag.trim().toLowerCase();
 
         // Match exact OU contient
@@ -856,7 +855,7 @@ export async function getArticlesByTag(tagSlug) {
       console.log("Premier article trouvé:", filteredArticles[0].title);
       // Afficher les tags qui ont matché
       const matchedTags = filteredArticles[0].tags?.filter(tag => {
-        const cleanTag = tag.trim().toLowerCase().replace(/:/g, '').replace(/\./g, '').replace(/'/g, '').replace(/-/g, '').replace(/\s+/g, '-');
+        const cleanTag = tag.trim().toLowerCase().replace(/:/g, '').replace(/\./g, '').replace(/'/g, '');
         const cleanSearch = baseTag.trim().toLowerCase();
         return cleanTag === cleanSearch || cleanTag.includes(cleanSearch);
       });
