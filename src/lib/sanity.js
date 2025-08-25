@@ -770,6 +770,7 @@ export async function getAllTags() {
             const cleanTag = tag.trim();
             const urlTag = cleanTag
               .toLowerCase()
+              .replace(/:/g, '') // ✅ AJOUT : Supprimer les deux-points
               .replace(/\s+/g, '-')
               .replace(/[^\w\u0590-\u05FF-]/g, ''); // Supporte l'hébreu
 
@@ -802,9 +803,6 @@ export async function getAllTags() {
 
 
 
-
-
-
 // === SOLUTION FINALE : NETTOYER LES ESPACES ===
 // Remplacez votre fonction getArticlesByTag dans sanity.js par celle-ci :
 
@@ -812,7 +810,7 @@ export async function getArticlesByTag(tagSlug) {
   console.log(`🔍 Recherche articles pour tag: "${tagSlug}"`);
 
   try {
-    // Convertir rtx-50 -> rtx 50
+    // Convertir robocop-rogue-city -> robocop rogue city
     const baseTag = tagSlug.replace(/-/g, ' ');
 
     // ✅ RÉCUPÉRER TOUS LES ARTICLES ET FILTRER EN JAVASCRIPT
@@ -854,8 +852,8 @@ export async function getArticlesByTag(tagSlug) {
       return article.tags.some(tag => {
         if (!tag || typeof tag !== 'string') return false;
 
-        // Nettoyer les deux chaînes : supprimer espaces, convertir minuscule
-        const cleanTag = tag.trim().toLowerCase();
+        // Nettoyer les deux chaînes : supprimer espaces, convertir minuscule ET supprimer :
+        const cleanTag = tag.trim().toLowerCase().replace(/:/g, ''); // ✅ AJOUT : .replace(/:/g, '')
         const cleanSearch = baseTag.trim().toLowerCase();
 
         // Match exact OU contient
@@ -869,7 +867,7 @@ export async function getArticlesByTag(tagSlug) {
       console.log("Premier article trouvé:", filteredArticles[0].title);
       // Afficher les tags qui ont matché
       const matchedTags = filteredArticles[0].tags?.filter(tag => {
-        const cleanTag = tag.trim().toLowerCase();
+        const cleanTag = tag.trim().toLowerCase().replace(/:/g, ''); // ✅ AJOUT : .replace(/:/g, '')
         const cleanSearch = baseTag.trim().toLowerCase();
         return cleanTag === cleanSearch || cleanTag.includes(cleanSearch);
       });
