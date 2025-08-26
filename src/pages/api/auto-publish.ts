@@ -73,13 +73,14 @@ export const POST: APIRoute = async ({ request }) => {
       })
     }
 
-    // Déclencher rebuild du site
-    try {
-      const webhookUrl = 'https://api.vercel.com/v1/integrations/deploy/prj_H5FKoXn7Nyj5rPnJDukPCPSIN8n4/GqosuEJUTA'
-      await fetch(webhookUrl, { method: 'POST' })
-      console.log('Site rebuild déclenché')
-    } catch (buildError) {
-      console.warn('Impossible de déclencher le rebuild:', buildError)
+    // Optionnel: déclencher rebuild du site
+    if (process.env.VERCEL_BUILD_HOOK) {
+      try {
+        await fetch(process.env.VERCEL_BUILD_HOOK, { method: 'POST' })
+        console.log('🔄 Site rebuild déclenché')
+      } catch (buildError) {
+        console.warn('⚠️ Impossible de déclencher le rebuild:', buildError)
+      }
     }
 
     return new Response(JSON.stringify({
