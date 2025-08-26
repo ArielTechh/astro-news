@@ -20,12 +20,15 @@ export async function GET(context) {
           const slug = article.slug?.current?.replace(/^\/+/, '');
           const url = `${context.site || SITE.url}/${slug}`;
 
+          // Author: si pas de nom, on met undefined pour éviter <author/> vide
+          const author = article.author?.name || undefined;
+
           return {
             title: article.title,
             pubDate: new Date(article._createdAt),
             description: article.description || article.excerpt || '',
             link: url,
-            author: article.author?.name || '',
+            author,
             categories: article.categories?.map(cat => cat.title) || [],
             content: `
               ${article.description || article.excerpt || ''}
@@ -39,8 +42,8 @@ export async function GET(context) {
         <language>he</language>
         <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
         <generator>Astro + Sanity CMS</generator>
-        <webMaster>contact@techhorizons.co.il</webMaster>
-        <managingEditor>contact@techhorizons.co.il</managingEditor>
+        <webMaster>Tech Horizons (contact@techhorizons.co.il)</webMaster>
+        <managingEditor>Tech Horizons (contact@techhorizons.co.il)</managingEditor>
         <ttl>60</ttl>
       `,
     });
