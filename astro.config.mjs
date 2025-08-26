@@ -154,6 +154,7 @@ const integrations = [
         !url.includes('/_astro/') &&
         !url.includes('/404') &&
         !url.includes('/500');
+      !url.includes('/news-sitemap.xml');
     },
 
     // Advanced configuration
@@ -213,6 +214,13 @@ export default defineConfig({
     plugins: [tailwindcss()],
     build: {
       minify: 'esbuild',
+      // ✅ NOUVEAU: S'assurer que les pages dynamiques sont incluses
+      rollupOptions: {
+        external: [],
+      }
     },
   },
+  // ✅ NOUVEAU: Configuration pour les pages dynamiques
+  output: 'static',
+  adapter: undefined,
 });

@@ -1,5 +1,7 @@
 User-agent: *
 Disallow: /admin/
 Disallow: /api/
+Allow: /
 
 Sitemap: https://techhorizons.co.il/sitemap-index.xml
+Sitemap: https://techhorizons.co.il/news-sitemap.xml

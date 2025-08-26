@@ -38,6 +38,7 @@ export async function GET() {
   <lastmod>${new Date().toISOString()}</lastmod>
 </sitemap>
 
+
 </sitemapindex>`;
 
     return new Response(xml, {
