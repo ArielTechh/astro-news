@@ -16,11 +16,8 @@ export async function GET(context) {
       items: articles
         .slice(0, 20)
         .map((article) => {
-          // Normalisation du slug pour éviter le slash initial
           const slug = article.slug?.current?.replace(/^\/+/, '');
           const url = `${context.site || SITE.url}/${slug}`;
-
-          // Author: si pas de nom, on met undefined pour éviter <author/> vide
           const author = article.author?.name || undefined;
 
           return {
@@ -42,8 +39,8 @@ export async function GET(context) {
         <language>he</language>
         <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
         <generator>Astro + Sanity CMS</generator>
-        <webMaster>Tech Horizons (contact@techhorizons.co.il)</webMaster>
-        <managingEditor>Tech Horizons (contact@techhorizons.co.il)</managingEditor>
+        <webMaster>contact@techhorizons.co.il</webMaster>
+        <managingEditor>contact@techhorizons.co.il</managingEditor>
         <ttl>60</ttl>
       `,
     });
