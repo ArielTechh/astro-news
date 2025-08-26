@@ -6,7 +6,7 @@ import { createClient } from '@sanity/client'
 const writeClient = createClient({
   projectId: '0lbfqiht',
   dataset: 'production',
-  token: 'sk_VOTRE_TOKEN_ICI', // Remplacez par votre vrai token
+  token: 'skLsMRz0xbagaqRSL0pzWkoSR422nvOWva3LIrE3c3TzVaXGnxdkUincGPyAGbBtULjQ0zAqapaUwMOCvr0vqx2Er7AVfK2rbS23g5Epki2oPVWlIRqaht0rWLekg3ibmmb5TbeN4zoPoDJivL0iLNOuISdl7hZEqIc7W0yLfZ6XJeyyOsnD', // Remplacez par votre vrai token
   apiVersion: '2023-05-03',
   useCdn: false // Important pour l'écriture
 })
