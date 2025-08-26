@@ -3,10 +3,13 @@ import type { APIRoute } from 'astro'
 import { createClient } from '@sanity/client'
 
 const writeClient = createClient({
-  projectId: '0lbfqiht',
-  dataset: 'production',
-  token: 'skLsMRz0xbagaqRSL0pzWkoSR422nvOWva3LIrE3c3TzVaXGnxdkUincGPyAGbBtULjQ0zAqapaUwMOCvr0vqx2Er7AVfK2rbS23g5Epki2oPVWlIRqaht0rWLekg3ibmmb5TbeN4zoPoDJivL0iLNOuISdl7hZEqIc7W0yLfZ6XJeyyOsnD',
+  projectId: process.env.SANITY_PROJECT_ID || '0lbfqiht',
+  dataset: process.env.SANITY_DATASET || 'production',
+  token: process.env.SANITY_TOKEN,
   apiVersion: '2023-05-03',
+  useCdn: false
+})',
+apiVersion: '2023-05-03',
   useCdn: false
 })
 
