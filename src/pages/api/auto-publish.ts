@@ -8,7 +8,7 @@ const writeClient = createClient({
   token: process.env.SANITY_TOKEN,
   apiVersion: '2023-05-03',
   useCdn: false
-})
+});
 
 export const GET: APIRoute = async () => {
   return new Response(`
