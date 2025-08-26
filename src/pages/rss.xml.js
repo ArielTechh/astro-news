@@ -11,7 +11,7 @@ export async function GET(context) {
     // Assurer que l'URL se termine par /
     const baseUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl;
 
-    return rss({
+    const rssContent = rss({
       title: SITE.title,
       description: SITE.description,
       site: baseUrl,
@@ -57,12 +57,20 @@ export async function GET(context) {
       }
     });
 
+    // Return with proper RSS content-type header
+    return new Response(rssContent.body, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/rss+xml; charset=utf-8',
+      }
+    });
+
   } catch (error) {
     console.error("Erreur RSS:", error);
     const siteUrl = String(context.site || SITE.url);
     const baseUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl;
 
-    return rss({
+    const errorRss = rss({
       title: SITE.title,
       description: SITE.description,
       site: baseUrl,
@@ -72,6 +80,13 @@ export async function GET(context) {
       `,
       xmlns: {
         atom: "http://www.w3.org/2005/Atom"
+      }
+    });
+
+    return new Response(errorRss.body, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/rss+xml; charset=utf-8',
       }
     });
   }
