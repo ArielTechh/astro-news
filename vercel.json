@@ -854,5 +854,11 @@
         }
       ]
     }
+  ],
+  "crons": [
+    {
+      "path": "/api/auto-publish",
+      "schedule": "*/10 * * * *"
+    }
   ]
 }
