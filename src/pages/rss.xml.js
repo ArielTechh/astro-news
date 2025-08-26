@@ -6,31 +6,38 @@ import { SITE } from "@/lib/config/index.ts";
 export async function GET(context) {
   try {
     const articles = await getAllArticles();
+    const siteUrl = String(context.site || SITE.url);
+
+    // Assurer que l'URL se termine par /
+    const baseUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl;
 
     return rss({
       title: SITE.title,
       description: SITE.description,
-      site: context.site || SITE.url,
+      site: baseUrl,
       language: 'he',
 
       items: articles
         .slice(0, 20)
         .map((article) => {
           const slug = article.slug?.current?.replace(/^\/+/, '');
-          const url = `${context.site || SITE.url}/${slug}`;
+          const url = `${baseUrl}/${slug}`;
 
           return {
             title: article.title,
             pubDate: new Date(article._createdAt),
             description: article.description || article.excerpt || '',
             link: url,
-            author: "Ariel", // 👈 auteur fixe pour éviter <author/>
+            // Remove author field completely to avoid empty tags
             categories: article.categories?.map(cat => cat.title) || [],
-            content: `
-              ${article.description || article.excerpt || ''}
-              ${article.featuredImage ? `<br/><img src="${article.featuredImage.asset.url}?w=600&h=400&fit=crop" alt="${article.title}" style="max-width: 100%; height: auto; margin: 20px 0;" />` : ''}
-              <p><a href="${url}" style="color: #2563eb; text-decoration: underline;">קרא את המאמר המלא ←</a></p>
-            `.trim(),
+            // Use content field with proper CDATA wrapping for HTML content
+            content: `<![CDATA[
+              <div>
+                ${article.description || article.excerpt || ''}
+                ${article.featuredImage ? `<br/><img src="${article.featuredImage.asset.url}?w=600&h=400&fit=crop" alt="${article.title}" style="max-width: 100%; height: auto; margin: 20px 0;" />` : ''}
+                <p><a href="${url}" style="color: #2563eb; text-decoration: underline;">קרא את המאמר המלא ←</a></p>
+              </div>
+            ]]>`,
           };
         }),
 
@@ -41,16 +48,31 @@ export async function GET(context) {
         <webMaster>contact@techhorizons.co.il (Tech Horizons)</webMaster>
         <managingEditor>contact@techhorizons.co.il (Tech Horizons)</managingEditor>
         <ttl>60</ttl>
+        <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
       `,
+
+      // Add XML namespaces for better compatibility
+      xmlns: {
+        atom: "http://www.w3.org/2005/Atom"
+      }
     });
 
   } catch (error) {
     console.error("Erreur RSS:", error);
+    const siteUrl = String(context.site || SITE.url);
+    const baseUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl;
+
     return rss({
       title: SITE.title,
       description: SITE.description,
-      site: context.site || SITE.url,
+      site: baseUrl,
       items: [],
+      customData: `
+        <atom:link href="${baseUrl}/rss.xml" rel="self" type="application/rss+xml" />
+      `,
+      xmlns: {
+        atom: "http://www.w3.org/2005/Atom"
+      }
     });
   }
 }
