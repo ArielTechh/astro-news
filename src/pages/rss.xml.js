@@ -11,7 +11,7 @@ export async function GET(context) {
     // Assurer que l'URL se termine par /
     const baseUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl;
 
-    const rssContent = rss({
+    return rss({
       title: SITE.title,
       description: SITE.description,
       site: baseUrl,
@@ -54,15 +54,11 @@ export async function GET(context) {
       // Add XML namespaces for better compatibility
       xmlns: {
         atom: "http://www.w3.org/2005/Atom"
-      }
-    });
+      },
 
-    // Return with proper RSS content-type header
-    return new Response(rssContent.body, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/rss+xml; charset=utf-8',
-      }
+      // Force the correct content type
+      trailingSlash: false,
+      stylesheet: false
     });
 
   } catch (error) {
@@ -70,7 +66,7 @@ export async function GET(context) {
     const siteUrl = String(context.site || SITE.url);
     const baseUrl = siteUrl.endsWith('/') ? siteUrl.slice(0, -1) : siteUrl;
 
-    const errorRss = rss({
+    return rss({
       title: SITE.title,
       description: SITE.description,
       site: baseUrl,
@@ -80,13 +76,6 @@ export async function GET(context) {
       `,
       xmlns: {
         atom: "http://www.w3.org/2005/Atom"
-      }
-    });
-
-    return new Response(errorRss.body, {
-      status: 200,
-      headers: {
-        'Content-Type': 'application/rss+xml; charset=utf-8',
       }
     });
   }
