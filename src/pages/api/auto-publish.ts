@@ -2,33 +2,67 @@
 import type { APIRoute } from 'astro'
 import { createClient } from '@sanity/client'
 
-// Client spécifique pour l'écriture (différent de votre sanity.js)
 const writeClient = createClient({
   projectId: '0lbfqiht',
   dataset: 'production',
-  token: 'skLsMRz0xbagaqRSL0pzWkoSR422nvOWva3LIrE3c3TzVaXGnxdkUincGPyAGbBtULjQ0zAqapaUwMOCvr0vqx2Er7AVfK2rbS23g5Epki2oPVWlIRqaht0rWLekg3ibmmb5TbeN4zoPoDJivL0iLNOuISdl7hZEqIc7W0yLfZ6XJeyyOsnD', // Remplacez par votre vrai token
+  token: 'skLsMRz0xbagaqRSL0pzWkoSR422nvOWva3LIrE3c3TzVaXGnxdkUincGPyAGbBtULjQ0zAqapaUwMOCvr0vqx2Er7AVfK2rbS23g5Epki2oPVWlIRqaht0rWLekg3ibmmb5TbeN4zoPoDJivL0iLNOuISdl7hZEqIc7W0yLfZ6XJeyyOsnD',
   apiVersion: '2023-05-03',
-  useCdn: false // Important pour l'écriture
+  useCdn: false
 })
 
-export const POST: APIRoute = async ({ request }) => {
-  console.log('🔄 Vérification des articles programmés...')
+export const GET: APIRoute = async () => {
+  return new Response(`
+    <html>
+    <head>
+        <title>Auto-Publish Test</title>
+        <style>
+            body { font-family: Arial; padding: 40px; max-width: 800px; margin: 0 auto; }
+            button { padding: 15px 30px; font-size: 16px; background: #0070f3; color: white; border: none; border-radius: 5px; cursor: pointer; }
+            button:hover { background: #0051cc; }
+            pre { background: #f5f5f5; padding: 20px; border-radius: 5px; overflow-x: auto; }
+            .loading { color: #666; }
+            .success { color: #28a745; }
+            .error { color: #dc3545; }
+        </style>
+    </head>
+    <body>
+        <h1>API Auto-Publish - Test</h1>
+        <p>Cette API publie automatiquement les articles programmés.</p>
+        <button onclick="test()">Tester maintenant</button>
+        <div id="result"></div>
+        
+        <script>
+        async function test() {
+            const result = document.getElementById('result');
+            result.innerHTML = '<div class="loading">Test en cours...</div>';
+            
+            try {
+                const response = await fetch('/api/auto-publish', { method: 'POST' });
+                const data = await response.text();
+                
+                if (response.ok) {
+                    result.innerHTML = '<div class="success">Succès !</div><pre>' + data + '</pre>';
+                } else {
+                    result.innerHTML = '<div class="error">Erreur HTTP ' + response.status + '</div><pre>' + data + '</pre>';
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="error">Erreur réseau: ' + error.message + '</div>';
+            }
+        }
+        </script>
+    </body>
+    </html>
+  `, {
+    headers: { 'Content-Type': 'text/html' }
+  })
+}
 
-  // ✅ Debug des variables d'environnement
-  console.log('Project ID:', process.env.SANITY_PROJECT_ID)
-  console.log('Dataset:', process.env.SANITY_DATASET)
-  console.log('Token présent:', !!process.env.SANITY_TOKEN)
-  console.log('Token commence par sk_:', process.env.SANITY_TOKEN?.startsWith('sk_'))
-
+export const POST: APIRoute = async () => {
   try {
     const now = new Date()
 
-    // Test de connexion d'abord
-    console.log('Test de connexion Sanity...')
-    const testQuery = await writeClient.fetch(`*[_type == "article"][0] { _id, title }`)
-    console.log('Connexion OK, premier article:', testQuery?.title || 'Aucun article')
+    console.log('Vérification des articles programmés...')
 
-    // Trouver articles avec autoPublishAt dans le passé et encore en brouillon
     const toPublish = await writeClient.fetch(`
       *[_type == "article" 
         && defined(autoPublishAt) 
@@ -42,89 +76,62 @@ export const POST: APIRoute = async ({ request }) => {
       }
     `, { now: now.toISOString() })
 
-    console.log(`📄 Trouvé ${toPublish.length} article(s) à publier`)
+    console.log(`Trouvé ${toPublish.length} article(s) à publier`)
 
     if (toPublish.length === 0) {
       return new Response(JSON.stringify({
         message: 'Aucun article à publier',
-        count: 0
+        count: 0,
+        timestamp: now.toISOString()
       }), {
         headers: { 'Content-Type': 'application/json' }
       })
     }
 
-    // Publier chaque article
     const results = []
     for (const article of toPublish) {
       await writeClient
         .patch(article._id)
-        .set({
-          isDraft: false
-          // Ne touche pas à publishedTime - vous l'avez déjà pré-rempli !
-        })
-        .unset(['autoPublishAt']) // Nettoyer le champ programmation
+        .set({ isDraft: false })
+        .unset(['autoPublishAt'])
         .commit()
 
-      console.log(`✅ Article publié: "${article.title}"`)
+      console.log(`Article publié: "${article.title}"`)
       results.push({
         title: article.title,
-        slug: article.slug?.current || 'no-slug',
-        publishedAt: article.autoPublishAt
+        slug: article.slug?.current,
+        scheduledTime: article.autoPublishAt
       })
     }
 
-    // Optionnel: déclencher rebuild du site
-    if (process.env.VERCEL_BUILD_HOOK) {
-      try {
-        await fetch(process.env.VERCEL_BUILD_HOOK, { method: 'POST' })
-        console.log('🔄 Site rebuild déclenché')
-      } catch (buildError) {
-        console.warn('⚠️ Impossible de déclencher le rebuild:', buildError)
-      }
+    // Déclencher rebuild
+    try {
+      const webhookUrl = 'https://api.vercel.com/v1/integrations/deploy/prj_H5FKoXn7Nyj5rPnJDukPCPSIN8n4/GqosuEJUTA'
+      await fetch(webhookUrl, { method: 'POST' })
+      console.log('Rebuild déclenché')
+    } catch (error) {
+      console.warn('Erreur rebuild:', error)
     }
 
     return new Response(JSON.stringify({
-      message: `${toPublish.length} article(s) publié(s) avec succès`,
+      success: true,
+      message: `${toPublish.length} article(s) publié(s)`,
       count: toPublish.length,
       articles: results,
-      timestamp: new Date().toISOString()
+      timestamp: now.toISOString()
     }), {
       headers: { 'Content-Type': 'application/json' }
     })
 
   } catch (error) {
-    console.error('❌ Erreur lors de la publication:', error)
+    console.error('Erreur:', error)
     return new Response(JSON.stringify({
-      error: 'Erreur lors de la publication automatique',
+      success: false,
+      error: 'Erreur lors de la publication',
       details: error instanceof Error ? error.message : 'Erreur inconnue'
     }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' }
     })
   }
-}
-
-// ✅ Ajout d'une méthode GET pour tester facilement
-export const GET: APIRoute = async () => {
-  return new Response(`
-    <h1>API Auto-Publish</h1>
-    <p>Cette API publie automatiquement les articles programmés.</p>
-    <button onclick="test()">Tester maintenant</button>
-    <div id="result"></div>
-    <script>
-      async function test() {
-        const result = document.getElementById('result');
-        result.innerHTML = 'Test en cours...';
-        try {
-          const response = await fetch('/api/auto-publish', { method: 'POST' });
-          const data = await response.text();
-          result.innerHTML = '<pre>' + data + '</pre>';
-        } catch (error) {
-          result.innerHTML = 'Erreur: ' + error.message;
-        }
-      }
-    </script>
-  `, {
-    headers: { 'Content-Type': 'text/html' }
-  });
 }
