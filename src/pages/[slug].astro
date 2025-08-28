@@ -1,5 +1,5 @@
 ---
-// src/pages/[slug].astro - Version avec auto-linking + SEO images
+// src/pages/[slug].astro - Version avec galeries d'images optimisées
 import BaseLayout from "@/layouts/base.astro";
 import ContentLayout from "@/layouts/content.astro";
 import ArticleHeader from "@/pages/articles/_components/article-header.astro";
@@ -11,7 +11,7 @@ import Breadcrumbs from "@/components/navigation/Breadcrumbs.astro";
 import { SITE } from "../lib/config/index.ts";
 import RelatedArticles from "@/components/articles/RelatedArticles.astro";
 
-// ✨ IMPORT DU SYSTÈME AUTO-LINKING
+// Import du système auto-linking
 import {
   processPortableTextBlocks,
   previewAutoLinks,
@@ -28,32 +28,67 @@ export const getStaticPaths = async () => {
 const { article } = Astro.props;
 const fullArticle = await getArticleBySlug(article.slug.current);
 
-// ✨ APPLIQUER AUTO-LINKING AU CONTENU
+// Appliquer auto-linking au contenu
 const processedContent = await processPortableTextBlocks(
   fullArticle.content,
   article.slug.current,
 );
 
-// ✨ NOUVEAU : Fonctions helpers pour SEO images
-const getImageAlt = (image, articleTitle) => {
-  // Si l'image a un alt text personnalisé, l'utiliser
+// Fonctions helpers pour SEO images
+const getImageAlt = (image, articleTitle, fallback = "") => {
   if (image?.alt && image.alt.trim()) {
     return image.alt;
   }
-  // Sinon, utiliser le titre de l'article
-  return articleTitle || "Image de l'article";
+  return fallback || articleTitle || "Image de l'article";
 };
 
 const getImageCaption = (image, articleTitle) => {
-  // Si l'image a une légende personnalisée, l'utiliser
   if (image?.caption && image.caption.trim()) {
     return image.caption;
   }
-  // Sinon, utiliser le titre de l'article
-  return articleTitle || "";
+  return "";
 };
 
-// ✅ FONCTIONS UTILITAIRES (inchangées)
+// Fonction pour optimiser les images de galerie
+const getOptimizedGalleryImageProps = (imageBlock, size = "medium") => {
+  const baseUrl = urlFor(imageBlock);
+
+  const sizeConfigs = {
+    small: { width: 400, quality: 75 },
+    medium: { width: 600, quality: 75 },
+    large: { width: 800, quality: 70 },
+    xlarge: { width: 1200, quality: 65 },
+  };
+
+  const config = sizeConfigs[size] || sizeConfigs.medium;
+
+  const sizes = [config.width, config.width * 1.5, config.width * 2];
+  const srcSet = sizes
+    .map(
+      (width) =>
+        `${baseUrl.width(width).quality(config.quality).format("webp").url()} ${width}w`,
+    )
+    .join(", ");
+
+  return {
+    src: baseUrl
+      .width(config.width)
+      .quality(config.quality)
+      .format("webp")
+      .url(),
+    srcSet,
+    sizes:
+      size === "small"
+        ? "(max-width: 640px) 100vw, 400px"
+        : size === "medium"
+          ? "(max-width: 768px) 100vw, 600px"
+          : size === "large"
+            ? "(max-width: 1024px) 100vw, 800px"
+            : "(max-width: 1200px) 100vw, 1200px",
+  };
+};
+
+// Fonctions utilitaires existantes
 const calculateReadingTime = (content) => {
   if (!content) return 1;
   let wordCount = 0;
@@ -95,23 +130,17 @@ const extractTweetId = (html) => {
   return null;
 };
 
-// ✨ NOUVEAU : Fonction pour convertir **texte** en <strong>texte</strong>
 const convertMarkdownToHtml = (text) => {
   if (!text || typeof text !== "string") {
     return text;
   }
 
   let convertedText = text;
-
-  // ✨ CONVERSION: **texte** → <strong>texte</strong>
   convertedText = convertedText.replace(
     /\*\*(.*?)\*\*/g,
     "<strong>$1</strong>",
   );
-
-  // ✨ BONUS: *texte* → <em>texte</em> (italique)
   convertedText = convertedText.replace(/\*([^*]+)\*/g, "<em>$1</em>");
-
   return convertedText;
 };
 
@@ -231,7 +260,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
       {
         processedContent &&
           processedContent.map((block, index) => {
-            // ✨ NOUVEAU : Traitement des blocs avec auto-linking
+            // Traitement des blocs avec auto-linking
             if (block._type === "autoLinkedBlock") {
               return (
                 <div
@@ -242,7 +271,281 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               );
             }
 
-            // ✅ TRAITEMENT NORMAL DES BLOCS (avec conversion Markdown)
+            // Galerie 2 images côte à côte
+            if (block._type === "imageGallery2") {
+              try {
+                const leftImageProps = getOptimizedGalleryImageProps(
+                  block.leftImage,
+                  "medium",
+                );
+                const rightImageProps = getOptimizedGalleryImageProps(
+                  block.rightImage,
+                  "medium",
+                );
+
+                const leftAlt = getImageAlt(
+                  block.leftImage,
+                  fullArticle.title,
+                  "Image de gauche",
+                );
+                const rightAlt = getImageAlt(
+                  block.rightImage,
+                  fullArticle.title,
+                  "Image de droite",
+                );
+
+                const leftCaption = getImageCaption(
+                  block.leftImage,
+                  fullArticle.title,
+                );
+                const rightCaption = getImageCaption(
+                  block.rightImage,
+                  fullArticle.title,
+                );
+
+                const aspectRatioClass =
+                  block.aspectRatio === "square"
+                    ? "aspect-square"
+                    : block.aspectRatio === "landscape"
+                      ? "aspect-video"
+                      : block.aspectRatio === "portrait"
+                        ? "aspect-[3/4]"
+                        : "aspect-auto";
+
+                return (
+                  <div key={index} class="my-8">
+                    {block.title && (
+                      <h3 class="text-lg font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">
+                        {block.title}
+                      </h3>
+                    )}
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <figure class="space-y-3">
+                        <img
+                          src={leftImageProps.src}
+                          srcset={leftImageProps.srcSet}
+                          sizes={leftImageProps.sizes}
+                          alt={leftAlt}
+                          class={`w-full rounded-lg shadow-md object-cover ${aspectRatioClass}`}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        {leftCaption && (
+                          <figcaption class="text-sm text-gray-600 dark:text-gray-400 text-center italic">
+                            {leftCaption}
+                          </figcaption>
+                        )}
+                      </figure>
+
+                      <figure class="space-y-3">
+                        <img
+                          src={rightImageProps.src}
+                          srcset={rightImageProps.srcSet}
+                          sizes={rightImageProps.sizes}
+                          alt={rightAlt}
+                          class={`w-full rounded-lg shadow-md object-cover ${aspectRatioClass}`}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        {rightCaption && (
+                          <figcaption class="text-sm text-gray-600 dark:text-gray-400 text-center italic">
+                            {rightCaption}
+                          </figcaption>
+                        )}
+                      </figure>
+                    </div>
+                  </div>
+                );
+              } catch (error) {
+                console.warn("Erreur galerie 2 images:", error);
+                return null;
+              }
+            }
+
+            // Galerie 2x2 (4 images)
+            if (block._type === "imageGallery2x2") {
+              try {
+                if (!block.images || block.images.length < 2) {
+                  return null;
+                }
+
+                const galleryImages = block.images.slice(0, 4);
+
+                return (
+                  <div key={index} class="my-8">
+                    {block.title && (
+                      <h3 class="text-lg font-semibold mb-6 text-center text-gray-800 dark:text-gray-200">
+                        {block.title}
+                      </h3>
+                    )}
+
+                    {block.layout === "grid-2-equal" && (
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {galleryImages.map((image, imgIndex) => {
+                          const imageProps = getOptimizedGalleryImageProps(
+                            image,
+                            "medium",
+                          );
+                          const altText = getImageAlt(
+                            image,
+                            fullArticle.title,
+                            `Image ${imgIndex + 1}`,
+                          );
+                          const captionText = getImageCaption(
+                            image,
+                            fullArticle.title,
+                          );
+
+                          return (
+                            <figure key={imgIndex} class="space-y-3">
+                              <img
+                                src={imageProps.src}
+                                srcset={imageProps.srcSet}
+                                sizes={imageProps.sizes}
+                                alt={altText}
+                                class="w-full rounded-lg shadow-md aspect-auto object-cover"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                              {captionText && (
+                                <figcaption class="text-sm text-gray-600 dark:text-gray-400 text-center italic">
+                                  {captionText}
+                                </figcaption>
+                              )}
+                            </figure>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {block.layout === "grid-2-unequal" &&
+                      galleryImages.length >= 2 && (
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <figure class="md:col-span-2 space-y-3">
+                            {(() => {
+                              const mainImage = galleryImages[0];
+                              const imageProps = getOptimizedGalleryImageProps(
+                                mainImage,
+                                "large",
+                              );
+                              const altText = getImageAlt(
+                                mainImage,
+                                fullArticle.title,
+                                "Image principale",
+                              );
+                              const captionText = getImageCaption(
+                                mainImage,
+                                fullArticle.title,
+                              );
+
+                              return (
+                                <>
+                                  <img
+                                    src={imageProps.src}
+                                    srcset={imageProps.srcSet}
+                                    sizes={imageProps.sizes}
+                                    alt={altText}
+                                    class="w-full rounded-lg shadow-md aspect-video object-cover"
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                  {captionText && (
+                                    <figcaption class="text-sm text-gray-600 dark:text-gray-400 text-center italic">
+                                      {captionText}
+                                    </figcaption>
+                                  )}
+                                </>
+                              );
+                            })()}
+                          </figure>
+
+                          <div class="space-y-4">
+                            {galleryImages
+                              .slice(1, 4)
+                              .map((image, imgIndex) => {
+                                const imageProps =
+                                  getOptimizedGalleryImageProps(image, "small");
+                                const altText = getImageAlt(
+                                  image,
+                                  fullArticle.title,
+                                  `Image ${imgIndex + 2}`,
+                                );
+                                const captionText = getImageCaption(
+                                  image,
+                                  fullArticle.title,
+                                );
+
+                                return (
+                                  <figure key={imgIndex} class="space-y-2">
+                                    <img
+                                      src={imageProps.src}
+                                      srcset={imageProps.srcSet}
+                                      sizes={imageProps.sizes}
+                                      alt={altText}
+                                      class="w-full rounded-lg shadow-md aspect-square object-cover"
+                                      loading="lazy"
+                                      decoding="async"
+                                    />
+                                    {captionText && (
+                                      <figcaption class="text-xs text-gray-600 dark:text-gray-400 text-center italic">
+                                        {captionText}
+                                      </figcaption>
+                                    )}
+                                  </figure>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      )}
+
+                    {block.layout === "grid-2x2" && (
+                      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {galleryImages.map((image, imgIndex) => {
+                          const imageProps = getOptimizedGalleryImageProps(
+                            image,
+                            "medium",
+                          );
+                          const altText = getImageAlt(
+                            image,
+                            fullArticle.title,
+                            `Image ${imgIndex + 1}`,
+                          );
+                          const captionText = getImageCaption(
+                            image,
+                            fullArticle.title,
+                          );
+
+                          return (
+                            <figure key={imgIndex} class="space-y-3">
+                              <img
+                                src={imageProps.src}
+                                srcset={imageProps.srcSet}
+                                sizes={imageProps.sizes}
+                                alt={altText}
+                                class="w-full rounded-lg shadow-md aspect-square object-cover"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                              {captionText && (
+                                <figcaption class="text-sm text-gray-600 dark:text-gray-400 text-center italic">
+                                  {captionText}
+                                </figcaption>
+                              )}
+                            </figure>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              } catch (error) {
+                console.warn("Erreur galerie 2x2:", error);
+                return null;
+              }
+            }
+
+            // Traitement normal des blocs
             if (block._type === "block") {
               const fullText =
                 block.children?.map((child) => child.text).join("") || "";
@@ -267,14 +570,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                           <p class="text-yellow-800 dark:text-yellow-200 mb-4">
                             Embed Twitter détecté mais ID non trouvé
                           </p>
-                          <details class="text-left">
-                            <summary class="cursor-pointer text-sm text-yellow-600 dark:text-yellow-400 mb-2">
-                              Voir le code embed original
-                            </summary>
-                            <pre class="bg-gray-100 dark:bg-gray-800 p-3 rounded text-xs overflow-x-auto">
-                              {embedDetection.content}
-                            </pre>
-                          </details>
                         </div>
                       </div>
                     );
@@ -306,13 +601,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                           data-iframe-src={embedDetection.src}
                         >
                           <div class="text-gray-600 dark:text-gray-400">
-                            <svg
-                              class="w-16 h-16 mx-auto mb-4"
-                              fill="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" />
-                            </svg>
                             <p class="font-medium">
                               Cliquez pour charger le contenu intégré
                             </p>
@@ -368,8 +656,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               const textContent =
                 block.children?.map((child, childIndex) => {
                   let text = child.text || "";
-
-                  // ✨ APPLIQUER CONVERSION MARKDOWN sur le texte
                   text = convertMarkdownToHtml(text);
 
                   if (child.marks && child.marks.length > 0) {
@@ -391,14 +677,6 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                         const href = markDef.href;
                         const isExternal = href.startsWith("http");
 
-                        let content = text;
-                        if (child.marks.includes("strong")) {
-                          content = <strong>{content}</strong>;
-                        }
-                        if (child.marks.includes("em")) {
-                          content = <em>{content}</em>;
-                        }
-
                         return (
                           <a
                             key={childIndex}
@@ -406,9 +684,8 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
                             target={isExternal ? "_blank" : "_self"}
                             rel={isExternal ? "noopener noreferrer" : ""}
                             class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 underline decoration-2 underline-offset-2 transition-colors text-lg"
-                          >
-                            {content}
-                          </a>
+                            set:html={text}
+                          />
                         );
                       }
                     }
@@ -471,6 +748,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               }
             }
 
+            // YouTube
             if (block._type === "youtube") {
               const videoId = getYouTubeId(block.url);
               if (!videoId) {
@@ -489,6 +767,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               );
             }
 
+            // Twitter
             if (block._type === "twitter") {
               return (
                 <TwitterLazy
@@ -499,7 +778,7 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
               );
             }
 
-            // ✨ MODIFIÉ : Images avec SEO et légendes
+            // Images simples
             if (block._type === "image") {
               try {
                 if (block.asset || block._ref) {
@@ -543,36 +822,32 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
   <RelatedArticles currentArticle={fullArticle} />
 </BaseLayout>
 
-<!-- ✨ STYLES POUR LES LIENS AUTOMATIQUES -->
 <style>
-  /* Styles pour les liens automatiques avec CSS natif */
   :global(.auto-link) {
-    color: #2563eb; /* blue-600 */
+    color: #2563eb;
     font-weight: 500;
     text-decoration: underline;
     text-decoration-style: dotted;
-    text-decoration-color: #93c5fd; /* blue-300 */
+    text-decoration-color: #93c5fd;
     text-underline-offset: 2px;
     transition: all 0.2s ease;
   }
 
-  /* Dark mode */
   :global(.dark .auto-link) {
-    color: #60a5fa; /* blue-400 */
-    text-decoration-color: #3b82f6; /* blue-500 */
+    color: #60a5fa;
+    text-decoration-color: #3b82f6;
   }
 
   :global(.auto-link:hover) {
-    color: #1e40af; /* blue-800 */
+    color: #1e40af;
     text-decoration-style: solid;
     text-decoration-thickness: 2px;
   }
 
   :global(.dark .auto-link:hover) {
-    color: #93c5fd; /* blue-300 */
+    color: #93c5fd;
   }
 
-  /* Effet subtil pour distinguer les liens auto */
   :global(.auto-link::after) {
     content: "🔗";
     font-size: 0.6em;
@@ -584,14 +859,8 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
   :global(.auto-link:hover::after) {
     opacity: 0.7;
   }
-
-  /* ✨ NOUVEAU : Styles pour les légendes */
-  :global(figcaption) {
-    font-family: ui-serif, Georgia, serif;
-  }
 </style>
 
-<!-- Script iframe lazy (inchangé) -->
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     const iframeLazyContainers = document.querySelectorAll(
@@ -616,6 +885,33 @@ if (fullArticle.categories && fullArticle.categories.length > 0) {
           );
         }
       });
+    });
+
+    // Script pour améliorer l'expérience des galeries
+    const galleryImages = document.querySelectorAll("figure img");
+
+    // Intersection Observer pour l'animation au scroll
+    const imageObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.style.opacity = "1";
+            entry.target.style.transform = "translateY(0)";
+            imageObserver.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "50px",
+      },
+    );
+
+    galleryImages.forEach((img) => {
+      img.style.opacity = "0";
+      img.style.transform = "translateY(20px)";
+      img.style.transition = "opacity 0.6s ease, transform 0.6s ease";
+      imageObserver.observe(img);
     });
   });
 </script>
