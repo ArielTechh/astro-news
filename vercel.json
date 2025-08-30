@@ -41,7 +41,7 @@
       "permanent": true
     },
     {
-      "source": "/wp-login.php?redirect_to=https://techhorizons.co.il/xiaomi-15-ultra-launch-details/",
+      "source": "/wp-login.php:path*",
       "destination": "/",
       "permanent": true
     },
