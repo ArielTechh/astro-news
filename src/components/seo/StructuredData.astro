@@ -553,3 +553,39 @@ contentAnalysis.videos.forEach((video) => {
       </Fragment>
     ))
 }
+
+<!-- ✅ META TAGS TWITTER CARDS -->
+<meta
+  name="twitter:card"
+  content={contentAnalysis.hasVideo ? "player" : "summary_large_image"}
+/>
+<meta name="twitter:site" content="@techhorizons" />
+<meta
+  name="twitter:creator"
+  content={authorsSchema.length > 0
+    ? `@${authorsSchema[0].name}`
+    : "@techhorizons"}
+/>
+<meta name="twitter:title" content={article.title} />
+<meta
+  name="twitter:description"
+  content={article.description || article.title}
+/>
+<meta name="twitter:url" content={currentUrl} />
+
+<!-- Twitter: Date de publication -->
+<meta name="twitter:label1" content="Publié le" />
+<meta
+  name="twitter:data1"
+  content={new Date(article.publishedTime).toLocaleDateString("fr-FR")}
+/>
+
+<!-- Twitter: Temps de lecture -->
+{
+  readingTime && (
+    <>
+      <meta name="twitter:label2" content="Temps de lecture" />
+      <meta name="twitter:data2" content={`${readingTime} min`} />
+    </>
+  )
+}
