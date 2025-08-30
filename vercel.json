@@ -31,7 +31,7 @@
       "permanent": true
     },
     {
-      "source": "/articles/:path*",
+      "source": "/articles/:page(\\d+)",
       "destination": "/",
       "permanent": true
     },
@@ -41,7 +41,7 @@
       "permanent": true
     },
     {
-      "source": "/wp-login.php:path*",
+      "source": "/wp-login.php",
       "destination": "/",
       "permanent": true
     },
