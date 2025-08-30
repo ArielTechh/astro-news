@@ -245,18 +245,34 @@ const analyzeContent = () => {
         }
       }
 
-      // Twitter dans le texte
+      // Twitter dans le texte - SCHEMA COMPLET
       if (socialPosts.length < MAX_SOCIAL_POSTS) {
         const tweetId = extractTweetId(fullText);
         if (tweetId) {
           socialPosts.push({
             "@type": "SocialMediaPosting",
+            "@id": `https://twitter.com/i/status/${tweetId}`,
             url: `https://twitter.com/i/status/${tweetId}`,
-            headline: "Tweet intégré",
+            headline: "Tweet intégré dans l'article",
+            text: "Contenu Twitter intégré",
+            datePublished: article.publishedTime,
             author: {
               "@type": "Organization",
               name: "Twitter",
               url: "https://twitter.com",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://abs.twimg.com/icons/apple-touch-icon-192x192.png",
+              },
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "Twitter",
+              url: "https://twitter.com",
+            },
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": currentUrl,
             },
           });
         }
